@@ -518,3 +518,5 @@ def edit_profile(request):
     #return JsonResponse({'id':datas})
 
     return render(request,'edit_profile.html',greeting)
+
+
