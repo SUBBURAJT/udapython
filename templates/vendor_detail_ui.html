@@ -1,0 +1,164 @@
+{% extends 'partials/base.html' %}
+{% load static %}
+
+{% block extra_css %}
+
+
+<link href="{% static 'libs/select2/css/select2.min.css' %}" rel="stylesheet" type="text/css">
+
+<link href="{% static 'libs/bootstrap-datepicker/css/bootstrap-datepicker.min.css' %}" rel="stylesheet">
+
+<!-- Sweet Alert-->
+<link href="{% static 'libs/sweetalert2/sweetalert2.min.css' %}" rel="stylesheet" type="text/css" />
+
+{% endblock extra_css %}
+{% block content %}
+<div class="row">
+    <div class="col-lg-12">
+        <div class="card">
+            <div class="card-body">
+
+                <form class='needs-validation' novalidate>
+                    <div class="row pb-4">
+                        <div class="col-12">
+                            <h4 class='fw-600 mb-2 headerFall'>YOUR PERSONAL INFO</h4>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="form-group">
+                                <label class="form-label mt-3 mt-0">Company Name</label>
+                                <input type="text" value="Test" class="form-control" placeholder='Enter company name'
+                                    disabled>
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="form-group">
+                                <label class="form-label mt-3 mt-0">First Name</label>
+                                <input type="text" value="Mosh" class="form-control" placeholder='Enter first name'
+                                    required disabled>
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="form-group">
+                                <label class="form-label mt-3 mt-0">Last Name</label>
+                                <input type="text" value="Test" class="form-control" placeholder='Enter last name'
+                                    required disabled>
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="form-group">
+                                <label class="form-label mt-3 mt-0">Phone</label>
+                                <input type="number" value="2098129311" class="form-control"
+                                    placeholder='Enter phone number' required disabled>
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="form-group">
+                                <label class="form-label mt-3 mt-0">Email</label>
+                                <input type="email" value="mosh@gmail.com" class="form-control"
+                                    placeholder='Enter email address' required disabled>
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="form-group">
+                                <label class="form-label mt-3 mt-0">Address</label>
+                                <input type="text" value="test" class="form-control" placeholder='Enter address'
+                                    required disabled>
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="form-group">
+                                <label class="form-label mt-3 mt-0">City</label>
+                                <input type="text" value="UTAH" class="form-control" placeholder='Enter city' required
+                                    disabled>
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="form-group">
+                                <label class="form-label mt-3 mt-0">State</label>
+                                <input type="text" value="Utah" class="form-control" placeholder='Enter state' required
+                                    disabled>
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="form-group">
+                                <label class="form-label mt-3 mt-0">Zip</label>
+                                <input type="number" value="231111" class="form-control" placeholder='Enter zipcode'
+                                    required disabled>
+                            </div>
+                        </div>
+
+                        <div class="col-12 mt-3">
+                            <div class='bg-primary-transparent p-4 ps-0 br-5'>
+                                <h6 class='fw-600 text-uppercase mb-3'>Notes</h6>
+                                <ul class='list-group ps-4'>
+                                    <li class="py-1">Sorry no refunds will be made.
+                                    </li>
+                                    <li class="py-1">Staff does not need to register with a dentist. Guests need to be
+                                        registered with a dentist.</li>
+                                    <li class="py-1">The deadline for all pre-registration is March 13, 2020, after this
+                                        date all registration must be done onsite at the Salt Palace Convention Center.
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <h4 class='fw-600 mb-0 mt-4 headerFall'>STAFF NAMES</h4>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="form-group">
+                                <label class="form-label mt-3 mt-0">Name</label>
+                                <input type="text" value="Test" class="form-control" placeholder='Enter name' required
+                                    disabled>
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="form-group">
+                                <label class="form-label mt-3 mt-0">Email</label>
+                                <input type="email" value="mosh@gmail.com" class="form-control"
+                                    placeholder='Enter email address' required disabled>
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="form-group">
+                                <label class="form-label mt-3 mt-0">Phone</label>
+                                <input type="number" value="12313123" class="form-control"
+                                    placeholder='Enter phone number' required disabled>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+        </div>
+    </div>
+</div>
+<!-- end row -->
+
+{% endblock content %}
+
+{% block extra_javascript %}
+
+<!-- Sweet Alerts js -->
+<script src="{% static 'libs/sweetalert2/sweetalert2.min.js' %}"></script>
+
+
+<script src="{% static 'libs/bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}"></script>
+
+<!-- Form validation -->
+<script src="{% static 'js/pages/form-validation.init.js' %}"></script>
+
+<!-- jquery.inputmask.bundle.js -->
+<script src="{% static 'js/plugins/jquery.inputmask.bundle.js' %}"></script>
+
+<script src="{% static 'libs/select2/js/select2.min.js' %}"></script>
+
+<script>
+    $(document).ready(function () {
+
+        $('.select2').select2()
+    })
+
+</script>
+
+{% endblock extra_javascript %}

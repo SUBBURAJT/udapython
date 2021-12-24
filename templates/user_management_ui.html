@@ -1,0 +1,242 @@
+{% extends 'partials/base.html' %}
+{% load static %}
+
+{% block extra_css %}
+
+        <!-- DataTables -->
+        <link href="{% static 'libs/datatables.net-bs4/css/dataTables.bootstrap4.min.css' %}" rel="stylesheet" type="text/css" />
+        <link href="{% static 'libs/datatables.net-buttons-bs4/css/buttons.bootstrap4.min.css' %}" rel="stylesheet" type="text/css" />
+        <link href="{% static 'libs/datatables.net-select-bs4/css//select.bootstrap4.min.css' %}" rel="stylesheet" type="text/css" />
+
+        <!-- Responsive datatable examples -->
+        <link href="{% static 'libs/datatables.net-responsive-bs4/css/responsive.bootstrap4.min.css' %}" rel="stylesheet" type="text/css" />
+
+        <!-- Sweet Alert-->
+        <link href="{% static 'libs/sweetalert2/sweetalert2.min.css' %}" rel="stylesheet" type="text/css" />
+
+{% endblock extra_css %}
+{% block content %}
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <div class="card">
+                                    <div class="card-header bg-white border-bottom d-flex align-items-center justify-content-between">
+                                        <h4 class="card-title mb-0">User List</h4>
+                                        <div class="dropdown float-end">
+                                            <a href="#addWorkshop" data-bs-effect="effect-flip-vertical" data-bs-toggle="modal" class="btn btn-primary btn-sm waves-effect waves-light text-white px-3">
+                                                <i class='fa fa-plus me-2 fs-12'></i>Add New User
+                                           </a>
+                                        </div>
+                                    </div>
+                                    <div class="card-body">
+                                        
+                                        <div class="table-responsive">
+                                            <table id="userManage"  class="table table-centered datatable responsive nowrap" data-bs-page-length="5" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
+                                                <thead class="table-light">
+                                                    <tr>
+                                                        <th class='all'>Name</th>
+                                                        <th>Email</th>
+                                                        <th>Mobile</th>
+                                                        <th class='all'>Action</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr>
+                                                        <td>
+                                                            <div class="d-flex align-items-center">
+                                                                <div class="activity-icon avatar-xs me-2"> 
+                                                                    <span class="avatar-title bg-soft-primary text-primary br-5">J</span>
+                                                                </div>
+                                                                Jhon
+                                                            </div>
+                                                        </td>
+                                                        <td>jhon@gmail.com</td>
+                                                        <td>123-095-2394</td>
+                                                        <td id="tooltip-container1"> 
+                                                            <a href="javascript:void(0);" class="me-3 text-primary" data-bs-container="#tooltip-container1" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit"><i class="mdi mdi-pencil font-size-18"></i></a>
+                                                            <a href="javascript:void(0);" class="text-danger tabDelete" data-bs-container="#tooltip-container1" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete"><i class="mdi mdi-trash-can font-size-18"></i></a>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>
+                                                            <div class="d-flex align-items-center">
+                                                                <div class="activity-icon avatar-xs me-2"> 
+                                                                    <span class="avatar-title bg-soft-danger text-danger br-5">K</span>
+                                                                </div>
+                                                                Kevin
+                                                            </div>
+                                                        </td>
+                                                        <td>kevin@gmail.com</td>
+                                                        <td>123-212-6375</td>
+                                                        <td id="tooltip-container2"> 
+                                                            <a href="javascript:void(0);" class="me-3 text-primary" data-bs-container="#tooltip-container2" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit"><i class="mdi mdi-pencil font-size-18"></i></a>
+                                                            <a href="javascript:void(0);" class="text-danger tabDelete" data-bs-container="#tooltip-container2" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete"><i class="mdi mdi-trash-can font-size-18"></i></a>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>
+                                                            <div class="d-flex align-items-center">
+                                                                <div class="activity-icon avatar-xs me-2"> 
+                                                                    <span class="avatar-title bg-soft-warning text-warning br-5">M</span>
+                                                                </div>
+                                                                Musthafa
+                                                            </div>
+                                                        </td>
+                                                        <td>m.kamal@hexagonitsolutions.com</td>
+                                                        <td>123-212-3322</td>
+                                                        <td id="tooltip-container3"> 
+                                                            <a href="javascript:void(0);" class="me-3 text-primary" data-bs-container="#tooltip-container3" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit"><i class="mdi mdi-pencil font-size-18"></i></a>
+                                                            <a href="javascript:void(0);" class="text-danger tabDelete" data-bs-container="#tooltip-container3" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete"><i class="mdi mdi-trash-can font-size-18"></i></a>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                        </div>
+                        <!-- end row -->
+
+                        <!-- Modal -->
+		<div class="modal fade effect-flip-vertical"  id="addWorkshop" tabindex="-1" role="dialog">
+			<div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+				<div class="modal-content">
+					<form class='needs-validation' novalidate>
+						<div class="modal-header">
+							<h5 class="modal-title" >Add New User</h5>
+							<button  class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+								<span aria-hidden="true">×</span>
+							</button>
+						</div>
+						<div class="modal-body">
+							<div class="row">
+								<div class="col-lg-6">
+									<div class="form-group mb-lg-2 mb-3">
+										<label class="form-label mt-lg-1 mt-0">Full Name <span class='text-danger'>*</span></label>
+										<input type="text" class="form-control" placeholder='Enter full name' required>
+										<div class="invalid-feedback">Full name is required</div>
+									</div>
+								</div>
+								<div class="col-lg-6">
+									<div class="form-group mb-lg-2 mb-3">
+										<label class="form-label mt-lg-1 mt-0">Email <span class='text-danger'>*</span></label>
+										<input type="email" class="form-control" placeholder='Enter email address' required>
+										<div class="invalid-feedback">Email is required</div>
+									</div>
+								</div>
+								<div class="col-lg-6">
+									<div class="form-group mb-lg-2 mb-3">
+										<label class="form-label mt-lg-1 mt-0">Mobile <span class='text-danger'>*</span></label>
+										<input type="number" class="form-control" placeholder='Enter mobile' required>
+										<div class="invalid-feedback">Mobile number is required</div>
+									</div>
+								</div>
+								<div class="col-lg-6">
+									<div class="form-group mb-lg-2 mb-3">
+										<label class="form-label mt-lg-1 mt-0">Password <span class='text-danger'>*</span></label>
+                                        <div class="input-group bootstrap-touchspin bootstrap-touchspin-injected">
+                                            <input type="password" class="form-control" placeholder="Enter password" required>
+                                            <span class="input-group-addon bootstrap-touchspin-postfix input-group-append">
+                                                <span class="input-group-text h-100"><i class='fa fa-eye'></i></span>
+                                            </span>
+                                            <div class="invalid-feedback">Password is required</div>
+                                        </div>
+									</div>
+								</div>
+								<div class="col-lg-6">
+									<div class="form-group mb-lg-2 mb-3">
+										<label class="form-label mt-lg-1 mt-0">Confirm Password <span class='text-danger'>*</span></label>
+										<input type="text" class="form-control" value="" placeholder='Re-Enter a confirm password' required>
+										<div class="invalid-feedback">The confirm password must same as entered password</div>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="modal-footer">
+							<button  class="btn btn-light" data-bs-dismiss="modal"> <i class='ti-close me-1'></i> Close</button>
+							<button  class="btn btn-primary" type='submit'> <i class='ti-save me-1'></i> Save changes</button>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+{% endblock content %}
+
+{% block extra_javascript %}
+        <!-- Required datatable js -->
+        <script src="{% static 'libs/datatables.net/js/jquery.dataTables.min.js' %}"></script>
+        <script src="{% static 'libs/datatables.net-bs4/js/dataTables.bootstrap4.min.js' %}"></script>
+        <!-- Buttons examples -->
+        <script src="{% static 'libs/datatables.net-buttons/js/dataTables.buttons.min.js' %}"></script>
+        <script src="{% static 'libs/datatables.net-buttons-bs4/js/buttons.bootstrap4.min.js' %}"></script>
+        <script src="{% static 'libs/jszip/jszip.min.js' %}"></script>
+        <script src="{% static 'libs/pdfmake/build/pdfmake.min.js' %}"></script>
+        <script src="{% static 'libs/pdfmake/build/vfs_fonts.js' %}"></script>
+        <script src="{% static 'libs/datatables.net-buttons/js/buttons.html5.min.js' %}"></script>
+        <script src="{% static 'libs/datatables.net-buttons/js/buttons.print.min.js' %}"></script>
+        <script src="{% static 'libs/datatables.net-buttons/js/buttons.colVis.min.js' %}"></script>
+
+        <script src="{% static 'libs/datatables.net-keytable/js/dataTables.keyTable.min.js' %}"></script>
+        <script src="{% static 'libs/datatables.net-select/js/dataTables.select.min.js' %}"></script>
+        
+        <!-- Responsive examples -->
+        <script src="{% static 'libs/datatables.net-responsive/js/dataTables.responsive.min.js' %}"></script>
+        <script src="{% static 'libs/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js' %}"></script>
+
+        <!-- Sweet Alerts js -->
+        <script src="{% static 'libs/sweetalert2/sweetalert2.min.js' %}"></script>
+
+        <!-- Form validation -->
+        <script src="{% static 'js/pages/form-validation.init.js' %}"></script>
+
+        <script>
+
+            $(document).ready(function(){
+
+                $(window).on('resize',function() {
+					$($.fn.dataTable.tables(true)).DataTable()
+					.columns.adjust()
+					.responsive.recalc();
+				})
+
+                var table = $('#userManage').DataTable({
+					buttons: [{ extend: 'excel',  text: 'Export CSV', className: 'dtExportButton btn-primary  btn-sm waves-effect waves-light ms-2' },],
+                    language:{
+                        paginate:{
+                            previous:"<i class='mdi mdi-chevron-left'>",
+                            next:"<i class='mdi mdi-chevron-right'>"
+                        }
+                    },
+                    drawCallback:function(){
+                        $(".dataTables_paginate > .pagination").addClass("pagination-rounded"),
+                        $(".dataTables_length select").addClass("form-select form-select-sm")
+                    }
+				});
+				table.buttons().container()
+				.appendTo( '#userManage_wrapper #userManage_filter' );
+            })
+
+            $(document).on('click','.tabDelete', function(){
+				Swal.fire({
+					title: 'Are you sure?',
+					text: "You won't be able to revert this!",
+					icon: 'warning',
+					showCancelButton: true,
+					confirmButtonColor: '#6259ca',
+					cancelButtonColor: '#d33',
+					confirmButtonText: 'Yes, delete it!'
+				}).then((result) => {
+					if (result.isConfirmed) {
+						Swal.fire(
+							'Deleted!',
+							'Your user has been deleted.',
+							'success'
+						)
+					}
+				})
+			})
+
+        </script>
+
+{% endblock extra_javascript %}

@@ -1,0 +1,415 @@
+{% extends 'partials/base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link href="{% static 'libs/select2/css/select2.min.css' %}" rel="stylesheet" type="text/css">
+<!-- DataTables -->
+<link href="{% static 'libs/datatables.net-bs4/css/dataTables.bootstrap4.min.css' %}" rel="stylesheet"
+    type="text/css" />
+<link href="{% static 'libs/datatables.net-buttons-bs4/css/buttons.bootstrap4.min.css' %}" rel="stylesheet"
+    type="text/css" />
+<link href="{% static 'libs/datatables.net-select-bs4/css//select.bootstrap4.min.css' %}" rel="stylesheet"
+    type="text/css" />
+
+<!-- Responsive datatable examples -->
+<link href="{% static 'libs/datatables.net-responsive-bs4/css/responsive.bootstrap4.min.css' %}" rel="stylesheet"
+    type="text/css" />
+
+<!-- Sweet Alert-->
+<link href="{% static 'libs/sweetalert2/sweetalert2.min.css' %}" rel="stylesheet" type="text/css" />
+
+<style>
+    div#delReport_wrapper div.dataTables_filter #filModalCont {
+        text-align: left;
+        display: flex;
+        align-items: flex-start;
+    }
+
+    div#delReport_wrapper div.dataTables_filter #filModalCont input {
+        margin-left: 0.5em;
+        margin-right: 0;
+        height: 38px;
+        font-size: 15px;
+    }
+
+    @media (max-width: 767px) {
+        div#delReport_wrapper div.dataTables_filter #filModalCont input {
+            width: 100%;
+            margin: 0;
+        }
+
+        div#delReport_wrapper div.dataTables_filter #filModalCont {
+            flex-wrap: wrap;
+        }
+
+        div#delReport_wrapper div.dataTables_filter #filModalCont label {
+            width: calc(100% - 64px);
+        }
+
+        li.paginate_button.next,
+        li.paginate_button.previous {
+            display: inline-block;
+            font-size: 13px;
+        }
+    }
+</style>
+
+{% endblock extra_css %}
+{% block content %}
+<div class="row">
+    <div class="col-lg-12">
+        <div class="card">
+            <div class="card-header bg-white border-bottom d-flex align-items-center justify-content-between">
+                <h4 class="card-title mb-0">Sent Message List</h4>
+                <div class="dropdown float-end">
+                    <a href="#addWorkshop" data-bs-effect="effect-flip-vertical" data-bs-toggle="modal"
+                        class="btn btn-primary btn-sm waves-effect waves-light text-white px-3">
+                        <i class='fa fa-plus me-2 fs-12'></i>Compose New Message
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+
+                <div class="table-responsive">
+                    <table id="userManage" class="table table-centered datatable responsive nowrap"
+                        data-bs-page-length="5" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="desktop tablet mobile">Created Date Time</th>
+                                <th class="desktop tablet-l">Type of Registration</th>
+                                <th class="desktop tablet">Message</th>
+                                <th class="desktop">Delivery Status</th>
+                                <th class="desktop all">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>10-26-2021 12:50 PM </td>
+                                <td>Fall Registration </td>
+                                <td>Dr Gatrell, Just trying a new messaging system </td>
+                                <td>1 Delivered / 0 Not delivered</td>
+                                <td id="tooltip-container1">
+                                    <span data-bs-toggle="modal" data-bs-target='#delReportModal'>
+                                        <a href="javascript:void(0);" class="me-3 text-primary"
+                                            data-bs-container="#tooltip-container1" data-bs-toggle="tooltip"
+                                            data-bs-placement="top" title="View"><i
+                                                class="mdi mdi-eye font-size-18"></i></a>
+                                    </span>
+                                    <a href="javascript:void(0);" class="text-danger tabDelete"
+                                        data-bs-container="#tooltip-container1" data-bs-toggle="tooltip"
+                                        data-bs-placement="top" title="Delete"><i
+                                            class="mdi mdi-trash-can font-size-18"></i></a>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>09-16-2021 06:43 AM </td>
+                                <td>Fall Registration </td>
+                                <td>Welcome to UDA Fall back Live </td>
+                                <td>0 Delivered / 1 Not delivered</td>
+                                <td id="tooltip-container2">
+                                    <span data-bs-toggle="modal" data-bs-target='#delReportModal'>
+                                        <a href="javascript:void(0);" class="me-3 text-primary"
+                                            data-bs-container="#tooltip-container2" data-bs-toggle="tooltip"
+                                            data-bs-placement="top" title="View"><i
+                                                class="mdi mdi-eye font-size-18"></i></a>
+                                    </span>
+                                    <a href="javascript:void(0);" class="text-danger tabDelete"
+                                        data-bs-container="#tooltip-container2" data-bs-toggle="tooltip"
+                                        data-bs-placement="top" title="Delete"><i
+                                            class="mdi mdi-trash-can font-size-18"></i></a>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>09-16-2021 05:38 AM </td>
+                                <td>Fall Registration </td>
+                                <td>Welcome to UDA Fall</td>
+                                <td>0 Delivered / 2 Not delivered</td>
+                                <td id="tooltip-container3">
+                                    <span data-bs-toggle="modal" data-bs-target='#delReportModal'>
+                                        <a href="javascript:void(0);" class="me-3 text-primary"
+                                            data-bs-container="#tooltip-container3" data-bs-toggle="tooltip"
+                                            data-bs-placement="top" title="View"><i
+                                                class="mdi mdi-eye font-size-18"></i></a>
+                                    </span>
+                                    <a href="javascript:void(0);" class="text-danger tabDelete"
+                                        data-bs-container="#tooltip-container3" data-bs-toggle="tooltip"
+                                        data-bs-placement="top" title="Delete"><i
+                                            class="mdi mdi-trash-can font-size-18"></i></a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+<!-- end row -->
+
+<!-- Modal -->
+<div class="modal fade effect-flip-vertical" id="addWorkshop" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <form class='needs-validation' novalidate>
+                <div class="modal-header">
+                    <h5 class="modal-title">Compose New Message</h5>
+                    <button class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <div class="form-group mb-lg-2 mb-3">
+                                <label class="form-label mt-lg-1 mt-0">Type of Registration <span
+                                        class='text-danger'>*</span></label>
+                                <select class='form-control select2 withSearch'
+                                    data-placeholder='Choose registration type' required>
+                                    <option></option>
+                                    <option value="1">Convention registration</option>
+                                    <option value="1">Fall registration</option>
+                                    <option value="1">Spring registration</option>
+                                </select>
+                                <div class="invalid-feedback">Type is required</div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="form-group mb-lg-2 mb-3">
+                                <label class="form-label mt-lg-1 mt-0">Type of Member</label>
+                                <select class='form-control select2 withSearch' data-placeholder='Choose member type'>
+                                    <option></option>
+                                    <option value="1">All</option>
+                                    <option value="2">Member 1</option>
+                                    <option value="3">Member 2</option>
+                                </select>
+                                <div class="invalid-feedback">Type of member is required</div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="form-group mb-lg-2 mb-3">
+                                <label class="form-label mt-lg-1 mt-0">Member Names</label>
+                                <select class='form-control select2 withSearch' multiple
+                                    data-placeholder='Choose names'>
+                                    <option></option>
+                                    <option value="all">All</option>
+                                    <option value="1">Jhon</option>
+                                    <option value="2">Kevin</option>
+                                    <option value="3">James</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="form-group mb-lg-2 mb-3">
+                                <label class="form-label mt-lg-1 mt-0">Message <span
+                                        class='text-danger'>*</span></label>
+                                <textarea class='form-control' placeholder='Enter text message to send' rows="3"
+                                    required></textarea>
+                                <div class="invalid-feedback">Message is required</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-light" data-bs-dismiss="modal">Close</button>
+                    <button class="btn btn-primary" type='submit'>Send Message</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+<!-- Delivery Report Modal -->
+<div class="modal fade effect-flip-vertical" id="delReportModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+            <form class='needs-validation' novalidate>
+                <div class="modal-header">
+                    <h5 class="modal-title" id="msg_text">Delivery Report (Dr Gatrell, Just trying a new messaging
+                        system)</h5>
+                    <button class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-12">
+                            <input type="hidden" id="hid_search_on">
+                            <div class="table-responsive secFilter verticalScroll">
+                                <div id='filModalCont'>
+                                    <div id='selTypeCont' class='w-100 mb-lg-0 mb-3 me-md-3 me-lg-1'>
+                                        <select id="typeSel" class='select2'>
+                                            <option value="1">Search by</option>
+                                            <option value="2">Name</option>
+                                            <option value="3">Mobile No</option>
+                                            <option value="4">Member Type</option>
+                                            <option value="5">Sent On</option>
+                                            <option value="6">Status</option>
+                                        </select>
+                                    </div>
+                                    <label>
+                                        <input type="search" class="form-control form-control-sm"
+                                            placeholder="Search..." aria-controls="delReport">
+                                    </label>
+                                    <div id="exportButton">
+                                        <button
+                                            class="btn btn-light buttons-excel buttons-html5 dtExportButton modalTooltip ms-2"
+                                            data-bs-toggle='tooltip' title='Export as CSV' tabindex="0"
+                                            aria-controls="messageCenter" type="button">
+                                            <span class="mdi mdi-export"></span>
+                                        </button>
+                                    </div>
+                                </div>
+                                <table class="table text-nowrap responsive" id="delReport">
+                                    <thead class="border-top">
+                                        <tr>
+                                            <th class="all">Name</th>
+                                            <th class="desktop">Mobile
+                                                Number</th>
+                                            <th class="desktop tablet-l">Member Type
+                                            </th>
+                                            <th class="desktop">Sent On</th>
+                                            <th class="all">Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <div class="activity-icon avatar-xs me-2">
+                                                        <span
+                                                            class="avatar-title bg-soft-warning text-warning br-5">KJ</span>
+                                                    </div>
+                                                    Kevin Jose
+                                                </div>
+                                            </td>
+                                            <td> (956) 654-7143</td>
+                                            <td>UDA MEMBER DENTIST</td>
+                                            <td> 09-16-2021 05:39 AM</td>
+                                            <td>
+                                                <div class="d-flex align-items-center"><i
+                                                        class="fa fa-circle me-2 fs-10 text-success"></i>Delivered</div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-light" data-bs-dismiss="modal"> <i class='mdi mdi-close me-1'></i>
+                        Close</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock content %}
+
+{% block extra_javascript %}
+<!-- Required datatable js -->
+<script src="{% static 'libs/datatables.net/js/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'libs/datatables.net-bs4/js/dataTables.bootstrap4.min.js' %}"></script>
+<!-- Buttons examples -->
+<script src="{% static 'libs/datatables.net-buttons/js/dataTables.buttons.min.js' %}"></script>
+<script src="{% static 'libs/datatables.net-buttons-bs4/js/buttons.bootstrap4.min.js' %}"></script>
+<script src="{% static 'libs/jszip/jszip.min.js' %}"></script>
+<script src="{% static 'libs/pdfmake/build/pdfmake.min.js' %}"></script>
+<script src="{% static 'libs/pdfmake/build/vfs_fonts.js' %}"></script>
+<script src="{% static 'libs/datatables.net-buttons/js/buttons.html5.min.js' %}"></script>
+<script src="{% static 'libs/datatables.net-buttons/js/buttons.print.min.js' %}"></script>
+<script src="{% static 'libs/datatables.net-buttons/js/buttons.colVis.min.js' %}"></script>
+
+<script src="{% static 'libs/datatables.net-keytable/js/dataTables.keyTable.min.js' %}"></script>
+<script src="{% static 'libs/datatables.net-select/js/dataTables.select.min.js' %}"></script>
+
+<!-- Responsive examples -->
+<script src="{% static 'libs/datatables.net-responsive/js/dataTables.responsive.min.js' %}"></script>
+<script src="{% static 'libs/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js' %}"></script>
+
+<!-- Sweet Alerts js -->
+<script src="{% static 'libs/sweetalert2/sweetalert2.min.js' %}"></script>
+
+<script src="{% static 'libs/select2/js/select2.min.js' %}"></script>
+
+<!-- Form validation -->
+<script src="{% static 'js/pages/form-validation.init.js' %}"></script>
+
+<script>
+
+    $(document).ready(function () {
+
+        $(window).on('resize', function () {
+            $($.fn.dataTable.tables(true)).DataTable()
+                .columns.adjust()
+                .responsive.recalc();
+        })
+
+        var table = $('#userManage').DataTable({
+            buttons: [{ extend: 'excel', text: 'Export CSV', className: 'dtExportButton btn-primary  btn-sm waves-effect waves-light ms-2' },],
+            language: {
+                paginate: {
+                    previous: "<i class='mdi mdi-chevron-left'>",
+                    next: "<i class='mdi mdi-chevron-right'>"
+                }
+            },
+            drawCallback: function () {
+                $(".dataTables_paginate > .pagination").addClass("pagination-rounded"),
+                    $(".dataTables_length select").addClass("form-select form-select-sm")
+            }
+        });
+        table.buttons().container()
+            .appendTo('#userManage_wrapper #userManage_filter');
+
+        var repTable = $('#delReport').DataTable({
+            // buttons: [{ extend: 'excel',  text: 'Export CSV', className: 'dtExportButton' },],
+            scrollX: "100%",
+            dom: "<'row'<'col-xl-5 col-lg-3'l><'col-xl-7 col-lg-9'<'dataTables_filter'>>>t<'row'<'col-md-6'i><'col-md-6'p>>r",
+            language: {
+                searchPlaceholder: 'Search...',
+                sSearch: '',
+            },
+            drawCallback: function () {
+                $('#filModalCont').appendTo('#delReport_wrapper .dataTables_filter');
+            }
+        });
+
+        var myModalEl = document.getElementById('delReportModal')
+        myModalEl.addEventListener('shown.bs.modal', function (event) {
+            $($.fn.dataTable.tables(true)).DataTable()
+                .columns.adjust()
+                .responsive.recalc();
+
+            $('.modalTooltip').tooltip({
+                container: $(this)
+            });
+        })
+
+        $('.select2').select2()
+    })
+
+    $(document).on('click', '.tabDelete', function () {
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "You won't be able to revert this!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#6259ca',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, delete it!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                Swal.fire(
+                    'Deleted!',
+                    'Your message has been deleted.',
+                    'success'
+                )
+            }
+        })
+    })
+
+</script>
+
+{% endblock extra_javascript %}

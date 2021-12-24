@@ -1,0 +1,217 @@
+{% extends 'partials/base.html' %} {% load static %} {% block extra_css %}
+<link href="{% static 'libs/select2/css/select2.min.css' %}" rel="stylesheet" type="text/css">
+
+</style>
+
+<!-- Sweet Alert-->
+<link href="{% static 'libs/sweetalert2/sweetalert2.min.css' %}" rel="stylesheet" type="text/css" /> {% endblock extra_css %} {% block content %}
+<div class="row">
+    <div class="col-lg-12">
+        <form class='needs-validation-bk' id="form_validate" method="POST" enctype="multipart/form-data" novalidate>
+            {% csrf_token %} {% for message in messages %}
+            <div class="alert {{ message.tags }} mb-4" role="alert" id="alert_mess">
+                <strong>{{ message }}</strong>
+            </div>
+            {% endfor %}
+            <div class="card">
+                <div class="row">
+                    <div class="col-xl-7 col-lg-6">
+                        <div class="card-header border-0 bg-white">
+                            <h3 class="card-title mb-0 mt-2">Edit Profile</h3>
+                        </div>
+                        <div class='ps-4 pb-4 pt-3 pe-lg-0 pe-4'>
+                            <div class="card-body border ps-md-4 pe-md-4 pb-md-4 ps-3 pe-3 pb-4 pt-4 border-radius-5">
+                                <div class="row">
+                                    <div class="col-12">
+                                        <div class="d-flex mb-2 flex-wrap justify-content-md-start justify-content-center">
+
+                                            <div class='d-flex flex-wrap align-items-center justify-content-center'>
+                                                <div class='pos-relative'>
+                                                    <img alt="User Avatar" id="prof_img" class="rounded-circle avatar-md me-md-2 mb-md-0 mb-2" src="{% static '/prof_image/'%}{{datas.profile_img}}">
+                                                    <span class='rounded-circle avatar-md closeBadge'><i
+                                                        class='fa fa-trash' id="delete_prof_img"></i></span>
+                                                    <input type="file" name="changepro" class='d-none' id='changepro'>
+                                                    <label for="changepro" class="editBadge badge bg-primary"><i
+                                                        class='fas fa-pencil-alt'></i></label>
+                                                </div>
+                                                <div class='ms-md-2 w-sm-100'>
+                                                    <p class='fs-14 mb-0 fw-bold text-md-start text-center'>{{ datas.name }}</p>
+                                                    <p class='text-muted mb-0 mt-0 fs-13 text-md-left text-center'>
+                                                        {{ datas.email }}</p>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <div class="withIcon">
+                                                <label for="exampleInputname" class='form-label mt-1'>Name</label>
+                                                <input type="text" name="name" id="name" class="form-control text-dark" id="exampleInputname" value='{{ datas.name }}' placeholder="Enter Name" required>
+                                                <span class="symbol-input100 symbolInput">
+                                                    <i class="mdi mdi-account" aria-hidden="true"></i>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group mt-3">
+                                        <div class="withIcon">
+                                            <label for="exampleInputEmail1" class='form-label mt-0'>Email
+                                                address</label>
+                                            <input type="email" name="email" id="email" class="form-control text-dark" id="exampleInputEmail1" value='{{ datas.email }}' readonly placeholder="Enter email address " required>
+                                            <span class="symbol-input100 symbolInput">
+                                                <i class="mdi mdi-email" aria-hidden="true"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="col-xl-5 col-lg-6">
+                        <div class="card-header border-0 bg-white ps-lg-0">
+                            <h3 class="card-title mb-0 mt-2">Edit Password</h3>
+                        </div>
+                        <div class='pe-4 pb-4 pt-3 ps-lg-0 ps-4'>
+                            <div class="card-body border p-md-4 px-3 py-4 border-radius-5">
+                                <div class="form-group">
+                                    <label class="form-label mt-0">Old Password</label>
+                                    <input type="password" class="form-control" name="old_pass" id="old_pass" value="" placeholder='Old password'>
+                                    <span id="old_pass_err"></span>
+                                </div>
+                                <div class="form-group mt-3">
+                                    <label class="form-label">New Password</label>
+                                    <input type="password" name="new_pass" id="new_pass" class="form-control" value="" placeholder='Enter your new password'>
+                                    <span id="new_pass_err"></span>
+                                </div>
+                                <div class="form-group mt-3">
+                                    <label class="form-label">Confirm Password</label>
+                                    <input type="password" class="form-control" name="c_pass" id="c_pass" value="" placeholder='Confirm your password'>
+                                    <span id="conf_pass_err"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class=" col-sm-12">
+                        <div class="card-footer text-end bg-white pb-3">
+                            <button type='submit' id="submit" name="submit" class="btn btn-primary me-1 px-md-5"><i class='fa fa-save me-2'></i>
+                                Save
+                                changes</button>
+                            <a href="" class="btn btn-danger px-md-5" id="cancel"><i class='fa fa-close me-2'></i>Cancel</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<!-- end row -->
+
+{% endblock content %} {% block extra_javascript %}
+
+
+
+<!-- Sweet Alerts js -->
+<script src="{% static 'libs/sweetalert2/sweetalert2.min.js' %} "></script>
+
+<script src="{% static 'libs/select2/js/select2.min.js' %} "></script>
+
+
+<!-- Form validation -->
+<script src="{% static 'libs/jquery-validation/jquery.validate.min.js' %} "></script>
+
+<script type="text/javascript ">
+    $(document).ready(function() {
+        /* Form Validation */
+        $('#form_validate').validate({
+            rules: {
+                old_pass: {
+                    minlength: 5
+                },
+                new_pass: {
+                    minlength: 5
+                },
+                c_pass: {
+                    minlength: 5,
+                    equalTo: '#new_pass'
+                },
+            },
+            messages: {
+                old_pass: {
+                    minlength: "Mnimum 5 characters required ",
+                },
+                new_pass: {
+                    minlength: "Minimum 5 characters required "
+                },
+                c_pass: {
+                    minlength: "Minimum 5 characters required ",
+                    equalTo: "Please enter the same password as above "
+                }
+            },
+            submitHandler: function(form) {
+                form.submit();
+            }
+        });
+    });
+
+    $(document).on('click', '#cancel', function() {
+        $('#old_pass').val('');
+        $('#new_pass').val('');
+        $('#c_pass').val('');
+    });
+
+    $(document).on('change', '#changepro', function() {
+        // var img = $('#changepro').val();
+        var file = $('#changepro')[0].files[0]
+        if (file) {
+            console.log(file.name);
+        }
+
+    });
+
+
+    function readURL(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+
+            reader.onload = function(e) {
+                $('#prof_img').attr('src', e.target.result);
+            }
+
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    $("#changepro").change(function() {
+        readURL(this);
+    });
+
+    setTimeout(function() {
+        $("#alert_mess").css("display", 'none');
+    }, 2000);
+
+
+    // function previewFile(input) {
+    //     var file = $("input[type=file]").get(0).files[0];
+
+    //     if (file) {
+    //         var reader = new FileReader();
+
+    //         reader.onload = function() {
+    //             $("#prof_img").attr("src", reader.result);
+    //         }
+
+    //         reader.readAsDataURL(file);
+    //     }
+    // }
+
+    $(document).on('click', '#delete_prof_img', function() {
+
+        $('#prof_img').attr('src', '/static/images/download.png');
+
+    });
+</script>
+
+{% endblock extra_javascript %}

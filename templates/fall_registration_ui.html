@@ -1,0 +1,385 @@
+{% extends 'partials/base.html' %}
+{% load static %}
+
+{% block extra_css %}
+
+
+<link href="{% static 'libs/select2/css/select2.min.css' %}" rel="stylesheet" type="text/css">
+
+<link href="{% static 'libs/bootstrap-datepicker/css/bootstrap-datepicker.min.css' %}" rel="stylesheet">
+
+<!-- Sweet Alert-->
+<link href="{% static 'libs/sweetalert2/sweetalert2.min.css' %}" rel="stylesheet" type="text/css" />
+
+{% endblock extra_css %}
+{% block content %}
+<div class="row">
+    <div class="col-lg-12">
+        <div class="card">
+            <div class="card-body">
+
+                <form class='needs-validation' novalidate>
+                    <div class="row">
+                        <div class="col-12">
+                            <h4 class='fw-600 mb-2 headerFall'>YOUR PERSONAL INFO</h4>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="form-group">
+                                <label class="form-label mt-3 mt-0">Practice Name</label>
+                                <input type="text" class="form-control" placeholder='Enter practice name'>
+                                <div class="invalid-feedback">Practice name is required</div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="form-group">
+                                <label class="form-label mt-3 mt-0">First Name <span
+                                        class='text-danger'>*</span></label>
+                                <input type="text" class="form-control" placeholder='Enter first name' required>
+                                <div class="invalid-feedback">First name is required</div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="form-group">
+                                <label class="form-label mt-3 mt-0">Last Name <span class='text-danger'>*</span></label>
+                                <input type="text" class="form-control" placeholder='Enter last name' required>
+                                <div class="invalid-feedback">Last name is required</div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="form-group">
+                                <label class="form-label mt-3 mt-0">Phone <span class='text-danger'>*</span></label>
+                                <input type="number" class="form-control" placeholder='Enter phone number' required>
+                                <div class="invalid-feedback">Phone number is required</div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="form-group">
+                                <label class="form-label mt-3 mt-0">Email <span class='text-danger'>*</span></label>
+                                <input type="email" class="form-control" placeholder='Enter email address' required>
+                                <div class="invalid-feedback">Email is required</div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="form-group">
+                                <label class="form-label mt-3 mt-0">Address <span class='text-danger'>*</span></label>
+                                <input type="number" class="form-control" placeholder='Enter address' required>
+                                <div class="invalid-feedback">Address is required</div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="form-group">
+                                <label class="form-label mt-3 mt-0">City <span class='text-danger'>*</span></label>
+                                <input type="number" class="form-control" placeholder='Enter city' required>
+                                <div class="invalid-feedback">City is required</div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="form-group">
+                                <label class="form-label mt-3 mt-0">State <span class='text-danger'>*</span></label>
+                                <input type="email" class="form-control" placeholder='Enter state' required>
+                                <div class="invalid-feedback">State is required</div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="form-group">
+                                <label class="form-label mt-3 mt-0">Zip <span class='text-danger'>*</span></label>
+                                <input type="number" class="form-control" placeholder='Enter zipcode' required>
+                                <div class="invalid-feedback">Zip is required</div>
+                            </div>
+                        </div>
+
+                        <div class="col-12 mt-3">
+                            <div class='bg-primary-transparent p-4 ps-0 br-5'>
+                                <h6 class='fw-600 text-uppercase mb-3'>Notes</h6>
+                                <ul class='list-group ps-4'>
+                                    <li class="py-1">Lunch at Courtyard by Marriott
+                                        is included in the registration fee.</li>
+                                    <li class="py-1">Deadline to register is
+                                        September 24, 2021.</li>
+                                    <li class="py-1">No refunds after September 24,
+                                        2021.</li>
+                                    <li class="py-1">Confirmation will be emailed,
+                                        but nametags will be at registration for pickup.</li>
+                                </ul>
+                            </div>
+                            <div>
+                                <div class="alert alert-info alert-dismissible fade show text-center mt-4 fs-13 py-1 mb-0"
+                                    role="alert">
+                                    <span class="alert-inner--text">If you would like to add more than one person to any
+                                        category please enter the number first to populate the same fields</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12 mt-4">
+                            <div class="row mt-0 align-items-center">
+                                <div class="col-lg-7">
+                                    <h5 class='fw-600 mb-lg-0 mb-3 headerFall'>UDA MEMBER DENTIST ($95)</h5>
+                                </div>
+                                <div class="col-lg-5 text-right">
+                                    <div class='d-flex justify-content-lg-end'>
+                                        <input type="text" class='form-control-wof me-3 min-130' placeholder='Count'>
+                                        <div class="input-group min-130 flex-nowrap">
+                                            <div class="input-group-text">
+                                                <i class=" fas fa-dollar-sign tx-16 lh-0 op-6"></i>
+                                            </div>
+                                            <input class="form-control-wof " value='0' type="text">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row boxRow">
+                                <span class='boxClose'><i class='mdi mdi-close'></i></span>
+                                <div class="col-lg-4 mb-lg-0 mb-3">
+                                    <input type="text" class='form-control-wof' placeholder='ADA#'>
+                                </div>
+                                <div class="col-lg-4 mb-lg-0 mb-3">
+                                    <input type="text" class='form-control-wof' placeholder='Full name'>
+                                </div>
+                                <div class="col-lg-4">
+                                    <input type="email" class='form-control-wof' placeholder='Email'>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12 mt-4">
+                            <div class="row mt-0 align-items-center">
+                                <div class="col-lg-7">
+                                    <h5 class='fw-600 mb-lg-0 mb-3 headerFall'>NON-UDA DENTIST ($185)</h5>
+                                </div>
+                                <div class="col-lg-5 text-right">
+                                    <div class='d-flex justify-content-lg-end'>
+                                        <input type="text" class='form-control-wof me-3 min-130' placeholder='Count'>
+                                        <div class="input-group min-130 flex-nowrap">
+                                            <div class="input-group-text">
+                                                <i class=" fas fa-dollar-sign tx-16 lh-0 op-6"></i>
+                                            </div>
+                                            <input class="form-control-wof " value='0' type="text">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row boxRow">
+                                <span class='boxClose'><i class='mdi mdi-close'></i></span>
+                                <div class="col-lg-4 mb-lg-0 mb-3">
+                                    <input type="text" class='form-control-wof' placeholder='ADA#'>
+                                </div>
+                                <div class="col-lg-4 mb-lg-0 mb-3">
+                                    <input type="text" class='form-control-wof' placeholder='Full name'>
+                                </div>
+                                <div class="col-lg-4">
+                                    <input type="email" class='form-control-wof' placeholder='Email'>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12 mt-4">
+                            <div class="row mt-0 align-items-center">
+                                <div class="col-lg-7">
+                                    <h5 class='fw-600 mb-lg-0 mb-3 headerFall'>UDA DENTAL HYGIENE AFFILIATE MEMBER ($95)
+                                    </h5>
+                                </div>
+                                <div class="col-lg-5 text-right">
+                                    <div class='d-flex justify-content-lg-end'>
+                                        <input type="text" class='form-control-wof me-3 min-130' placeholder='Count'>
+                                        <div class="input-group min-130 flex-nowrap">
+                                            <div class="input-group-text">
+                                                <i class=" fas fa-dollar-sign tx-16 lh-0 op-6"></i>
+                                            </div>
+                                            <input class="form-control-wof " value='0' type="text">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row boxRow">
+                                <span class='boxClose'><i class='mdi mdi-close'></i></span>
+                                <div class="col-lg-4 mb-lg-0 mb-3">
+                                    <input type="email" class='form-control-wof' placeholder='Email'>
+                                </div>
+                                <div class="col-lg-4 mb-lg-0 mb-3">
+                                    <input type="text" class='form-control-wof' placeholder='Full name'>
+                                </div>
+                                <div class="col-lg-4">
+                                    <input type="text" class='form-control-wof' placeholder='ID#'>
+                                </div>
+                            </div>
+                            <div class='pt-2'>
+                                <div class="alert alert-info alert-dismissible fade show text-center fs-13 py-1"
+                                    role="alert">
+                                    <span class="alert-inner--text">2021 Pricing Only Celebrating our New Dental
+                                        Hygienist Affiliate Membership If you would like to join, please follow the
+                                        following link:
+                                        <a target="_new"
+                                            href="https://ebusiness.ada.org/productcatalogPo3/62848/UT0006FB5F4SW43/UTeCatalog/UDA-2019-Hygienist-Membership/">https://ebusiness.ada.org/productcatalogPo3/62848/UT0006FB5F4SW43/UTeCatalog/UDA-2019-Hygienist-Membership/</a>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12 mt-4">
+                            <div class="row mt-0 align-items-center">
+                                <div class="col-lg-7">
+                                    <h5 class='fw-600 mb-lg-0 mb-3 headerFall'>NON-DENTAL HYGIENE AFFILIATE MEMBER
+                                        ($185)</h5>
+                                </div>
+                                <div class="col-lg-5 text-right">
+                                    <div class='d-flex justify-content-lg-end'>
+                                        <input type="text" class='form-control-wof me-3 min-130' placeholder='Count'>
+                                        <div class="input-group min-130 flex-nowrap">
+                                            <div class="input-group-text">
+                                                <i class=" fas fa-dollar-sign tx-16 lh-0 op-6"></i>
+                                            </div>
+                                            <input class="form-control-wof " value='0' type="text">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row boxRow">
+                                <span class='boxClose'><i class='mdi mdi-close'></i></span>
+                                <div class="col-lg-6 mb-lg-0 mb-3">
+                                    <input type="text" class='form-control-wof' placeholder='Full name'>
+                                </div>
+                                <div class="col-lg-6">
+                                    <input type="email" class='form-control-wof' placeholder='Email'>
+                                </div>
+                            </div>
+                            <div class='pt-2'>
+                                <div class="alert alert-info alert-dismissible fade show text-center fs-13 py-1"
+                                    role="alert">
+                                    <span class="alert-inner--text">If you would like to join on UDA Membership, please
+                                        follow the following link:
+                                        <a target="_new"
+                                            href="https://www.uda.org/member-center/join-renew/join-renew-now/">https://www.uda.org/member-center/join-renew/join-renew-now/</a>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12 mt-4">
+                            <div class="row mt-0 align-items-center">
+                                <div class="col-lg-7">
+                                    <h5 class='fw-600 mb-lg-0 mb-3 headerFall'>DENTAL STUDENT ($25)</h5>
+                                </div>
+                                <div class="col-lg-5 text-right">
+                                    <div class='d-flex justify-content-lg-end'>
+                                        <input type="text" class='form-control-wof me-3 min-130' placeholder='Count'>
+                                        <div class="input-group min-130 flex-nowrap">
+                                            <div class="input-group-text">
+                                                <i class=" fas fa-dollar-sign tx-16 lh-0 op-6"></i>
+                                            </div>
+                                            <input class="form-control-wof " value='0' type="text">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row boxRow">
+                                <span class='boxClose'><i class='mdi mdi-close'></i></span>
+                                <div class="col-lg-6 mb-lg-0 mb-3">
+                                    <input type="text" class='form-control-wof' placeholder='Full name'>
+                                </div>
+                                <div class="col-lg-6">
+                                    <input type="email" class='form-control-wof' placeholder='Email'>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 mt-3">
+                            <div class='d-flex align-items-center justify-content-end'>
+                                <p class='fw-600 mb-0 me-3 text-uppercase'>Grand Total ($)</p>
+                                <input type="text" class='form-control-wof min-130' value='98'>
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <h4 class='fw-600 mb-3 mt-4 headerFall'>FOR OFFICE USE ONLY</h4>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="form-group">
+                                <label class="form-label mt-3 mt-0">Transaction Date <span
+                                        class='text-danger'>*</span></label>
+                                <div class="input-group" id="datepicker1">
+                                    <input type="text" class="form-control" placeholder="MM/DD/YYYY"
+                                        data-date-format="dd/mm/yyyy" data-date-container='#datepicker1'
+                                        data-provide="datepicker" required>
+
+                                    <span class="input-group-text"><i class="mdi mdi-calendar"></i></span>
+                                </div>
+                                <div class="invalid-feedback">Transaction date is required</div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="form-group">
+                                <label class="form-label mt-3 mt-0">Transaction ID</label>
+                                <input type="text" class="form-control" placeholder='Enter transaction ID'>
+                                <div class="invalid-feedback">Transaction ID is required</div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="form-group">
+                                <label class="form-label mt-3 mt-0">Payment Mode <span
+                                        class='text-danger'>*</span></label>
+                                <select class='form-control select2' data-placeholder='Select payment mode' required>
+                                    <option></option>
+                                    <option value="1">Cash</option>
+                                    <option value="2">Cheque/DD</option>
+                                    <option value="3">POS</option>
+                                    <option value="4">Venmo</option>
+                                    <option value="5">Others</option>
+                                </select>
+                                <div class="invalid-feedback">Payment mode is required</div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="form-group">
+                                <label class="form-label mt-3 mt-0">Payment Details</label>
+                                <input type="text" class="form-control" placeholder='Enter payment details'>
+                                <div class="invalid-feedback">Payment details is required</div>
+                            </div>
+                        </div>
+                        <div class="col-lg-12">
+                            <div class="form-group">
+                                <label class="form-label mt-3 mt-0">Memo </label>
+                                <textarea rows="5" class='form-control' placeholder='Enter memo'></textarea>
+                                <div class="invalid-feedback">Email is required</div>
+                                <p class='fw-600 fs-14 mt-3'>Registration Done By: Admin</p>
+                            </div>
+                        </div>
+                        <div class="col-12 text-end">
+                            <button type='button' class="btn btn-light px-md-5 me-2">Reset All</button>
+                            <button class="btn btn-primary px-md-5" type='submit'>Register</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+        </div>
+    </div>
+</div>
+<!-- end row -->
+
+{% endblock content %}
+
+{% block extra_javascript %}
+
+<!-- Sweet Alerts js -->
+<script src="{% static 'libs/sweetalert2/sweetalert2.min.js' %}"></script>
+
+
+<script src="{% static 'libs/bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}"></script>
+
+<!-- Form validation -->
+<script src="{% static 'js/pages/form-validation.init.js' %}"></script>
+
+<!-- jquery.inputmask.bundle.js -->
+<script src="{% static 'js/plugins/jquery.inputmask.bundle.js' %}"></script>
+
+<script src="{% static 'libs/select2/js/select2.min.js' %}"></script>
+
+<script>
+    $(document).ready(function () {
+
+        $('.select2').select2()
+    })
+
+</script>
+
+{% endblock extra_javascript %}

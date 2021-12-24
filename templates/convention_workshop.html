@@ -1,0 +1,486 @@
+{% extends 'partials/base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link href="{% static 'libs/select2/css/select2.min.css' %}" rel="stylesheet" type="text/css">
+<!-- DataTables -->
+<link href="{% static 'libs/datatables.net-bs4/css/dataTables.bootstrap4.min.css' %}" rel="stylesheet"
+    type="text/css" />
+<link href="{% static 'libs/datatables.net-buttons-bs4/css/buttons.bootstrap4.min.css' %}" rel="stylesheet"
+    type="text/css" />
+<link href="{% static 'libs/datatables.net-select-bs4/css//select.bootstrap4.min.css' %}" rel="stylesheet"
+    type="text/css" />
+
+<!-- Responsive datatable examples -->
+<link href="{% static 'libs/datatables.net-responsive-bs4/css/responsive.bootstrap4.min.css' %}" rel="stylesheet"
+    type="text/css" />
+
+<!-- Sweet Alert-->
+<link href="{% static 'libs/sweetalert2/sweetalert2.min.css' %}" rel="stylesheet" type="text/css" />
+
+<link href="{% static 'libs/bootstrap-datepicker/css/bootstrap-datepicker.min.css' %}" rel="stylesheet">
+<style>
+    #datepicker2{
+        z-index: 999999!important
+    }
+    .page-content {
+        overflow: auto !important;
+        min-height: 100vh;
+    }
+</style>
+{% endblock extra_css %}
+{% block content %}
+<div class="row">
+    <div class="col-lg-12">
+        <div class="card">
+            <div class="card-header bg-white border-bottom d-flex align-items-center justify-content-between">
+                <h4 class="card-title mb-0">Workshop List</h4>
+                <div class="dropdown float-end">
+                    <a href="#addWorkshop" data-bs-effect="effect-flip-vertical" data-bs-toggle="modal"
+                        class="btn btn-primary btn-sm waves-effect waves-light text-white px-3">
+                        <i class='fa fa-plus me-2 fs-12'></i>Add New
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class='pos-relative w-sm-100 filterMoreCont' id='filterCont'>
+                    <div class="filter-fade" style='display:none'></div>
+                    <a href="#!" class='btn btn-sm btn-light mr-2 w-sm-100 filterMore mb-md-0 mb-3 ms-md-2'><i
+                            class='fa fa-filter me-1'></i> Filter by</a>
+                    <div class='filterDropdown'>
+                        <div class="row whiteBox text-start">
+                            <div class="col-12 text-right">
+                                <div class='d-flex justify-content-between'>
+                                    <p class='mb-3'>FILTERS</p>
+                                </div>
+                            </div>
+                            <div class="col-12 ">
+                                <label for="" class='filterLabel text-start'>Filter By Date</label>
+                                <div class="input-group" id="datepicker2">
+                                    <input type="text" class="form-control ms-0" placeholder="dd/mm/yyyy"
+                                        data-date-format="dd/mm/yyyy" data-date-container="#datepicker2"
+                                        data-provide="datepicker" required id="flt_date">
+                                    <span class="input-group-text"><i class="mdi mdi-calendar"></i></span>
+                                </div>
+                            </div>
+                            <div class="col-12 mt-3">
+                                <label for="" class='filterLabel text-start'>Filter by timeslot</label>
+                                <div class='w-100'>
+                                    <select class="form-control select2 offiSel w-100 mb-0" id="flt_timeslot" data-placement='below'>
+                                        <option value="">Filter by timeslot</option>
+                                        <option value="1">AM</option>
+                                        <option value="2">PM</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-12 mt-4">
+                                <div class="row">
+                                    <div class="col-6 pe-1">
+                                        <a href="#" class="btn btn-primary w-100 cancelFilter text-white" id="filter">Apply
+                                            Filters</a>
+                                    </div>
+                                    <div class="col-6 ps-1">
+                                        <a href="#" class="btn btn-light w-100" id="filter_reset">Reset</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="filterTable">
+                    <table id="userManage" class="table table-centered datatable responsive nowrap"
+                        data-bs-page-length="5" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="desktop tablet mobile">Speaker Name</th>
+                                <th class="desktop tablet w-lg-9">Workshop Name</th>
+                                <th class="desktop">Event Date (AM/PM)</th>
+                                <th class="desktop">Price per Seat (Hours)</th>
+                                <th class="desktop">Seats Info</th>
+                                <th class="desktop all">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+<!-- end row -->
+
+<!-- Modal -->
+<div class="modal fade effect-flip-vertical" id="addWorkshop" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <form class='needs-validation' novalidate id="handon_workshop">
+                {% csrf_token %}
+                <div class="modal-header">
+                    <h5 class="modal-title" id="work_title">Add Workshop</h5>
+                    <button class="btn-close" data-bs-dismiss="modal" aria-label="Close" onclick="cancel()">
+                        <span aria-hidden="true"></span>
+                    </button>
+                </div>
+                <input type="hidden" name="edit_rec_id" id="edit_rec_id" value='0'>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <div class="form-group mb-lg-2 mb-3">
+                                <label for="form-label mt-lg-1 mt-0">Date of event <span
+                                        class='text-danger'>*</span></label>
+                                <div class="input-group" id="datepicker1">
+                                    <input type="text" class="form-control" name="event_date" id="event_date" placeholder="Choose date of event"
+                                        data-date-format="mm/dd/yyyy" data-date-container="#datepicker1"
+                                        data-provide="datepicker" required>
+                                    <span class="input-group-text"><i class="mdi mdi-calendar"></i></span>
+                                    <div class="invalid-feedback">Date of event is required</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="form-group mb-lg-2 mb-3">
+                                <label for="form-label mt-lg-1 mt-0">Timeslot <span class='text-danger'>*</span></label>
+                                <div class="d-flex">
+                                    <div class="form-check mb-1 me-3">
+                                        <input class="form-check-input timeSlot" type="radio" name="timeSlot" id="timeSlot1" value="1"
+                                            required>
+                                        <label class="form-check-label" for="timeSlot1">
+                                            AM
+                                        </label>
+                                    </div>
+                                    <div class="form-check mb-1">
+                                        <input class="form-check-input timeSlot" type="radio" name="timeSlot" id="timeSlot2" value="2"
+                                            required>
+                                        <label class="form-check-label" for="timeSlot2">
+                                            PM
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="form-group mb-lg-2 mb-3">
+                                <label class="form-label mt-lg-1 mt-0">Speaker name <span
+                                        class='text-danger'>*</span></label>
+                                <input type="text" class="form-control" name="speaker_name" id="speaker_name" placeholder='Enter speaker name' required>
+                                <div class="invalid-feedback">Speaker name is required</div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="form-group mb-lg-2 mb-3">
+                                <label class="form-label mt-lg-1 mt-0">Workshop Name <span
+                                        class='text-danger'>*</span></label>
+                                <input type="text" class="form-control" name="name" id="name" placeholder='Enter workshop name' required>
+                                <div class="invalid-feedback">Workshop name is required</div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="form-group mb-lg-2 mb-3">
+                                <label class="form-label mt-lg-1 mt-0">No. of Seats <span
+                                        class='text-danger'>*</span></label>
+                                <input type="number" class="form-control" id="qty" name="qty" placeholder='Enter No. of seats' required>
+                                <div class="invalid-feedback">No. of seats is required</div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="form-group mb-lg-2 mb-3">
+                                <label class="form-label mt-lg-1 mt-0">Total Hours <span
+                                        class='text-danger'>*</span></label>
+                                <input type="text" class="form-control" name="total_hours" id="total_hours" placeholder='Enter No. of hours' required>
+                                <div class="invalid-feedback">No. of hours is required</div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="form-group mb-lg-2 mb-3">
+                                <label class="form-label mt-lg-1 mt-0">Price Per Seat <span
+                                        class='text-danger'>*</span></label>
+                                <input type="text" class="form-control" name="amount" id="amount" placeholder='Enter price per seat' required>
+                                <div class="invalid-feedback">Price per seat is required</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-light" data-bs-dismiss="modal" onclick="cancel()">Close</button>
+                    <button class="btn btn-primary" type='submit' id="handon_workshop_save">Save changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock content %}
+
+{% block extra_javascript %}
+<!-- Required datatable js -->
+<script src="{% static 'libs/datatables.net/js/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'libs/datatables.net-bs4/js/dataTables.bootstrap4.min.js' %}"></script>
+<!-- Buttons examples -->
+<script src="{% static 'libs/datatables.net-buttons/js/dataTables.buttons.min.js' %}"></script>
+<script src="{% static 'libs/datatables.net-buttons-bs4/js/buttons.bootstrap4.min.js' %}"></script>
+<script src="{% static 'libs/jszip/jszip.min.js' %}"></script>
+<script src="{% static 'libs/pdfmake/build/pdfmake.min.js' %}"></script>
+<script src="{% static 'libs/pdfmake/build/vfs_fonts.js' %}"></script>
+<script src="{% static 'libs/datatables.net-buttons/js/buttons.html5.min.js' %}"></script>
+<script src="{% static 'libs/datatables.net-buttons/js/buttons.print.min.js' %}"></script>
+<script src="{% static 'libs/datatables.net-buttons/js/buttons.colVis.min.js' %}"></script>
+
+<script src="{% static 'libs/datatables.net-keytable/js/dataTables.keyTable.min.js' %}"></script>
+<script src="{% static 'libs/datatables.net-select/js/dataTables.select.min.js' %}"></script>
+
+<!-- Responsive examples -->
+<script src="{% static 'libs/datatables.net-responsive/js/dataTables.responsive.min.js' %}"></script>
+<script src="{% static 'libs/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js' %}"></script>
+
+<!-- Sweet Alerts js -->
+<script src="{% static 'libs/sweetalert2/sweetalert2.min.js' %}"></script>
+
+<script src="{% static 'libs/select2/js/select2.min.js' %}"></script>
+
+<script src="{% static 'libs/bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}"></script>
+
+<!-- Form validation -->
+<script src="{% static 'js/pages/form-validation.init.js' %}"></script>
+
+<script>
+
+    $(document).ready(function () {
+
+        $(window).on('resize', function () {
+            $($.fn.dataTable.tables(true)).DataTable()
+                .columns.adjust()
+                .responsive.recalc();
+        })
+
+        var table = $('#userManage').DataTable({
+            dom: "<'row'<'col-xl-5 col-lg-3'l><'col-xl-7 col-lg-9'fB>>t<'row'<'col-md-6'i><'col-md-6'p>>r",
+            language: {
+                paginate: {
+                    previous: "<i class='mdi mdi-chevron-left'>",
+                    next: "<i class='mdi mdi-chevron-right'>"
+                }
+            },
+            "ajax":{
+                url :"{% url 'convention_workshop_form' %}", 
+                type: "POST",  
+                "data": function ( data ) {
+                    data.module='list'
+                    data.flt_date =$('#flt_date').val();
+                    data.flt_timeslot =$('#flt_timeslot').val();
+                    data.csrfmiddlewaretoken= '{{ csrf_token }}'
+                },
+            },
+            drawCallback: function () {
+                $(".dataTables_paginate > .pagination").addClass("pagination-rounded"),
+                    $(".dataTables_length select").addClass("form-select form-select-sm")
+            },
+            buttons: [{ extend: 'csv', text: 'Export CSV', className: 'dtExportButton btn-primary  btn-sm waves-effect waves-light ms-2',exportOptions: { columns: [0,1,2,3,4] } }]
+        });
+        $('#filterCont').appendTo('#userManage_wrapper #userManage_filter');
+        table.buttons().container().appendTo('#userManage_wrapper #userManage_filter');
+
+        $('.select2').select2()
+    })
+
+    $('.filterMore').click(function () {
+        $('.filterDropdown').toggleClass('active')
+        $('.filter-fade').toggle()
+    })
+
+    $('.cancelFilter, .filter-fade').click(function () {
+        $('.filterDropdown').removeClass('active')
+        $('.filter-fade').hide()
+    })
+
+    $("#filter").click(function(){
+        $('#userManage').DataTable().ajax.reload();
+    })
+    $("#filter_reset").click(function(){
+        $('#flt_date').val('')
+        $('#flt_timeslot').val('').select2()
+        $('#userManage').DataTable().ajax.reload();
+        $('.filterDropdown').removeClass('active')
+        $('.filter-fade').hide()
+    })
+
+    $("#handon_workshop").submit(function(e){
+        e.preventDefault();
+        e.stopPropagation();
+        var event_date=$("#event_date").val()
+        var timeSlot=$(".timeSlot").val()
+        var speaker_name=$("#speaker_name").val()
+        var name=$("#name").val()
+        var qty=$("#qty").val()
+        var total_hours=$("#total_hours").val()
+        var amount=$("#amount").val()
+        var datas = new FormData(this);
+        datas.append('module','form_submit');
+        if(event_date!='' && timeSlot!='' && speaker_name!='' && name!='' && qty!='' && total_hours!='' && amount!=''){
+            $("#handon_workshop_save").prop("disabled",true)
+            $.ajax({
+                url: "{% url 'convention_workshop_form' %}",
+                type: "POST",
+                data: datas,
+                dataType: 'json',
+                contentType: false,
+                cache: false,
+                processData: false,
+                success: function(data) {
+                    $("#handon_workshop_save").prop("disabled",false)
+                    if(data['err']==''){
+                        swal.fire({
+                            title: 'Success',
+                            html: data['msg'],
+                            icon: 'success',
+                            confirmButtonColor: '#3085d6',
+                            confirmButtonText: 'Ok'
+                        }).then((result) => {
+                            $('#userManage').DataTable().ajax.reload();
+                            cancel()
+                        }); 
+                    }
+                    else{
+                        swal.fire({
+                            title: 'Error',
+                            text: data['err'],
+                            icon: 'error',
+                            confirmButtonColor: '#3085d6',
+                            confirmButtonText: 'Ok'
+                        });
+                    }
+                },
+                error: function() {}
+            });  
+        }
+    });
+
+    $(document).on('click', '.tblBLock', function () {
+        let id=$(this).attr('data-id')
+        let mod=$(this).attr('data-attr')
+        if(mod=='deactive'){
+            var tit="Are you sure you want to lock"
+            var msg="Locked Successfully"
+        }
+        else{
+            var tit="Are you sure you want to Unlock"
+            var msg="Unlocked Successfully"
+        }
+        Swal.fire({
+            title: tit,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#6259ca',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                    url :"{% url 'convention_workshop_form' %}", 
+                    type: "POST",  
+                    data:{module:'block',id:id,mod:mod},
+                    success: function(data) {
+                        if(data.res==1){
+                            swal.fire({
+                                title: msg,
+                                icon: 'success',
+                                confirmButtonColor: '#3085d6',
+                                confirmButtonText: 'Ok'
+                            }).then((result) => {
+                                $('#userManage').DataTable().ajax.reload();
+                            }); 
+                        }
+                    },
+                    error: function() {}
+                });  
+            }
+        })
+    })
+
+    $(document).on('click', '.tabEdit', function () {
+        let id=$(this).attr('data-id')
+        $.ajax({
+            headers: {'X-CSRFToken': '{{ csrf_token }}'},
+            url :"{% url 'convention_workshop_form' %}", 
+            type: "POST",  
+            data:{module:'getdatas',id:id},
+            success: function(data) {
+                var result = JSON.parse(data.data)
+                var fields1 = result[0]['fields'];
+                $("#edit_rec_id").val(result[0]['pk'])
+                var dateAr = fields1['event_date'].split('-')
+                let event_date=dateAr[2]+'/'+dateAr[1]+'/'+dateAr[0]
+                $("#event_date").val(event_date)
+                if(fields1['timeslot']==1){
+                    $("#timeSlot1").prop('checked', true)
+                } 
+                else{
+                    $("#timeSlot2").prop('checked', true)
+                }
+                $("#speaker_name").val(fields1['speaker_name'])
+                $("#name").val(fields1['name'])
+                $("#qty").val(fields1['qty'])
+                $("#total_hours").val(fields1['total_hours'])
+                $("#amount").val(fields1['amount'])
+                $("#addWorkshop").modal('show')
+                $("#work_title").html("Edit Workshop")
+            },
+            error: function() {}
+        });  
+    })
+
+    $(document).on('click', '.tabDelete', function () {
+        let id=$(this).attr('data-id')
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "You won't be able to revert this!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#6259ca',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, delete it!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                    url :"{% url 'convention_workshop_form' %}", 
+                    type: "POST",  
+                    data:{module:'delete',id:id},
+                    success: function(data) {
+                        if(data.res==1){
+                            swal.fire({
+                                title: 'Deleted!',
+                                html: 'Your workshop has been deleted.',
+                                icon: 'success',
+                                confirmButtonColor: '#3085d6',
+                                confirmButtonText: 'Ok'
+                            }).then((result) => {
+                                $('#userManage').DataTable().ajax.reload();
+                            }); 
+                        }
+                    },
+                    error: function() {}
+                });  
+            }
+        })
+    })
+
+    function cancel(){
+        $("#event_date").val('')
+        $("#timeSlot1").prop('checked', false)
+        $("#timeSlot2").prop('checked', false)
+        $("#speaker_name").val('')
+        $("#name").val('')
+        $("#qty").val('')
+        $("#total_hours").val('')
+        $("#amount").val('')
+        $("#edit_rec_id").val(0)
+        $("#addWorkshop").modal('hide')
+        $("#work_title").html("Add Workshop")
+        $("#handon_workshop").removeClass('was-validated')
+    }
+
+</script>
+
+{% endblock extra_javascript %}

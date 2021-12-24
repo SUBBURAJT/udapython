@@ -1,0 +1,144 @@
+{% extends 'partials/base.html' %}
+{% load static %}
+
+{% block extra_css %}
+
+
+<link href="{% static 'libs/select2/css/select2.min.css' %}" rel="stylesheet" type="text/css">
+
+<link href="{% static 'libs/bootstrap-datepicker/css/bootstrap-datepicker.min.css' %}" rel="stylesheet">
+
+<!-- Sweet Alert-->
+<link href="{% static 'libs/sweetalert2/sweetalert2.min.css' %}" rel="stylesheet" type="text/css" />
+
+{% endblock extra_css %}
+{% block content %}
+<div class="row">
+    <div class="col-lg-12">
+        <div class="card">
+            <div class="card-body">
+
+                <form class='needs-validation' novalidate>
+                    <div class="row">
+                        <div class="col-12">
+                            <h4 class='fw-600 mb-2 headerFall'>YOUR PERSONAL INFO</h4>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="form-group">
+                                <label class="form-label mt-3 mt-0">Company Name</label>
+                                <input type="text" class="form-control" placeholder='Enter company name'>
+                                <div class="invalid-feedback">Company name is required</div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="form-group">
+                                <label class="form-label mt-3 mt-0">First Name <span
+                                        class='text-danger'>*</span></label>
+                                <input type="text" class="form-control" placeholder='Enter first name' required>
+                                <div class="invalid-feedback">First name is required</div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="form-group">
+                                <label class="form-label mt-3 mt-0">Last Name <span class='text-danger'>*</span></label>
+                                <input type="text" class="form-control" placeholder='Enter last name' required>
+                                <div class="invalid-feedback">Last name is required</div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="form-group">
+                                <label class="form-label mt-3 mt-0">Phone <span class='text-danger'>*</span></label>
+                                <input type="number" class="form-control" placeholder='Enter phone number' required>
+                                <div class="invalid-feedback">Phone number is required</div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="form-group">
+                                <label class="form-label mt-3 mt-0">Email <span class='text-danger'>*</span></label>
+                                <input type="email" class="form-control" placeholder='Enter email address' required>
+                                <div class="invalid-feedback">Email is required</div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="form-group">
+                                <label class="form-label mt-3 mt-0">Address <span class='text-danger'>*</span></label>
+                                <input type="text" class="form-control" placeholder='Enter address' required>
+                                <div class="invalid-feedback">Address is required</div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="form-group">
+                                <label class="form-label mt-3 mt-0">City <span class='text-danger'>*</span></label>
+                                <input type="text" class="form-control" placeholder='Enter city' required>
+                                <div class="invalid-feedback">City is required</div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="form-group">
+                                <label class="form-label mt-3 mt-0">State <span class='text-danger'>*</span></label>
+                                <input type="text" class="form-control" placeholder='Enter state' required>
+                                <div class="invalid-feedback">State is required</div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="form-group">
+                                <label class="form-label mt-3 mt-0">Zip <span class='text-danger'>*</span></label>
+                                <input type="number" class="form-control" placeholder='Enter zipcode' required>
+                                <div class="invalid-feedback">Zip is required</div>
+                            </div>
+                        </div>
+
+                        <div class="col-12 mt-3">
+                            <div class='bg-primary-transparent p-4 ps-0 br-5'>
+                                <h6 class='fw-600 text-uppercase mb-3'>Notes</h6>
+                                <ul class='list-group ps-4'>
+                                    <li class="py-1">Sorry no refunds will be made.
+                                    </li>
+                                    <li class="py-1">Staff does not need to register with a dentist. Guests need to be
+                                        registered with a dentist.</li>
+                                    <li class="py-1">The deadline for all pre-registration is March 13, 2020, after this
+                                        date all registration must be done onsite at the Salt Palace Convention Center.
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="col-12 text-end">
+                            <button type='button' class="btn btn-light px-md-5 me-2">Reset All</button>
+                            <button class="btn btn-primary px-md-5" type='submit'>Proceed</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+        </div>
+    </div>
+</div>
+<!-- end row -->
+
+{% endblock content %}
+
+{% block extra_javascript %}
+
+<!-- Sweet Alerts js -->
+<script src="{% static 'libs/sweetalert2/sweetalert2.min.js' %}"></script>
+
+
+<script src="{% static 'libs/bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}"></script>
+
+<!-- Form validation -->
+<script src="{% static 'js/pages/form-validation.init.js' %}"></script>
+
+<!-- jquery.inputmask.bundle.js -->
+<script src="{% static 'js/plugins/jquery.inputmask.bundle.js' %}"></script>
+
+<script src="{% static 'libs/select2/js/select2.min.js' %}"></script>
+
+<script>
+    $(document).ready(function () {
+
+        $('.select2').select2()
+    })
+
+</script>
+
+{% endblock extra_javascript %}

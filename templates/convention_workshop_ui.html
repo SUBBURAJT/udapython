@@ -1,0 +1,393 @@
+{% extends 'partials/base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link href="{% static 'libs/select2/css/select2.min.css' %}" rel="stylesheet" type="text/css">
+<!-- DataTables -->
+<link href="{% static 'libs/datatables.net-bs4/css/dataTables.bootstrap4.min.css' %}" rel="stylesheet"
+    type="text/css" />
+<link href="{% static 'libs/datatables.net-buttons-bs4/css/buttons.bootstrap4.min.css' %}" rel="stylesheet"
+    type="text/css" />
+<link href="{% static 'libs/datatables.net-select-bs4/css//select.bootstrap4.min.css' %}" rel="stylesheet"
+    type="text/css" />
+
+<!-- Responsive datatable examples -->
+<link href="{% static 'libs/datatables.net-responsive-bs4/css/responsive.bootstrap4.min.css' %}" rel="stylesheet"
+    type="text/css" />
+
+<!-- Sweet Alert-->
+<link href="{% static 'libs/sweetalert2/sweetalert2.min.css' %}" rel="stylesheet" type="text/css" />
+
+<link href="{% static 'libs/bootstrap-datepicker/css/bootstrap-datepicker.min.css' %}" rel="stylesheet">
+
+{% endblock extra_css %}
+{% block content %}
+<div class="row">
+    <div class="col-lg-12">
+        <div class="card">
+            <div class="card-header bg-white border-bottom d-flex align-items-center justify-content-between">
+                <h4 class="card-title mb-0">Workshop List</h4>
+                <div class="dropdown float-end">
+                    <a href="#addWorkshop" data-bs-effect="effect-flip-vertical" data-bs-toggle="modal"
+                        class="btn btn-primary btn-sm waves-effect waves-light text-white px-3">
+                        <i class='fa fa-plus me-2 fs-12'></i>Add New
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class='pos-relative w-sm-100 filterMoreCont' id='filterCont'>
+                    <div class="filter-fade" style='display:none'></div>
+                    <a href="#!" class='btn btn-sm btn-light mr-2 w-sm-100 filterMore mb-md-0 mb-3 ms-md-2'><i
+                            class='fa fa-filter me-1'></i> Filter by</a>
+                    <div class='filterDropdown'>
+                        <div class="row whiteBox text-start">
+                            <div class="col-12 text-right">
+                                <div class='d-flex justify-content-between'>
+                                    <p class='mb-3'>FILTERS</p>
+                                </div>
+                            </div>
+                            <div class="col-12 ">
+                                <label for="" class='filterLabel text-start'>Filter By Date</label>
+                                <div class="input-group" id="datepicker2">
+                                    <input type="text" class="form-control ms-0" placeholder="dd/mm/yyyy"
+                                        data-date-format="dd/mm/yyyy" data-date-container="#datepicker2"
+                                        data-provide="datepicker" required>
+                                    <span class="input-group-text"><i class="mdi mdi-calendar"></i></span>
+                                </div>
+                            </div>
+                            <div class="col-12 mt-3">
+                                <label for="" class='filterLabel text-start'>Filter by timeslot</label>
+                                <div class='w-100'>
+                                    <select class="form-control select2 offiSel w-100 mb-0" data-placement='below'>
+                                        <option value="1">AM</option>
+                                        <option value="2">PM</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-12 mt-4">
+                                <div class="row">
+                                    <div class="col-6 pe-1">
+                                        <a href="#" class="btn btn-primary w-100 cancelFilter text-white">Apply
+                                            Filters</a>
+                                    </div>
+                                    <div class="col-6 ps-1">
+                                        <a href="#" class="btn btn-light w-100">Reset</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="filterTable">
+                    <table id="userManage" class="table table-centered datatable responsive nowrap"
+                        data-bs-page-length="5" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="desktop tablet mobile">Speaker Name</th>
+                                <th class="desktop tablet w-lg-9">Workshop Name</th>
+                                <th class="desktop">Event Date (AM/PM)</th>
+                                <th class="desktop">Price per Seat (Hours)</th>
+                                <th class="desktop">Seats Info</th>
+                                <th class="desktop all">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="activity-icon avatar-xs me-2">
+                                            <span class="avatar-title bg-soft-warning text-warning br-5">CN</span>
+                                        </div>
+                                        <div class="d-block mt-1">
+                                            <p class="mb-0 fs-14">Chris Neibauer</p>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>Making Complete Dentures a "Win-Win" Service, 8:30 - 11:30 AM </td>
+                                <td>08, Thursday, 2021 AM </td>
+                                <td>30 </td>
+                                <td>18 / 150 <br>Bal: 132 Available </td>
+                                <td id="tooltip-container3">
+                                    <div class='d-flex align-items-center'>
+                                        <a href="javascript:void(0);" class="me-3 text-warning"
+                                            data-bs-container="#tooltip-container3" data-bs-toggle="tooltip"
+                                            data-bs-placement="top" title="Block Temporarily"><i
+                                                class="mdi mdi-lock font-size-18"></i></a>
+                                        <a href="javascript:void(0);" class="me-3 text-primary"
+                                            data-bs-container="#tooltip-container3" data-bs-toggle="tooltip"
+                                            data-bs-placement="top" title="Edit"><i
+                                                class="mdi mdi-pencil font-size-18"></i></a>
+                                        <a href="javascript:void(0);" class="text-danger tabDelete"
+                                            data-bs-container="#tooltip-container3" data-bs-toggle="tooltip"
+                                            data-bs-placement="top" title="Delete"><i
+                                                class="mdi mdi-trash-can font-size-18"></i></a>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="activity-icon avatar-xs me-2">
+                                            <span class="avatar-title bg-soft-danger text-danger br-5">KT</span>
+                                        </div>
+                                        <div class="d-block mt-1">
+                                            <p class="mb-0 fs-14">Kenneth Thomson</p>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>The VIP Lecture: Versatile, Indispensable, Panoramic Image, 8:30 - 11:30 AM </td>
+                                <td>08, Thursday, 2021 AM </td>
+                                <td>30 </td>
+                                <td>4 / 278 <br>Bal: 274 Available </td>
+                                <td id="tooltip-container3">
+                                    <div class='d-flex align-items-center'>
+                                        <a href="javascript:void(0);" class="me-3 text-warning"
+                                            data-bs-container="#tooltip-container3" data-bs-toggle="tooltip"
+                                            data-bs-placement="top" title="Block Temporarily"><i
+                                                class="mdi mdi-lock font-size-18"></i></a>
+                                        <a href="javascript:void(0);" class="me-3 text-primary"
+                                            data-bs-container="#tooltip-container3" data-bs-toggle="tooltip"
+                                            data-bs-placement="top" title="Edit"><i
+                                                class="mdi mdi-pencil font-size-18"></i></a>
+                                        <a href="javascript:void(0);" class="text-danger tabDelete"
+                                            data-bs-container="#tooltip-container3" data-bs-toggle="tooltip"
+                                            data-bs-placement="top" title="Delete"><i
+                                                class="mdi mdi-trash-can font-size-18"></i></a>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="activity-icon avatar-xs me-2">
+                                            <span class="avatar-title bg-soft-primary text-primary br-5">TA</span>
+                                        </div>
+                                        <div class="d-block mt-1">
+                                            <p class="mb-0 fs-14">Trevor Abraham</p>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>Open Wide: Understanding Addiction in Dentistry, 9:00 - 10:00 AM</td>
+                                <td>08, Thursday, 2021 AM </td>
+                                <td>30 </td>
+                                <td>0 / 75 <br>Bal: 99 Available </td>
+                                <td id="tooltip-container3">
+                                    <div class='d-flex align-items-center'>
+                                        <a href="javascript:void(0);" class="me-3 text-warning"
+                                            data-bs-container="#tooltip-container3" data-bs-toggle="tooltip"
+                                            data-bs-placement="top" title="Block Temporarily"><i
+                                                class="mdi mdi-lock font-size-18"></i></a>
+                                        <a href="javascript:void(0);" class="me-3 text-primary"
+                                            data-bs-container="#tooltip-container3" data-bs-toggle="tooltip"
+                                            data-bs-placement="top" title="Edit"><i
+                                                class="mdi mdi-pencil font-size-18"></i></a>
+                                        <a href="javascript:void(0);" class="text-danger tabDelete"
+                                            data-bs-container="#tooltip-container3" data-bs-toggle="tooltip"
+                                            data-bs-placement="top" title="Delete"><i
+                                                class="mdi mdi-trash-can font-size-18"></i></a>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+<!-- end row -->
+
+<!-- Modal -->
+<div class="modal fade effect-flip-vertical" id="addWorkshop" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <form class='needs-validation' novalidate>
+                <div class="modal-header">
+                    <h5 class="modal-title">Add Workshop</h5>
+                    <button class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <div class="form-group mb-lg-2 mb-3">
+                                <label for="form-label mt-lg-1 mt-0">Date of event <span
+                                        class='text-danger'>*</span></label>
+                                <div class="input-group" id="datepicker1">
+                                    <input type="text" class="form-control" placeholder="Choose date of event"
+                                        data-date-format="dd/mm/yyyy" data-date-container="#datepicker1"
+                                        data-provide="datepicker" required>
+                                    <span class="input-group-text"><i class="mdi mdi-calendar"></i></span>
+                                    <div class="invalid-feedback">Date of event is required</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="form-group mb-lg-2 mb-3">
+                                <label for="form-label mt-lg-1 mt-0">Timeslot <span class='text-danger'>*</span></label>
+                                <div class="d-flex">
+                                    <div class="form-check mb-1 me-3">
+                                        <input class="form-check-input" type="radio" name="timeSlot" id="timeSlot1"
+                                            required>
+                                        <label class="form-check-label" for="timeSlot1">
+                                            AM
+                                        </label>
+                                    </div>
+                                    <div class="form-check mb-1">
+                                        <input class="form-check-input" type="radio" name="timeSlot" id="timeSlot2"
+                                            required>
+                                        <label class="form-check-label" for="timeSlot2">
+                                            PM
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="form-group mb-lg-2 mb-3">
+                                <label class="form-label mt-lg-1 mt-0">Speaker name <span
+                                        class='text-danger'>*</span></label>
+                                <input type="text" class="form-control" placeholder='Enter speaker name' required>
+                                <div class="invalid-feedback">Speaker name is required</div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="form-group mb-lg-2 mb-3">
+                                <label class="form-label mt-lg-1 mt-0">Workshop Name <span
+                                        class='text-danger'>*</span></label>
+                                <input type="text" class="form-control" placeholder='Enter workshop name' required>
+                                <div class="invalid-feedback">Workshop name is required</div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="form-group mb-lg-2 mb-3">
+                                <label class="form-label mt-lg-1 mt-0">No. of Seats <span
+                                        class='text-danger'>*</span></label>
+                                <input type="number" class="form-control" placeholder='Enter No. of seats' required>
+                                <div class="invalid-feedback">No. of seats is required</div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="form-group mb-lg-2 mb-3">
+                                <label class="form-label mt-lg-1 mt-0">Total Hours <span
+                                        class='text-danger'>*</span></label>
+                                <input type="text" class="form-control" placeholder='Enter No. of hours' required>
+                                <div class="invalid-feedback">No. of hours is required</div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="form-group mb-lg-2 mb-3">
+                                <label class="form-label mt-lg-1 mt-0">Price Per Seat <span
+                                        class='text-danger'>*</span></label>
+                                <input type="text" class="form-control" placeholder='Enter price per seat' required>
+                                <div class="invalid-feedback">Price per seat is required</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-light" data-bs-dismiss="modal">Close</button>
+                    <button class="btn btn-primary" type='submit'>Save changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock content %}
+
+{% block extra_javascript %}
+<!-- Required datatable js -->
+<script src="{% static 'libs/datatables.net/js/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'libs/datatables.net-bs4/js/dataTables.bootstrap4.min.js' %}"></script>
+<!-- Buttons examples -->
+<script src="{% static 'libs/datatables.net-buttons/js/dataTables.buttons.min.js' %}"></script>
+<script src="{% static 'libs/datatables.net-buttons-bs4/js/buttons.bootstrap4.min.js' %}"></script>
+<script src="{% static 'libs/jszip/jszip.min.js' %}"></script>
+<script src="{% static 'libs/pdfmake/build/pdfmake.min.js' %}"></script>
+<script src="{% static 'libs/pdfmake/build/vfs_fonts.js' %}"></script>
+<script src="{% static 'libs/datatables.net-buttons/js/buttons.html5.min.js' %}"></script>
+<script src="{% static 'libs/datatables.net-buttons/js/buttons.print.min.js' %}"></script>
+<script src="{% static 'libs/datatables.net-buttons/js/buttons.colVis.min.js' %}"></script>
+
+<script src="{% static 'libs/datatables.net-keytable/js/dataTables.keyTable.min.js' %}"></script>
+<script src="{% static 'libs/datatables.net-select/js/dataTables.select.min.js' %}"></script>
+
+<!-- Responsive examples -->
+<script src="{% static 'libs/datatables.net-responsive/js/dataTables.responsive.min.js' %}"></script>
+<script src="{% static 'libs/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js' %}"></script>
+
+<!-- Sweet Alerts js -->
+<script src="{% static 'libs/sweetalert2/sweetalert2.min.js' %}"></script>
+
+<script src="{% static 'libs/select2/js/select2.min.js' %}"></script>
+
+<script src="{% static 'libs/bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}"></script>
+
+<!-- Form validation -->
+<script src="{% static 'js/pages/form-validation.init.js' %}"></script>
+
+<script>
+
+    $(document).ready(function () {
+
+        $(window).on('resize', function () {
+            $($.fn.dataTable.tables(true)).DataTable()
+                .columns.adjust()
+                .responsive.recalc();
+        })
+
+        var table = $('#userManage').DataTable({
+            buttons: [{ extend: 'excel', text: 'Export CSV', className: 'dtExportButton btn-primary  btn-sm waves-effect waves-light ms-2' },],
+            language: {
+                paginate: {
+                    previous: "<i class='mdi mdi-chevron-left'>",
+                    next: "<i class='mdi mdi-chevron-right'>"
+                }
+            },
+            drawCallback: function () {
+                $(".dataTables_paginate > .pagination").addClass("pagination-rounded"),
+                    $(".dataTables_length select").addClass("form-select form-select-sm")
+            }
+        });
+        $('#filterCont').appendTo('#userManage_wrapper #userManage_filter');
+        table.buttons().container()
+            .appendTo('#userManage_wrapper #userManage_filter');
+
+        $('.select2').select2()
+    })
+
+    $('.filterMore').click(function () {
+        $('.filterDropdown').toggleClass('active')
+        $('.filter-fade').toggle()
+    })
+
+    $('.cancelFilter, .filter-fade').click(function () {
+        $('.filterDropdown').removeClass('active')
+        $('.filter-fade').hide()
+    })
+
+    $(document).on('click', '.tabDelete', function () {
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "You won't be able to revert this!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#6259ca',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, delete it!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                Swal.fire(
+                    'Deleted!',
+                    'Your workshop has been deleted.',
+                    'success'
+                )
+            }
+        })
+    })
+
+</script>
+
+{% endblock extra_javascript %}

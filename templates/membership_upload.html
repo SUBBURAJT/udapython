@@ -1,0 +1,331 @@
+{% extends 'partials/base.html' %}
+{% load static %}
+
+{% block extra_css %}
+
+        <!-- DataTables -->
+        <link href="{% static 'libs/datatables.net-bs4/css/dataTables.bootstrap4.min.css' %}" rel="stylesheet" type="text/css" />
+        <link href="{% static 'libs/datatables.net-buttons-bs4/css/buttons.bootstrap4.min.css' %}" rel="stylesheet" type="text/css" />
+        <link href="{% static 'libs/datatables.net-select-bs4/css//select.bootstrap4.min.css' %}" rel="stylesheet" type="text/css" />
+
+        <!-- Responsive datatable examples -->
+        <link href="{% static 'libs/datatables.net-responsive-bs4/css/responsive.bootstrap4.min.css' %}" rel="stylesheet" type="text/css" />
+
+        <!-- Sweet Alert-->
+        <link href="{% static 'libs/sweetalert2/sweetalert2.min.css' %}" rel="stylesheet" type="text/css" />
+
+        <!-- Plugins css -->
+        <link href="{% static 'libs/dropzone/min/dropzone.min.css' %}" rel="stylesheet" type="text/css" />
+
+{% endblock extra_css %}
+{% block content %}
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="card">
+                                    <div class="card-header bg-white border-bottom py-3">
+                                        <h4 class="card-title mb-0">Upload File</h4>
+                                    </div>
+                                    <div class="card-body">
+                                        <div>
+                                            <form action="#" class="dropzone overScroll" id="membership_upload">
+                                                {% csrf_token %}
+                                                <div class="fallback">
+                                                    <!--<input name="file" type="file" multiple="multiple">-->
+                                                    <input name="file" type="file">
+                                                </div>
+                                                <div class="dz-message needsclick my-3">
+                                                    <div class="mb-3">
+                                                        <i class="display-4 text-muted ri-upload-cloud-2-line"></i>
+                                                    </div>
+                                                    
+                                                    <!-- <h4>Drop files here or click to upload.</h4> -->
+                                                </div>
+                                            </form>
+                                        </div>
+        
+                                        <div class="text-end mt-4">
+                                            <a href="{% static 'sample_files/membership_upload_sample.csv' %}" download class="btn btn-secondary waves-effect waves-light"> <i class='dripicons-download me-1 verMiddle'></i> Sample CSV</a>
+                                            <button type="button" id="submit" class="btn btn-primary waves-effect waves-light"> <i class='dripicons-upload me-1 verMiddle'></i> Import</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-12">
+                                <div class="card">
+                                    <div class="card-header bg-white border-bottom py-3">
+                                        <h4 class="card-title mb-0">Membership List</h4>
+                                    </div>
+                                    <div class="card-body">
+                                        
+                                        <div class="table-responsive">
+                                            <table id="memberUpload"  class="table table-centered datatable responsive nowrap" data-bs-page-length="5" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
+                                                <thead class="table-light">
+                                                    <tr>
+                                                        <th class="desktop tablet mobile">ID</th>
+														<th class="desktop tablet mobile">Name</th>
+														<th class="desktop tablet">Practice Name</th>
+														<th class="desktop">Address</th>
+														<th class="desktop">City</th>
+														<th class="desktop tablet-l">State</th>
+														<th class="desktop">Zip</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                   {% for mem in data %}
+													<tr>
+														<td>{{mem.Membership_id}} </td>
+														<td> 
+															<div class="d-flex align-items-center">
+																<div class="activity-icon avatar-xs me-2"> 
+                                                                    <span class="avatar-title bg-soft-warning text-warning br-5">{{mem.First_Name.0}}{{mem.Last_Name.0}}</span>
+                                                                </div>
+																<div class="d-block mt-1">
+																	<h6 class="mb-0 fs-14 fw-semibold">{{mem.First_Name}} {{mem.Last_Name}}</h6>
+																	<span class="fs-12 text-muted">ADA Number: {{mem.ADA_Number}}</span>
+																</div>
+															</div>
+														</td>
+                                                        <td>{{mem.PracticeName}}</td>
+														<td>{{mem.Address_Line_1}} {{mem.Address_Line_2}} {{mem.Address_Line_3}}</td>
+														<td>{{mem.City}} </td>
+														<td>{{mem.State}} </td>
+														<td>{{mem.Zip_Code}} </td>
+													</tr>
+                                                    {% endfor %}
+												</tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                        </div>
+                        <!-- end row -->
+
+                         <!-- Modal -->
+		<div class="modal fade effect-flip-vertical"  id="addWorkshop" tabindex="-1" role="dialog">
+			<div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable" role="document">
+				<div class="modal-content">
+						<div class="modal-header">
+							<h5 class="modal-title" >Preview</h5>
+							<button  class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+								<span aria-hidden="true">×</span>
+							</button>
+						</div>
+						<div class="modal-body">
+                            <div id="out"></div>
+						</div>
+						<div class="modal-footer">
+							<button  class="btn btn-light" data-bs-dismiss="modal"> <i class='ti-close me-1'></i> Close</button>
+							<button  class="btn btn-primary" type='button' id="confirm_upload"> <i class='ti-save me-1'></i> Ok confirm to upload</button>
+						</div>
+				</div>
+			</div>
+		</div>
+
+                 
+{% endblock content %}
+
+{% block extra_javascript %}
+        <!-- Required datatable js -->
+        <script src="{% static 'libs/datatables.net/js/jquery.dataTables.min.js' %}"></script>
+        <script src="{% static 'libs/datatables.net-bs4/js/dataTables.bootstrap4.min.js' %}"></script>
+        <!-- Buttons examples -->
+        <script src="{% static 'libs/datatables.net-buttons/js/dataTables.buttons.min.js' %}"></script>
+        <script src="{% static 'libs/datatables.net-buttons-bs4/js/buttons.bootstrap4.min.js' %}"></script>
+        <script src="{% static 'libs/jszip/jszip.min.js' %}"></script>
+        <script src="{% static 'libs/pdfmake/build/pdfmake.min.js' %}"></script>
+        <script src="{% static 'libs/pdfmake/build/vfs_fonts.js' %}"></script>
+        <script src="{% static 'libs/datatables.net-buttons/js/buttons.html5.min.js' %}"></script>
+        <script src="{% static 'libs/datatables.net-buttons/js/buttons.print.min.js' %}"></script>
+        <script src="{% static 'libs/datatables.net-buttons/js/buttons.colVis.min.js' %}"></script>
+
+        <script src="{% static 'libs/datatables.net-keytable/js/dataTables.keyTable.min.js' %}"></script>
+        <script src="{% static 'libs/datatables.net-select/js/dataTables.select.min.js' %}"></script>
+        
+        <!-- Responsive examples -->
+        <script src="{% static 'libs/datatables.net-responsive/js/dataTables.responsive.min.js' %}"></script>
+        <script src="{% static 'libs/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js' %}"></script>
+
+        <!-- Sweet Alerts js -->
+        <script src="{% static 'libs/sweetalert2/sweetalert2.min.js' %}"></script>
+
+        <!-- Form validation -->
+        <script src="{% static 'js/pages/form-validation.init.js' %}"></script>
+        
+        <!-- Plugins js -->
+        <script src="{% static 'libs/dropzone/min/dropzone.min.js' %}"></script>
+
+        <script>
+            Dropzone.autoDiscover = false;
+            $(document).ready(function(){
+
+                $(window).on('resize',function() {
+					$($.fn.dataTable.tables(true)).DataTable()
+					.columns.adjust()
+					.responsive.recalc();
+				})
+
+                var table = $('#memberUpload').DataTable({
+					buttons: [{ extend: 'csv',  text: 'Export CSV', className: 'dtExportButton btn-primary  btn-sm waves-effect waves-light ms-2' },],
+                    language:{
+                        paginate:{
+                            previous:"<i class='mdi mdi-chevron-left'>",
+                            next:"<i class='mdi mdi-chevron-right'>"
+                        }
+                    },
+                    "lengthMenu": [ [100, 250, 500, 750, -1], [100, 250, 500, 750, "All"] ],
+                    'iDisplayLength': 100,
+                    drawCallback:function(){
+                        $(".dataTables_paginate > .pagination").addClass("pagination-rounded"),
+                        $(".dataTables_length select").addClass("form-select form-select-sm")
+                    }
+				});
+				table.buttons().container()
+				.appendTo( '#memberUpload_wrapper #memberUpload_filter' );
+
+
+                const myDropzone = new Dropzone("#membership_upload",{
+                    maxFiles:1,
+                    acceptedFiles:'.csv',
+                    uploadMultiple: false,
+                    addRemoveLinks: true,
+                    autoProcessQueue: false,
+                    init: function(){
+                        this.on("maxfilesexceeded", function(file) {
+                            this.removeAllFiles();
+                            this.addFile(file);
+                        });
+                        this.on("addedfile", function(file,data) {
+                            let file_name=file.name
+                            ext=file_name.split('.')
+                            if(ext[1]!='csv'){
+                                swal.fire({
+                                    title: 'Error',
+                                    text: "Please Upload a csv file",
+                                    icon: 'error',
+                                    confirmButtonColor: '#3085d6',
+                                    confirmButtonText: 'Ok'
+                                })
+                                this.removeAllFiles();
+                            }
+                        })
+                    },
+                });
+
+                $(document).on("click","#submit",function(e){
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (myDropzone.getQueuedFiles().length > 0)
+                    {   
+                        let file = $('#membership_upload')[0].dropzone.getAcceptedFiles()[0]
+                        let reader = new FileReader();
+                        reader.readAsDataURL(file);
+                        reader.onloadend = function(event) {
+                            var line = event.target.result.split('\n');
+                            display_view(line)
+                        };
+                    }
+                    else {                 
+                        swal.fire({
+                            title: 'Error',
+                            text: "Please Upload the file",
+                            icon: 'error',
+                            confirmButtonColor: '#3085d6',
+                            confirmButtonText: 'Ok'
+                        })
+                    }   
+                });
+
+                $(document).on("click","#confirm_upload",function(e){
+                      e.preventDefault();
+                      e.stopPropagation();            
+                        var myform = document.getElementById("membership_upload");
+                        var fd = new FormData(myform);
+                        fd.append('file', $('#membership_upload')[0].dropzone.getAcceptedFiles()[0]);
+                        $.ajax({
+                            url: "{% url 'membership' %}",
+                            type: "POST",
+                            data: fd,
+                            dataType: 'json',
+                            contentType: false,
+                            cache: false,
+                            processData: false,
+                            success: function(data) {
+                                $("#preloader").prop("display","none");            
+                                $("#status").prop("display","none");
+                                if(data['err']==''){
+                                    Dropzone.forElement('#membership_upload').removeAllFiles(true);
+                                    swal.fire({
+                                        title: 'Success',
+                                        html: data['msg'],
+                                        icon: 'success',
+                                        confirmButtonColor: '#3085d6',
+                                        confirmButtonText: 'Ok'
+                                    }).then((result) => {
+                                        window.location.href="{% url 'membership' %}"
+                                    }); 
+                                }
+                                else{
+                                    swal.fire({
+                                        title: 'Error',
+                                        text: data['err'],
+                                        icon: 'error',
+                                        confirmButtonColor: '#3085d6',
+                                        confirmButtonText: 'Ok'
+                                    });
+                                }
+                            },
+                            error: function() {}
+                        });   
+                    });
+
+
+                    function display_view(results){
+                        $.ajax({
+                            url:results[0],
+                            success:function(data){
+                                //var datas=data.split(/\r?\n|\r/)
+                                var datas=data.split("\r")
+                                function removeNull(array) {
+                                    return array.filter(x => x !== '')
+                                };
+                                var newdata=removeNull(datas)
+                                console.log(newdata)
+                                var tabele_datas='<div class="table-responsive">'
+                                tabele_datas+='<table class="table table-centered datatable responsive nowrap" data-bs-page-length="5" style="border-collapse: collapse; border-spacing: 0; width: 100%;">'
+                                    for(let count=0;count<newdata.length;count++){
+                                        if(datas[count]!=''){
+                                                const cell_data=newdata[count].split(',')
+                                                arr = cell_data.filter(function(item) {
+                                                return item !== "\n";
+                                                }).map(function(item) {
+                                                return item.replace(/\n/g,'');
+                                                });
+                                                const allEmpty = arr => arr.every(e => e == "")
+                                            if(allEmpty(arr)!=true){
+                                                tabele_datas+='<tr>'
+                                                    for (var index=0;index<cell_data.length;index++){
+                                                        if(count==0){
+                                                            tabele_datas+='<th>'+cell_data[index]+'</th>'
+                                                        }
+                                                        else{
+                                                            tabele_datas+='<td>'+cell_data[index].replace(/\\n/g, '').replace (/"/g,'')+'</td>'
+                                                        }
+                                                    }
+                                                tabele_datas+='</tr>'
+                                            }
+                                        }
+                                    }
+                                tabele_datas+='</table></div>'
+                                $("#out").html('')
+                                $("#out").html(tabele_datas)
+                                $("#addWorkshop").modal("show")
+                            }
+                        });
+                    }
+            })
+
+        </script>
+
+{% endblock extra_javascript %}

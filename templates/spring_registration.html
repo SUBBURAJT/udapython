@@ -1,0 +1,816 @@
+{% extends 'partials/base.html' %}
+{% load static %}
+
+{% block extra_css %}
+
+
+<link href="{% static 'libs/select2/css/select2.min.css' %}" rel="stylesheet" type="text/css">
+
+<link href="{% static 'libs/bootstrap-datepicker/css/bootstrap-datepicker.min.css' %}" rel="stylesheet">
+
+<!-- Sweet Alert-->
+<link href="{% static 'libs/sweetalert2/sweetalert2.min.css' %}" rel="stylesheet" type="text/css" />
+<style>
+    .boxRowAdd {
+        margin: 5px 0px !important;
+    }
+    .err {
+        border-color: #ff3d60 !important;
+        background-image: none !important;
+    }
+</style>
+{% endblock extra_css %}
+{% block content %}
+<div class="row">
+    <div class="col-lg-12">
+        <div class="card">
+            <div class="card-body">
+                {% for message in messages %}
+                <div class="alert {{ message.tags }} mb-4" id="alert_mess" role="alert">
+                    <strong>{{ message }}</strong>
+                </div>
+                {% endfor %}
+                <form class='needs-validation'  id="spring_form" method="post" action="" novalidate>
+                    {% csrf_token %}
+                    <input type="hidden" name="os" id="os"/>
+                    <input type="hidden" name="browser" id="browser"/>
+                    <input type="hidden" name="mobile_true" id="mobile_true" />
+                    <input type="hidden" name="screen_size" id="screen_size" />
+                    <input type="hidden" name="user_agent" id="user_agent" />
+                    <div class="row">
+                        <div class="col-12">
+                            <h4 class='fw-600 mb-2 headerFall'>YOUR PERSONAL INFO</h4>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="form-group">
+                                <label class="form-label mt-3 mt-0">Practice Name</label>
+                                <input type="text" class="form-control" name="practice_name" id="practice_name" placeholder='Enter practice name'>
+                                <div class="invalid-feedback">Practice name is required</div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="form-group">
+                                <label class="form-label mt-3 mt-0">First Name <span
+                                        class='text-danger'>*</span></label>
+                                <input type="text" class="form-control" name="name" id="name" placeholder='Enter first name' required>
+                                <div class="invalid-feedback">First name is required</div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="form-group">
+                                <label class="form-label mt-3 mt-0">Last Name <span class='text-danger'>*</span></label>
+                                <input type="text" class="form-control" name="last_name" id="last_name" placeholder='Enter last name' required>
+                                <div class="invalid-feedback">Last name is required</div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="form-group">
+                                <label class="form-label mt-3 mt-0">Phone <span class='text-danger'>*</span></label>
+                                <input type="text" class="form-control" name="phone" id="phone" placeholder='Enter phone number' required>
+                                <div class="invalid-feedback">Phone number is required</div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="form-group">
+                                <label class="form-label mt-3 mt-0">Email <span class='text-danger'>*</span></label>
+                                <input type="email" class="form-control email_in" name="email" id="email" placeholder='Enter email address' required>
+                                <div class="invalid-feedback">Email is required</div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="form-group">
+                                <label class="form-label mt-3 mt-0">Address <span class='text-danger'>*</span></label>
+                                <input type="text" class="form-control" name="address" id="address" placeholder='Enter address'  required>
+                                <div class="invalid-feedback">Address is required</div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="form-group">
+                                <label class="form-label mt-3 mt-0">City <span class='text-danger'>*</span></label>
+                                <input type="text" class="form-control" name="city" id="city" placeholder='Enter city'  required>
+                                <div class="invalid-feedback">City is required</div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="form-group">
+                                <label class="form-label mt-3 mt-0">State <span class='text-danger'>*</span></label>
+                                <input type="text" class="form-control" name="state" id="state" placeholder='Enter state'  required>
+                                <div class="invalid-feedback">State is required</div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="form-group">
+                                <label class="form-label mt-3 mt-0">Zip <span class='text-danger'>*</span></label>
+                                <input type="text" class="form-control" name="zipcode" id="zipcode" placeholder='Enter zipcode'  required>
+                                <div class="invalid-feedback">Zip is required</div>
+                            </div>
+                        </div>
+
+                        <div class="col-12 mt-3">
+                            <div class='bg-primary-transparent p-4 ps-0 br-5'>
+                                <h6 class='fw-600 text-uppercase mb-3'>Notes</h6>
+                                <ul class='list-group ps-4'>
+                                    <li class="py-1">Lunch at Courtyard by Marriott is included in the registration fee.
+                                    </li>
+                                    <li class="py-1">Deadline to register is April 10, 2021.</li>
+                                    <li class="py-1">No refunds after April 10, 2021.</li>
+                                    <li class="py-1">Confirmation will be emailed, but nametags will be at registration
+                                        for pickup.</li>
+                                </ul>
+                            </div>
+                            <div>
+                                <div class="alert alert-info alert-dismissible fade show text-center mt-4 fs-13 py-1 mb-0"
+                                    role="alert">
+                                    <span class="alert-inner--text">If you would like to add more than one person to any
+                                        category please enter the number first to populate the same fields</span>
+                                </div>
+                            </div>
+                        </div>
+                        {% for cv in convention %}
+
+                        <div class="col-12 mt-4 cv_container">
+                            <input type="hidden" name="hdn_cv_id" id="hdn_cv_id" value="{{cv.id}}">
+                            <input type="hidden" name="hdn_cv_price" id="hdn_cv_price" value="{{cv.price}}">
+
+                            <div class="row mt-0 align-items-center">
+                                <div class="col-lg-7">
+                                    <h5 class='fw-600 mb-lg-0 mb-3 headerFall'>{{cv.name}} (${{cv.price}}))</h5>
+                                </div>
+                                <div class="col-lg-5 text-right">
+                                    <div class='d-flex justify-content-lg-end'>
+                                        <input type="text" class='form-control-wof me-3 min-130 cnt_input' placeholder='Count' data-id={{cv.id}} data-price={{cv.price}}>
+                                        <div class="input-group min-130 flex-nowrap">
+                                            <div class="input-group-text">
+                                                <i class=" fas fa-dollar-sign tx-16 lh-0 op-6"></i>
+                                            </div>
+                                            <input class="form-control-wof cv_price" value='0' type="text" readonly>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% if cv.id == 18 or cv.id == 19 %}
+
+                            <div class="row boxRow ada_fields" id="text-box-{{cv.id}}">
+                                <span class='boxClose removebutton'><i class='mdi mdi-close'></i></span>
+                                <div class="col-lg-4 mb-lg-0 mb-3">
+                                    <input type="text" class='form-control-wof input_required ada_num' placeholder='ADA#' data-key="ada">
+                                    <div class="invalid-feedback">ADA is required</div>
+                                </div>
+                                <div class="col-lg-4 mb-lg-0 mb-3">
+                                    <input type="text" class='form-control-wof input_required ada_name' placeholder='Full name' data-key="name" >
+                                    <div class="invalid-feedback">Full name is required</div>
+                                </div>
+                                <div class="col-lg-4">
+                                    <input type="email" class='form-control-wof input_required ada_email email_in' placeholder='Email' data-key="email">
+                                    <div class="invalid-feedback">Email is required</div>
+                                </div>
+                            </div>
+                            {% elif cv.id == 20%}
+                            <div class="row boxRow" id="text-box-{{cv.id}}">
+                                <span class='boxClose removebutton'><i class='mdi mdi-close'></i></span>
+                                <div class="col-lg-4 mb-lg-0 mb-3">
+                                    <input type="text" class='form-control-wof input_required' placeholder='Full name' data-key="name">
+                                    <div class="invalid-feedback">Full Name is required</div>
+                                </div>
+                                <div class="col-lg-4 mb-lg-0 mb-3">
+                                    <input type="text" class='form-control-wof input_required id_num' placeholder='ID#' data-key="ada">
+                                    <div class="invalid-feedback">ID is required</div>
+                                </div>
+                                <div class="col-lg-4">
+                                    <input type="email" class='form-control-wof input_required email_in' placeholder='Email' data-key="email">
+                                    <div class="invalid-feedback">Email is required</div>
+                                </div>
+                            </div>
+
+
+                            <div class='pt-2'>
+                                <div class="alert alert-info alert-dismissible fade show text-center fs-13 py-1"
+                                    role="alert">
+                                    <span class="alert-inner--text">2021 Pricing Only Celebrating our New Dental
+                                        Hygienist Affiliate Membership If you would like to join, please follow the
+                                        following link:
+                                        <a target="_new"
+                                            href="https://ebusiness.ada.org/productcatalogPo3/62848/UT0006FB5F4SW43/UTeCatalog/UDA-2019-Hygienist-Membership/">https://ebusiness.ada.org/productcatalogPo3/62848/UT0006FB5F4SW43/UTeCatalog/UDA-2019-Hygienist-Membership/</a>
+                                    </span>
+                                </div>
+                            </div>
+
+                            {% elif cv.id == 21 %}
+
+                            <div class="row boxRow" id="text-box-{{cv.id}}">
+                                <span class='boxClose removebutton'><i class='mdi mdi-close'></i></span>
+                                <div class="col-lg-6 mb-lg-0 mb-3">
+                                    <input type="text" class='form-control-wof input_required' placeholder='Full name'  data-key="name">
+                                    <div class="invalid-feedback">Full Name is required</div>
+                                </div>
+                                <div class="col-lg-6">
+                                    <input type="email" class='form-control-wof input_required email_in' placeholder='Email'  data-key="email">
+                                    <div class="invalid-feedback">Email is required</div>
+                                </div>
+                            </div>
+                            {% else %}
+                            <div class="row boxRow" id="text-box-0"> </div>
+                            
+                            {% endif %}
+                        </div>
+                    
+                        {% endfor%}
+                        
+ 
+                        <div class="col-12 mt-3">
+                            <div class='d-flex align-items-center justify-content-end'>
+                                <p class='fw-600 mb-0 me-3 text-uppercase'>Grand Total ($)</p>
+                                <input type="text" class='form-control-wof min-130' name="gnd_tot" id='gnd_tot' value='0' readonly>
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <h4 class='fw-600 mb-3 mt-4 headerFall'>FOR OFFICE USE ONLY</h4>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="form-group">
+                                <label class="form-label mt-3 mt-0">Transaction Date <span
+                                        class='text-danger'>*</span></label>
+                                <div class="input-group" id="datepicker1">
+                                    <input type="text" class="form-control" placeholder="MM/DD/YYYY"
+                                        data-date-format="mm/dd/yyyy" data-date-container='#datepicker1'
+                                        data-provide="datepicker" name="off_transaction_created_date" id="off_transaction_created_date" required>
+
+                                    <span class="input-group-text"><i class="mdi mdi-calendar"></i></span>
+                                </div>
+                                <div class="invalid-feedback">Transaction date is required</div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="form-group">
+                                <label class="form-label mt-3 mt-0">Transaction ID</label>
+                                <input type="text" class="form-control" name="off_transaction_id" id="off_transaction_id" placeholder='Enter transaction ID'>
+                                <div class="invalid-feedback">Transaction ID is required</div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="form-group">
+                                <label class="form-label mt-3 mt-0">Payment Mode <span
+                                        class='text-danger'>*</span></label>
+                                <select class='form-control select2' name="off_transaction_payment_mode" id="off_transaction_payment_mode" data-placeholder='Select payment mode' required>
+                                    <option></option>
+                                    <option value="1">Cash</option>
+                                    <option value="2">Cheque/DD</option>
+                                    <option value="3">POS</option>
+                                    <option value="4">Venmo</option>
+                                    <option value="5">Others</option>
+                                </select>
+                                <div class="invalid-feedback">Payment mode is required</div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="form-group">
+                                <label class="form-label mt-3 mt-0">Payment Details</label>
+                                <input type="text" class="form-control" name="off_transaction_payment_details" id="off_transaction_payment_details" placeholder='Enter payment details'>
+                                <div class="invalid-feedback">Payment details is required</div>
+                            </div>
+                        </div>
+                        <div class="col-lg-12">
+                            <div class="form-group">
+                                <label class="form-label mt-3 mt-0">Memo </label>
+                                <textarea rows="5" class='form-control' name="off_transaction_memo" id="off_transaction_memo" placeholder='Enter memo'></textarea>
+                                <div class="invalid-feedback">Email is required</div>
+                                <p class='fw-600 fs-14 mt-3'>Registration Done By: Admin</p>
+                            </div>
+                        </div>
+                        <div class="col-12 text-end">
+                            <button type='button' class="btn btn-light px-md-5 me-2">Reset All</button>
+                            <button class="btn btn-primary px-md-5" name="spring_save" id="spring_save"  value="save" type='submit'>Register</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+        </div>
+    </div>
+</div>
+<!-- end row -->
+
+{% endblock content %}
+
+{% block extra_javascript %}
+
+<!-- Sweet Alerts js -->
+<script src="{% static 'libs/sweetalert2/sweetalert2.min.js' %}"></script>
+
+
+<script src="{% static 'libs/bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}"></script>
+
+<!-- Form validation -->
+<script src="{% static 'js/pages/form-validation.init.js' %}"></script>
+
+
+
+<script src="{% static 'libs/select2/js/select2.min.js' %}"></script>
+
+<!-- jquery.inputmask.bundle.js -->
+<script src="{% static 'js/plugins/jquery.inputmask.bundle.js' %}"></script>
+
+<script>
+  
+    $(document).ready(function () {
+        $('#off_transaction_created_date').datepicker({
+            todayHighlight: true
+        });
+        $('.select2').select2()
+        $('#phone').inputmask("(999) 999-9999")
+        $(".ada_num").inputmask("999 99 9999",{
+            numericInput: true,
+            autoUnmask: true,
+        });
+        $(".id_num").inputmask("999999",{
+            numericInput: true,
+            autoUnmask: true,
+        });
+        
+        $(document).on('change',".ada_num",function(){
+            var ada_num_fields = $(this);
+            ada_num = $(this).val();
+            ada_id = $(this).closest(".cv_container").find("#hdn_cv_id").val();
+            if(ada_id == '18' && ada_num!=''){
+                $.ajax({
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    url: "{% url 'get_ada_membership_info' %}",
+                    type: "POST",
+                    dataType: "json",
+                    data: {
+                        ada_number: ada_num
+                    },
+                    success: function(data) {
+                        if(data.data!=0){
+                            var result = JSON.parse(data.data);
+                            var fields1 = result[0]['fields'];
+                            var name = fields1['First_Name']+' '+fields1['Last_Name'];
+                            ada_num_fields.closest('div.ada_fields').find("input.ada_name").val(name);
+                        }                        
+                    }
+                });
+            }
+        })
+
+        $('#last_name').change(function(){
+            var fname=$('#name').val();
+            var lname=$('#last_name').val();
+            if(fname !='' && lname!=""){
+
+                $.ajax({
+                    headers : {
+                        'X-CSRFToken' : '{{ csrf_token }}'
+                    },
+                    url : "{% url 'get_ada_membership_address' %}",
+                    type : "POST",
+                    dataType: "json",
+                    data : {
+                        fname :fname,
+                        lname :lname
+                    },
+                    success: function(data){
+                         if(data.data!=0){
+                            var result = JSON.parse(data.data);
+                            var col=result[0]['fields'];
+                            $("#practice_name").val(col['PracticeName']);
+                            $("#phone").val(col['Phone']);
+                            $("#address").val(col['Address_Line_1']+' '+col['Address_Line_2']+' '+col['Address_Line_3']);
+                            $("#city").val(col['City']);
+                            $("#state").val(col['State']);
+                            $("#zipcode").val(col['Zip_Code']);
+                        }
+                    }
+                
+                });
+            }
+        })
+        $(document).on('change',".email_in",function(){
+            var email = $(this).val();
+            if (email !='') {
+                if(IsEmail(email) == false){
+                    $(this).addClass('err');
+                    $(this).closest('div').find('.invalid-feedback').html('Invalid Email');
+                    $(this).closest('div').find('.invalid-feedback').css('display', 'block');
+                }else {
+                    $(this).removeClass('err');
+                    $(this).closest('div').find('.invalid-feedback').css('display', 'none');
+                }                        
+            }else{
+                $(this).addClass('err');
+                $(this).closest('div').find('.invalid-feedback').html('Invalid Email');
+                $(this).closest('div').find('.invalid-feedback').css('display', 'block');
+            }
+        });
+        $("#spring_save").click(function(e){
+            var err = 0
+            var practice_name = $("#practice_name").val();
+            var fname = $("#name").val();
+            var lname = $("#last_name").val();
+            var phone = $("#phone").val();
+            var email = $("#email").val();
+            var addr = $("#address").val();
+            var city = $("#city").val();
+            var state = $("#state").val();
+            var zip = $("#zipcode").val();
+            var tr_date = $("#off_transaction_created_date").val();
+            var payment_mode = $("#off_transaction_payment_mode").val();
+           
+            if(practice_name!= '' && fname != '' && lname !='' && phone != '' && email !='' && addr != '' && city !='' && state != '' && zip !='' && tr_date != '' && payment_mode !='' ){
+                $('.email_in').each(function(){
+                    var em = $(this).val();
+                    if (em !='') {
+                        if(IsEmail(em) == false){
+                            $(this).addClass('err');
+                            $(this).closest('div').find('.invalid-feedback').html('Invalid Email');
+                            $(this).closest('div').find('.invalid-feedback').css('display', 'block');
+                            err++
+                        }else {
+                            $(this).removeClass('err');
+                            $(this).closest('div').find('.invalid-feedback').css('display', 'none');
+                        }                        
+                    }
+                });
+                $('#spring_form').find('input').each(function()
+                {
+                    if($(this)[0].hasAttribute('required')){
+                        if( !$(this).val() ) {
+                            $(this).addClass('err');
+                            $(this).closest('div').find('.invalid-feedback').css('display', 'block');
+                            err++
+                        }else {
+                            $(this).removeClass('err');
+                            $(this).closest('div').find('.invalid-feedback').css('display', 'none');
+                        }
+                    }
+                });
+                if (err == 0) {
+                    e.preventDefault()
+                    var convensionType = [];
+                    $(".cnt_input").each(function(){
+                        var convensionSet = {};
+                        if($(this).val()>0){
+                            var cv_id = $(this).closest(".cv_container").find("#hdn_cv_id").val();
+                            var cv_price = $(this).closest(".cv_container").find("#hdn_cv_price").val();
+                            var cnt = $(this).val();
+                            var grand = $(this).closest(".cv_container").find(".cv_price").val();
+                            var input = [];
+                            $("#text-box-"+cv_id+" .boxRow").each(function(){
+                                var input2 = {};
+                                $(this).find('input').each(function(){
+                                    var key = $(this).attr("data-key");
+                                    input2[key] = $(this).val();                                    
+                                })
+                                input.push(input2)
+                            })
+                            var ip_len = 0
+                            ip_len = input.length;
+                            if(ip_len == 0){
+                                $("#text-box-"+cv_id+".boxRow").each(function(){
+                                    var input2 = {};
+                                    $(this).find('input').each(function(){
+                                        var key = $(this).attr("data-key");
+                                        input2[key] = $(this).val();                                    
+                                    })
+                                    input.push(input2)
+                                })
+                            }
+                            convensionSet['id'] = cv_id;
+                            convensionSet['price'] = cv_price;
+                            convensionSet['cnt'] = cnt;
+                            convensionSet['gnd_tot'] = grand;
+                            convensionSet['input'] = input;
+                            convensionType.push(convensionSet)
+                        }
+                    })
+                    my_form = $("#spring_form")[0];
+                    data = new FormData(my_form);
+                    data.append('conventionType', JSON.stringify(convensionType))
+                    console.log(JSON.stringify(convensionType))
+                    console.log(convensionType)
+                     //$("#spring_form").submit();
+                    $("#preloader").prop("display", "block");
+
+                    $.ajax({
+                        headers: {
+                            'X-CSRFToken': '{{ csrf_token }}'
+                        },
+                        url: "{% url 'spring_registration' %}",
+                        type: "POST",
+                        data: data,
+                        processData: false,
+                        contentType: false,
+                        success: function(data) {
+                            $("#preloader").prop("display", "none");
+                            if (data['err'] == 0) {
+                                swal.fire({
+                                    title: 'Success',
+                                    html: data['msg'],
+                                    icon: 'success',
+                                    confirmButtonColor: '#3085d6',
+                                    confirmButtonText: 'Ok'
+                                }).then((result) => {
+                                    location.href = "{% url 'spring_registration' %}"
+                                });
+                            } else {
+                                swal.fire({
+                                    title: 'Error',
+                                    text: data['msg'],
+                                    icon: 'error',
+                                    confirmButtonColor: '#3085d6',
+                                    confirmButtonText: 'Ok'
+                                });
+                            }
+                        },
+                        error: function() {}
+                    });
+
+
+                } else {
+                    e.preventDefault()
+                    return false;
+                }
+            }
+         })
+        function IsEmail(email) {
+        var regex = /^([a-zA-Z0-9_\.\-\+])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/;
+        if (!regex.test(email))
+            return false;
+        else
+            return true;
+        }
+
+        $(".cnt_input").keyup(function(){
+            var convention_id = $(this).attr('data-id');
+            var price = $(this).attr('data-price');
+            var cnt = $(this).val();
+             
+            $('#text-box-'+convention_id).html('');
+            var arr1=['18','19'];
+            var arr2=['20'];
+            var arr3=['21'];
+            if(jQuery.inArray(convention_id,arr1)!='-1')
+            {
+                for(i=1; i<=cnt; i++)
+                {
+                    var con_inputbox='<div class="row boxRow boxRowAdd ada_fields"><span class="boxClose removebutton"><i class="mdi mdi-close"></i></span>'
+                        +'<div class="col-lg-4 mb-lg-0 mb-3"><input type="text" class="form-control-wof input_required ada_num" placeholder="ADA#" data-key="ada" required><div class="invalid-feedback">ADA is required</div></div>'
+                        +'<div class="col-lg-4 mb-lg-0 mb-3"><input type="text" class="form-control-wof input_required ada_name" placeholder="Full name" data-key="name" required><div class="invalid-feedback">Full name is required</div></div>'
+                        +'<div class="col-lg-4"><input type="email" class="form-control-wof input_required email_in ada_email" placeholder="Email" data-key="email" required><div class="invalid-feedback">Email is required</div></div> </div>';
+
+                     $('#text-box-'+convention_id).append(con_inputbox);  
+                     $(".ada_num").inputmask("999 99 9999",{
+                        numericInput: true,
+                        autoUnmask: true,
+                    }); 
+                }
+            }
+            
+            if(jQuery.inArray(convention_id,arr2)!='-1'){
+                for(j=1; j<=cnt; j++){
+                    var con_inputbox='<div class="row boxRow boxRowAdd"><span class="boxClose removebutton"><i class="mdi mdi-close"></i></span>'
+                                +'<div class="col-lg-4 mb-lg-0 mb-3"><input type="text" class="form-control-wof input_required" placeholder="Full name" data-key="name"  required><div class="invalid-feedback">Full name is required</div></div>'
+                                +'<div class="col-lg-4 mb-lg-0 mb-3"><input type="text" class="form-control-wof input_required id_num" placeholder="ID#"  data-key="ada" required><div class="invalid-feedback">ID is required</div></div>'
+                                +'<div class="col-lg-4"><input type="email" class="form-control-wof input_required email_in" placeholder="Email"  data-key="email" required><div class="invalid-feedback">Email is required</div> </div></div>';
+                    $('#text-box-'+convention_id).append(con_inputbox);
+                    $(".id_num").inputmask("999999",{
+                        numericInput: true,
+                        autoUnmask: true,
+                    });
+                }
+            }
+
+            if(jQuery.inArray(convention_id,arr3)!='-1'){
+                for(x=1; x <= cnt; x++){
+                    var con_inputbox='<div class="row boxRow boxRowAdd"><span class="boxClose removebutton"><i class="mdi mdi-close"></i></span>'
+                                +'<div class="col-lg-6 mb-lg-0 mb-3"><input type="text" class="form-control-wof input_required" placeholder="Full name"  data-key="name" required><div class="invalid-feedback">Full name is required</div></div>'
+                                +'<div class="col-lg-6"><input type="email" class="form-control-wof input_required email_in" placeholder="Email"  data-key="email" required><div class="invalid-feedback">Email is required</div></div></div>';
+                    $('#text-box-'+convention_id).append(con_inputbox);
+                }
+            }
+            $(this).closest('.cv_container').find('.cv_price').val(cnt*price);
+            grand_total();
+        });
+
+        function grand_total(){
+            var sum=0;
+            $('.cv_price').each(function(){
+                sum += +$(this).val();
+            })
+            $('#gnd_tot').val(sum);
+        }
+        $(document).on('click','.removebutton' ,function(e){
+            var cnt =$(this).closest('.cv_container').find('.cnt_input').val();
+            var price =$(this).closest('.cv_container').find('.cnt_input').attr('data-price');
+            cnt=cnt-1;
+            tot_price=cnt*price;
+            cnt = (cnt>0?cnt:'');
+            tot_price=(tot_price>0?tot_price:0)
+            $(this).closest('.cv_container').find('.cnt_input').val(cnt);
+            $(this).closest('.cv_container').find('.cv_price').val(tot_price);
+            $(this).closest('.boxRowAdd').remove();
+            grand_total();
+        });
+
+        $('.input_required').keyup(function() {
+            var id = $(this).closest(".cv_container").find("#hdn_cv_id").val();
+            var opt = $(this).attr('data-opt');
+            if(opt==2){
+            }else{
+                $('#text-box-'+id).find('input').prop('required', true);
+                $('#text-box-'+id).find('select').prop('required', true);
+                $(this).closest(".cv_container").find('.cnt_input').val(1);
+            }
+            var p = $(this).closest(".cv_container").find('#hdn_cv_price').val();
+            $(this).closest(".cv_container").find('.cv_price').val(p*1);
+            grand_total();
+        });
+
+    });
+
+    
+    (function (window) {
+    {
+        
+        var unknown = '-';
+        var screenSize = '';
+        if (screen.width) {
+            width = (screen.width) ? screen.width : '';
+            height = (screen.height) ? screen.height : '';
+            screenSize += '' + width + " x " + height;
+        }
+        var nVer = navigator.appVersion;
+        var nAgt = navigator.userAgent;
+        var browser = navigator.appName;
+        var version = '' + parseFloat(navigator.appVersion);
+        var majorVersion = parseInt(navigator.appVersion, 10);
+        var nameOffset, verOffset, ix;
+        // Opera
+        if ((verOffset = nAgt.indexOf('Opera')) != -1) {
+            browser = 'Opera';
+            version = nAgt.substring(verOffset + 6);
+            if ((verOffset = nAgt.indexOf('Version')) != -1) {
+                version = nAgt.substring(verOffset + 8);
+            }
+        }
+        // Opera Next
+        if ((verOffset = nAgt.indexOf('OPR')) != -1) {
+            browser = 'Opera';
+            version = nAgt.substring(verOffset + 4);
+        }
+        // Edge
+        else if ((verOffset = nAgt.indexOf('Edge')) != -1) {
+            browser = 'Microsoft Edge';
+            version = nAgt.substring(verOffset + 5);
+        }
+        // MSIE
+        else if ((verOffset = nAgt.indexOf('MSIE')) != -1) {
+            browser = 'Microsoft Internet Explorer';
+            version = nAgt.substring(verOffset + 5);
+        }
+        // Chrome
+        else if ((verOffset = nAgt.indexOf('Chrome')) != -1) {
+            browser = 'Chrome';
+            version = nAgt.substring(verOffset + 7);
+        }
+        // Safari
+        else if ((verOffset = nAgt.indexOf('Safari')) != -1) {
+            browser = 'Safari';
+            version = nAgt.substring(verOffset + 7);
+            if ((verOffset = nAgt.indexOf('Version')) != -1) {
+                version = nAgt.substring(verOffset + 8);
+            }
+        }
+        // Firefox
+        else if ((verOffset = nAgt.indexOf('Firefox')) != -1) {
+            browser = 'Firefox';
+            version = nAgt.substring(verOffset + 8);
+        }
+        // MSIE 11+
+        else if (nAgt.indexOf('Trident/') != -1) {
+            browser = 'Microsoft Internet Explorer';
+            version = nAgt.substring(nAgt.indexOf('rv:') + 3);
+        }
+        // Other browsers
+        else if ((nameOffset = nAgt.lastIndexOf(' ') + 1) < (verOffset = nAgt.lastIndexOf('/'))) {
+            browser = nAgt.substring(nameOffset, verOffset);
+            version = nAgt.substring(verOffset + 1);
+            if (browser.toLowerCase() == browser.toUpperCase()) {
+                browser = navigator.appName;
+            }
+        }
+        // trim the version string
+        if ((ix = version.indexOf(';')) != -1) version = version.substring(0, ix);
+        if ((ix = version.indexOf(' ')) != -1) version = version.substring(0, ix);
+        if ((ix = version.indexOf(')')) != -1) version = version.substring(0, ix);
+        majorVersion = parseInt('' + version, 10);
+        if (isNaN(majorVersion)) {
+            version = '' + parseFloat(navigator.appVersion);
+            majorVersion = parseInt(navigator.appVersion, 10);
+        }
+        // mobile version
+        var mobile = /Mobile|mini|Fennec|Android|iP(ad|od|hone)/.test(nVer);
+        // cookie
+        var cookieEnabled = (navigator.cookieEnabled) ? true : false;
+        if (typeof navigator.cookieEnabled == 'undefined' && !cookieEnabled) {
+            document.cookie = 'testcookie';
+            cookieEnabled = (document.cookie.indexOf('testcookie') != -1) ? true : false;
+        }
+        // system
+        var os = unknown;
+        var clientStrings = [
+            {s:'Windows 10', r:/(Windows 10.0|Windows NT 10.0)/},
+            {s:'Windows 8.1', r:/(Windows 8.1|Windows NT 6.3)/},
+            {s:'Windows 8', r:/(Windows 8|Windows NT 6.2)/},
+            {s:'Windows 7', r:/(Windows 7|Windows NT 6.1)/},
+            {s:'Windows Vista', r:/Windows NT 6.0/},
+            {s:'Windows Server 2003', r:/Windows NT 5.2/},
+            {s:'Windows XP', r:/(Windows NT 5.1|Windows XP)/},
+            {s:'Windows 2000', r:/(Windows NT 5.0|Windows 2000)/},
+            {s:'Windows ME', r:/(Win 9x 4.90|Windows ME)/},
+            {s:'Windows 98', r:/(Windows 98|Win98)/},
+            {s:'Windows 95', r:/(Windows 95|Win95|Windows_95)/},
+            {s:'Windows NT 4.0', r:/(Windows NT 4.0|WinNT4.0|WinNT|Windows NT)/},
+            {s:'Windows CE', r:/Windows CE/},
+            {s:'Windows 3.11', r:/Win16/},
+            {s:'Android', r:/Android/},
+            {s:'Open BSD', r:/OpenBSD/},
+            {s:'Sun OS', r:/SunOS/},
+            {s:'Chrome OS', r:/CrOS/},
+            {s:'Linux', r:/(Linux|X11(?!.*CrOS))/},
+            {s:'iOS', r:/(iPhone|iPad|iPod)/},
+            {s:'Mac OS X', r:/Mac OS X/},
+            {s:'Mac OS', r:/(MacPPC|MacIntel|Mac_PowerPC|Macintosh)/},
+            {s:'QNX', r:/QNX/},
+            {s:'UNIX', r:/UNIX/},
+            {s:'BeOS', r:/BeOS/},
+            {s:'OS/2', r:/OS\/2/},
+            {s:'Search Bot', r:/(nuhk|Googlebot|Yammybot|Openbot|Slurp|MSNBot|Ask Jeeves\/Teoma|ia_archiver)/}
+        ];
+        for (var id in clientStrings) {
+            var cs = clientStrings[id];
+            if (cs.r.test(nAgt)) {
+                os = cs.s;
+                break;
+            }
+        }
+        var osVersion = unknown;
+        if (/Windows/.test(os)) {
+            osVersion = /Windows (.*)/.exec(os)[1];
+            os = 'Windows';
+        }
+        switch (os) {
+            case 'Mac OS X':
+                osVersion = /Mac OS X (10[\.\_\d]+)/.exec(nAgt)[1];
+                break;
+            case 'Android':
+                osVersion = /Android ([\.\_\d]+)/.exec(nAgt)[1];
+                break;
+            case 'iOS':
+                osVersion = /OS (\d+)_(\d+)_?(\d+)?/.exec(nVer);
+                osVersion = osVersion[1] + '.' + osVersion[2] + '.' + (osVersion[3] | 0);
+                break;
+        }
+        var flashVersion = 'no check';
+        if (typeof swfobject != 'undefined') {
+            var fv = swfobject.getFlashPlayerVersion();
+            if (fv.major > 0) {
+                flashVersion = fv.major + '.' + fv.minor + ' r' + fv.release;
+            }
+            else  {
+                flashVersion = unknown;
+            }
+        }
+    }
+    window.jscd = {
+        screen: screenSize,
+        browser: browser,
+        browserVersion: version,
+        browserMajorVersion: majorVersion,
+        mobile: mobile,
+        os: os,
+        osVersion: osVersion,
+        cookies: cookieEnabled,
+        flashVersion: flashVersion
+    };
+}(this));
+
+    $("#os").val(jscd.os +' '+ jscd.osVersion);
+    $("#browser").val(jscd.browser +' '+ jscd.browserMajorVersion +' (' + jscd.browserVersion + ')');
+    $("#mobile_true").val(jscd.mobile);
+    $("#screen_size").val(jscd.screen);
+    $("#user_agent").val(navigator.userAgent);
+    
+
+
+
+
+
+ 
+
+
+</script>
+
+{% endblock extra_javascript %}

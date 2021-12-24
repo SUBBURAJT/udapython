@@ -1,0 +1,399 @@
+{% extends 'partials/base.html' %} {% load static %} {% block extra_css %}
+
+<!-- DataTables -->
+<link href="{% static 'libs/datatables.net-bs4/css/dataTables.bootstrap4.min.css' %}" rel="stylesheet" type="text/css" />
+<link href="{% static 'libs/datatables.net-buttons-bs4/css/buttons.bootstrap4.min.css' %}" rel="stylesheet" type="text/css" />
+<link href="{% static 'libs/datatables.net-select-bs4/css//select.bootstrap4.min.css' %}" rel="stylesheet" type="text/css" />
+
+<!-- Responsive datatable examples -->
+<link href="{% static 'libs/datatables.net-responsive-bs4/css/responsive.bootstrap4.min.css' %}" rel="stylesheet" type="text/css" />
+
+<!-- Sweet Alert-->
+<link href="{% static 'libs/sweetalert2/sweetalert2.min.css' %}" rel="stylesheet" type="text/css" />
+<style>
+    .err {
+        border-color: #ff3d60 !important;
+        background-image: none !important;
+    }
+</style>
+{% endblock extra_css %} {% block content %}
+<div class="row">
+    <div class="col-lg-12">
+        <div class="card">
+            <div class="card-header bg-white border-bottom d-flex align-items-center justify-content-between">
+                <h4 class="card-title mb-0">User List</h4>
+                <div class="dropdown float-end">
+                    <a href="#addWorkshop" data-bs-effect="effect-flip-vertical" data-bs-toggle="modal" class="btn btn-primary btn-sm waves-effect waves-light text-white px-3">
+                        <i class='fa fa-plus me-2 fs-12'></i>Add New User
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+
+                <div class="table-responsive">
+                    <table id="userManage" class="table table-centered datatable responsive nowrap" data-bs-page-length="5" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
+                        <thead class="table-light">
+                            <tr>
+                                <th class='all'>Name</th>
+                                <th>Email</th>
+                                <th>Mobile</th>
+                                <th class='all'>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {%for data in all_data %}
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="activity-icon avatar-xs me-2">
+                                            <span class="avatar-title {{data.bg}}  br-5">
+                                                                                                {{data.name.0}}
+                                                                                            </span>
+                                        </div>
+                                        {{data.name}}
+                                    </div>
+
+                                </td>
+                                <td>{{data.email}}</td>
+                                <td>{{data.mobile}}</td>
+                                <td id="tooltip-container1">
+                                    <a href="#" id="edit" name="{{data.id}}" class="me-3 text-primary edit_user_management" data-bs-container="#tooltip-container1" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit"><i class="mdi mdi-pencil font-size-18"></i></a>
+
+                                    <a class="text-danger tabDelete" data-id="{{data.id}}" data-bs-container="#tooltip-container1" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete" name="{{data.id}}"><i class="mdi mdi-trash-can font-size-18"></i></a>
+                                </td>
+
+                            </tr>
+                            {% endfor %}
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+<!-- end row -->
+
+<!-- Modal -->
+<div class="modal fade effect-flip-vertical edit" id="addWorkshop" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <form class='needs-validation' id="user_frm" method="POST" action="" novalidate>
+                {% csrf_token %}
+                <input type="hidden" id="data_id" name="data_id" value="">
+                <div class="modal-header">
+                    <h5 class="modal-title title">Add New User</h5>
+                    <button class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+								<span aria-hidden="true"></span>
+							</button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <div class="form-group mb-lg-2 mb-3">
+                                <label class="form-label mt-lg-1 mt-0">Full Name <span class='text-danger'>*</span></label>
+                                <input type="text" class="form-control" name="name" id="firstname" placeholder='Enter full name' autocomplete="off" required>
+                                <div class="invalid-feedback">Full name is required</div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="form-group mb-lg-2 mb-3">
+                                <label class="form-label mt-lg-1 mt-0">Email <span class='text-danger'>*</span></label>
+                                <input type="email" class="form-control" name="email" id="email" placeholder='Enter email address' autocomplete="off" required>
+                                <div class="invalid-feedback">Email is required</div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="form-group mb-lg-2 mb-3">
+                                <label class="form-label mt-lg-1 mt-0">Mobile <span class='text-danger'>*</span></label>
+                                <input type="text" class="form-control" name="mobile" id="mobile" placeholder='Enter mobile' autocomplete="off" required>
+                                <div class="invalid-feedback">Mobile number is required</div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="form-group mb-lg-2 mb-3">
+                                <label class="form-label mt-lg-1 mt-0">Password <span class='text-danger'>*</span></label>
+                                <div class="input-group bootstrap-touchspin bootstrap-touchspin-injected">
+                                    <input type="password" class="form-control" name="password" id="pass" placeholder="Enter password" autocomplete="off" required>
+                                    <span class="input-group-addon bootstrap-touchspin-postfix input-group-append">
+                                                <span class="input-group-text h-100"><i class='fa fa-eye'></i></span>
+                                    </span>
+                                    <div class="invalid-feedback">Password is required</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="form-group mb-lg-2 mb-3">
+                                <label class="form-label mt-lg-1 mt-0">Confirm Password <span class='text-danger'>*</span></label>
+                                <input type="password" class="form-control" name="reset_pass" id="re_enter_pass" placeholder='Re-Enter a confirm password' autocomplete="off" required>
+                                <div class="invalid-feedback">The confirm password must same as entered password</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-light" data-bs-dismiss="modal" onclick="cancel_user();"> <i class='ti-close me-1'></i> Cancel</button>
+                    <button class="btn btn-primary" type='submit' id="add_new_user"> <i class='ti-save me-1'></i> Save changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock content %} {% block extra_javascript %}
+<!-- Required datatable js -->
+<script src="{% static 'libs/datatables.net/js/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'libs/datatables.net-bs4/js/dataTables.bootstrap4.min.js' %}"></script>
+<!-- Buttons examples -->
+<script src="{% static 'libs/datatables.net-buttons/js/dataTables.buttons.min.js' %}"></script>
+<script src="{% static 'libs/datatables.net-buttons-bs4/js/buttons.bootstrap4.min.js' %}"></script>
+<script src="{% static 'libs/jszip/jszip.min.js' %}"></script>
+<script src="{% static 'libs/pdfmake/build/pdfmake.min.js' %}"></script>
+<script src="{% static 'libs/pdfmake/build/vfs_fonts.js' %}"></script>
+<script src="{% static 'libs/datatables.net-buttons/js/buttons.html5.min.js' %}"></script>
+<script src="{% static 'libs/datatables.net-buttons/js/buttons.print.min.js' %}"></script>
+<script src="{% static 'libs/datatables.net-buttons/js/buttons.colVis.min.js' %}"></script>
+
+<script src="{% static 'libs/datatables.net-keytable/js/dataTables.keyTable.min.js' %}"></script>
+<script src="{% static 'libs/datatables.net-select/js/dataTables.select.min.js' %}"></script>
+
+<!-- Responsive examples -->
+<script src="{% static 'libs/datatables.net-responsive/js/dataTables.responsive.min.js' %}"></script>
+<script src="{% static 'libs/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js' %}"></script>
+
+<!-- Sweet Alerts js -->
+<script src="{% static 'libs/sweetalert2/sweetalert2.min.js' %}"></script>
+
+<!-- Form validation -->
+<script src="{% static 'js/pages/form-validation.init.js' %}"></script>
+
+<!-- jquery.inputmask.bundle.js -->
+<script src="{% static 'js/plugins/jquery.inputmask.bundle.js' %}"></script>
+
+<script>
+    jQuery(function($) {
+        $('#mobile').inputmask("(999) 999-9999");
+    });
+    $(document).ready(function() {
+
+        $(window).on('resize', function() {
+            $($.fn.dataTable.tables(true)).DataTable()
+                .columns.adjust()
+                .responsive.recalc();
+        })
+
+        var table = $('#userManage').DataTable({
+            //buttons: [{ extend: 'excel',  text: 'Export CSV', className: 'dtExportButton btn-primary  btn-sm waves-effect waves-light ms-2' },],
+            "columnDefs": [{
+                "targets": [-1],
+                "orderable": false,
+            }],
+            "aLengthMenu": [
+                [25, 50, 100, 10000],
+                [25, 50, 100, "All"]
+            ],
+            "pageLength": 25,
+            language: {
+                paginate: {
+                    previous: "<i class='mdi mdi-chevron-left'>",
+                    next: "<i class='mdi mdi-chevron-right'>"
+                }
+            },
+            drawCallback: function() {
+                $(".dataTables_paginate > .pagination").addClass("pagination-rounded"),
+                    $(".dataTables_length select").addClass("form-select form-select-sm")
+            }
+        });
+        table.buttons().container()
+            .appendTo('#userManage_wrapper #userManage_filter');
+    })
+    $(document).on('change', "#email", function() {
+        var email = $("#email").val();
+        var id = $("#data_id").val();
+        if (IsEmail(email) == false) {
+            $("#email").addClass('err');
+            $("#email").closest('div').find('.invalid-feedback').html('Invalid Email');
+            $("#email").closest('div').find('.invalid-feedback').css('display', 'block');
+        } else {
+            $("#email").removeClass('err');
+            $("#email").closest('div').find('.invalid-feedback').css('display', 'none');
+            $.ajax({
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                url: "{% url 'user_email_check' %}",
+                type: "POST",
+                data: {
+                    email: email,
+                    id: id
+                },
+                success: function(data) {
+                    if (data['err'] == 1) {
+                        $("#email").addClass('err');
+                        $("#email").closest('div').find('.invalid-feedback').html(data['msg']);
+                        $("#email").closest('div').find('.invalid-feedback').css('display', 'block');
+                    } else {
+                        $("#email").removeClass('err');
+                        $("#email").closest('div').find('.invalid-feedback').html("Email is required");
+                        $("#email").closest('div').find('.invalid-feedback').css('display', 'none');
+                    }
+                },
+                error: function() {}
+            });
+        }
+    })
+    $(document).on('click', '#add_new_user', function(e) {
+        var name = $("#firstname").val();
+        var email = $("#email").val();
+        var mobile = $("#mobile").val();
+        var password = $("#pass").val()
+        var repeated_password = $("#re_enter_pass").val()
+        var editId = $("#data_id").val();
+
+        if (editId != '' && editId != undefined) {
+            if ($("#pass").val() == '' && $("#re_enter_pass").val() == '') {
+                $("#pass").removeAttr('required');
+                $("#re_enter_pass").removeAttr('required');
+            } else {
+                $("#pass").prop('required', true);
+                $("#re_enter_pass").prop('required', true);
+            }
+        }
+
+        if (name != '' && email != '' && mobile != '' && password != '' && repeated_password != "") {
+            var err = 0;
+            e.preventDefault();
+            if (IsEmail(email) == false) {
+                $("#email").addClass('err');
+                $("#email").closest('div').find('.invalid-feedback').html('Invalid Email');
+                $("#email").closest('div').find('.invalid-feedback').css('display', 'block');
+                $('#email').focus();
+                err++;
+            } else {
+                $("#email").removeClass('err');
+                $("#email").closest('div').find('.invalid-feedback').css('display', 'none');
+            }
+            if (password == repeated_password) {
+                $("#re_enter_pass").removeClass('err');
+                $("#re_enter_pass").closest('div').find('.invalid-feedback').css('display', 'none');
+            } else {
+                $("#re_enter_pass").addClass('err');
+                $("#re_enter_pass").closest('div').find('.invalid-feedback').css('display', 'block');
+                err++;
+            }
+            if (err == 0) {
+                $("#user_frm").submit();
+            } else {
+                return false;
+            }
+        }
+
+
+    });
+    $(document).on('click', '.tabDelete', function() {
+        var id = $(this).attr('data-id');
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "You won't be able to revert this!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#6259ca',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, delete it!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $("#preloader").prop("display", "block");
+                $.ajax({
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    url: "/delete_user_management/" + id + "/",
+                    type: "POST",
+                    dataType: 'json',
+                    cache: false,
+                    processData: false,
+                    success: function(data) {
+                        $("#preloader").prop("display", "none");
+                        if (data['err'] == '') {
+                            swal.fire({
+                                title: 'Deleted!',
+                                html: data['msg'],
+                                icon: 'success',
+                                confirmButtonColor: '#3085d6',
+                                confirmButtonText: 'Ok'
+                            }).then((result) => {
+                                location.href = "{% url 'user_management' %}"
+                            });
+                        } else {
+                            swal.fire({
+                                title: 'Error',
+                                text: data['err'],
+                                icon: 'error',
+                                confirmButtonColor: '#3085d6',
+                                confirmButtonText: 'Ok'
+                            });
+                        }
+                    },
+                    error: function() {}
+                });
+            }
+        })
+    })
+    $(".edit_user_management").on("click", function(e) {
+        e.preventDefault();
+        var id = $(this).attr('name');
+        $.ajax({
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            url: "{% url 'get_users' %}",
+            type: "GET",
+            dataType: "json",
+            data: {
+                id: id
+            },
+            success: function(data) {
+                $('.edit').modal("show");
+                $('.modal-title').html('Edit User');
+                var result = JSON.parse(data.data)
+                var fields1 = result[0]['fields'];
+                $("#data_id").val(result[0]['pk']);
+                $("#firstname").val(fields1['name']);
+                $("#email").val(fields1['email']);
+                $("#mobile").val(fields1['mobile']);
+            }
+        });
+    })
+
+    $("#add_btn").on("click", function(e) {
+        $('.modal-title').html('Add New User');
+
+    })
+    setTimeout(function() {
+        $("#alert_mess").css("display", 'none');
+    }, 8000);
+
+    function cancel_user() {
+        $("#firstname").val('');
+        $("#email").val('');
+        $("#mobile").val('');
+        $("#pass").val('');
+        $("#re_enter_pass").val('');
+        $("#re_enter_pass").removeClass('err');
+        $("#email").removeClass('err');
+        $("#user_frm").find('.is-invalid').removeClass("is-invalid");
+        $("#user_frm").find('.is-valid').removeClass("is-valid");
+        $("#user_frm").find('.invalid-feedback').hide();
+        $("#user_frm").find('.valid-feedback').hide();
+    }
+
+    function IsEmail(email) {
+        var regex = /^([a-zA-Z0-9_\.\-\+])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/;
+        if (!regex.test(email))
+            return false;
+        else
+            return true;
+    }
+</script>
+
+{% endblock extra_javascript %}

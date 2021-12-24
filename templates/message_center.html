@@ -1,0 +1,544 @@
+{% extends 'partials/base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link href="{% static 'libs/select2/css/select2.min.css' %}" rel="stylesheet" type="text/css">
+<!-- DataTables -->
+<link href="{% static 'libs/datatables.net-bs4/css/dataTables.bootstrap4.min.css' %}" rel="stylesheet"
+    type="text/css" />
+<link href="{% static 'libs/datatables.net-buttons-bs4/css/buttons.bootstrap4.min.css' %}" rel="stylesheet"
+    type="text/css" />
+<link href="{% static 'libs/datatables.net-select-bs4/css//select.bootstrap4.min.css' %}" rel="stylesheet"
+    type="text/css" />
+
+<!-- Responsive datatable examples -->
+<link href="{% static 'libs/datatables.net-responsive-bs4/css/responsive.bootstrap4.min.css' %}" rel="stylesheet"
+    type="text/css" />
+
+<!-- Sweet Alert-->
+<link href="{% static 'libs/sweetalert2/sweetalert2.min.css' %}" rel="stylesheet" type="text/css" />
+
+<style>
+    div.dataTables_wrapper div#delReport_filter {
+        text-align: left;
+        display: flex;
+        align-items: flex-start;
+    }
+
+    div.dataTables_wrapper div#delReport_filter input {
+        margin-left: 0.5em;
+        margin-right: 0;
+        height: 38px;
+        font-size: 15px;
+    }
+
+    @media (max-width: 767px) {
+        div.dataTables_wrapper div#delReport_filter input {
+            width: 100%;
+            margin: 0;
+        }
+
+        div.dataTables_wrapper div#delReport_filter {
+            flex-wrap: wrap;
+        }
+
+        div.dataTables_wrapper div#delReport_filter label {
+            width: calc(100% - 64px);
+        }
+
+        li.paginate_button.next,
+        li.paginate_button.previous {
+            display: inline-block;
+            font-size: 13px;
+        }
+    }
+    .msgreport{
+        display: none;
+    }
+</style>
+
+{% endblock extra_css %}
+{% block content %}
+<div class="row">
+    <div class="col-lg-12">
+        <div class="card">
+            <div class="card-header bg-white border-bottom d-flex align-items-center justify-content-between">
+                <h4 class="card-title mb-0">Sent Message List</h4>
+                <div class="dropdown float-end">
+                    <a href="#addWorkshop" data-bs-effect="effect-flip-vertical" data-bs-toggle="modal"
+                        class="btn btn-primary btn-sm waves-effect waves-light text-white px-3">
+                        <i class='fa fa-plus me-2 fs-12'></i>Compose New Message
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+
+                <div class="table-responsive">
+                    <table id="userManage" class="table table-centered datatable responsive nowrap"
+                        data-bs-page-length="5" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="desktop tablet mobile">Created Date Time</th>
+                                <th class="desktop tablet-l">Type of Registration</th>
+                                <th class="desktop tablet">Message</th>
+                                <th class="desktop">Delivery Status</th>
+                                <th class="desktop all">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+<!-- end row -->
+
+<!-- Modal -->
+<div class="modal fade effect-flip-vertical" id="addWorkshop" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <form class='needs-validation' id="message_form" method="POST" novalidate>
+                {%csrf_token%}
+                <div class="modal-header">
+                    <h5 class="modal-title">Compose New Message</h5>
+                    <button class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <div class="form-group mb-lg-2 mb-3">
+                                <label class="form-label mt-lg-1 mt-0">Type of Registration <span
+                                        class='text-danger'>*</span></label>
+                                <select class='form-control select2 withSearch'
+                                    data-placeholder='Choose registration type' id="category" name="category" required onchange="gettypeofmem(this.value);">
+                                    <option></option>
+                                    <option value="1">Convention Registration</option>
+                                    <option value="3">Fall Registration</option>
+                                    <option value="2">Spring Registration</option>
+                                </select>
+                                <div class="invalid-feedback">Type is required</div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="form-group mb-lg-2 mb-3">
+                                <label class="form-label mt-lg-1 mt-0">Type of Member</label>
+                                <select class='form-control select2 withSearch'  data-placeholder='Choose member type' name="typeofmem" id="typeofmem" onchange="getmemnames(this.value);">
+                                    <option></option>
+                                    <option value="0">All</option>
+                                </select>
+                                <div class="invalid-feedback">Type of member is required</div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="form-group mb-lg-2 mb-3">
+                                <label class="form-label mt-lg-1 mt-0">Member Names</label>
+                                <select class='form-control select2 withSearch' multiple
+                                    data-placeholder='Choose names' name="memnames" id="memnames">
+                                    <option></option>
+                                    <option value="0">All</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="form-group mb-lg-2 mb-3">
+                                <label class="form-label mt-lg-1 mt-0">Message <span
+                                        class='text-danger'>*</span></label>
+                                <textarea class='form-control' placeholder='Enter text message to send' rows="3"
+                                    required id="message" name="message"></textarea>
+                                <div class="invalid-feedback">Message is required</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-light" data-bs-dismiss="modal" onclick="cancel()">Close</button>
+                    <button class="btn btn-primary" id="message_form_sub" type='submit'>Send Message</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Delivery Report Modal -->
+<div class="modal fade effect-flip-vertical" id="delReportModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+            <form class='needs-validation' novalidate>
+                <div class="modal-header">
+                    <h5 class="modal-title" id="msg_text">Delivery Report (Dr Gatrell, Just trying a new messaging
+                        system)</h5>
+                    <button class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-12">
+                            <input type="hidden" id="hid_search_on">
+                            <input type="hidden" id="isExportClicked">
+                            <input type="hidden" id="ref_id">
+                            <div class="table-responsive secFilter verticalScroll">
+                                <div id='selTypeCont' class='w-100 mb-lg-0 mb-3 me-md-3 me-lg-1'>
+                                    <select id="typeSel" class='select2' id="search_on">
+                                        <option value="">Search by</option>
+                                        <option value="C.name">Name</option>
+                                        <option value="users.user_id">Mobile No</option>
+                                        <option value="D.`name`">Member Type</option>
+                                        <option value="B.triggered_time">Sent On</option>
+                                        <option value="B.message_id">Status</option>
+                                    </select>
+                                </div>
+                                <div id="exportButton">
+                                    <button
+                                        class="btn btn-light buttons-excel buttons-html5 dtExportButton modalTooltip ms-2"
+                                        data-bs-toggle='tooltip' title='Export as CSV' tabindex="0"
+                                        aria-controls="messageCenter" type="button">
+                                        <span class="mdi mdi-export"></span>
+                                    </button>
+                                </div>
+                                <table class="table text-nowrap responsive" id="delReport">
+                                    <thead class="border-top">
+                                        <tr>
+                                            <th class="all">Name</th>
+                                            <th class="desktop">Mobile
+                                                Number</th>
+                                            <th class="desktop tablet-l">Member Type
+                                            </th>
+                                            <th class="desktop">Sent On</th>
+                                            <th class="all">Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-light" data-bs-dismiss="modal"> <i class='mdi mdi-close me-1'></i>
+                        Close</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock content %}
+
+{% block extra_javascript %}
+<!-- Required datatable js -->
+<script src="{% static 'libs/datatables.net/js/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'libs/datatables.net-bs4/js/dataTables.bootstrap4.min.js' %}"></script>
+<!-- Buttons examples -->
+<script src="{% static 'libs/datatables.net-buttons/js/dataTables.buttons.min.js' %}"></script>
+<script src="{% static 'libs/datatables.net-buttons-bs4/js/buttons.bootstrap4.min.js' %}"></script>
+<script src="{% static 'libs/jszip/jszip.min.js' %}"></script>
+<script src="{% static 'libs/pdfmake/build/pdfmake.min.js' %}"></script>
+<script src="{% static 'libs/pdfmake/build/vfs_fonts.js' %}"></script>
+<script src="{% static 'libs/datatables.net-buttons/js/buttons.html5.min.js' %}"></script>
+<script src="{% static 'libs/datatables.net-buttons/js/buttons.print.min.js' %}"></script>
+<script src="{% static 'libs/datatables.net-buttons/js/buttons.colVis.min.js' %}"></script>
+
+<script src="{% static 'libs/datatables.net-keytable/js/dataTables.keyTable.min.js' %}"></script>
+<script src="{% static 'libs/datatables.net-select/js/dataTables.select.min.js' %}"></script>
+
+<!-- Responsive examples -->
+<script src="{% static 'libs/datatables.net-responsive/js/dataTables.responsive.min.js' %}"></script>
+<script src="{% static 'libs/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js' %}"></script>
+
+<!-- Sweet Alerts js -->
+<script src="{% static 'libs/sweetalert2/sweetalert2.min.js' %}"></script>
+
+<script src="{% static 'libs/select2/js/select2.min.js' %}"></script>
+
+<!-- Form validation -->
+<script src="{% static 'js/pages/form-validation.init.js' %}"></script>
+
+<script>
+
+    $(document).ready(function () {
+
+        $(window).on('resize', function () {
+            $($.fn.dataTable.tables(true)).DataTable()
+                .columns.adjust()
+                .responsive.recalc();
+        })
+
+        
+
+        var table = $('#userManage').DataTable({
+            dom: "<'row'<'col-xl-5 col-lg-3'l><'col-xl-7 col-lg-9'fB>>t<'row'<'col-md-6'i><'col-md-6'p>>r",
+            buttons: [{ extend: 'csv', text: 'Export CSV', className: 'dtExportButton btn-primary  btn-sm waves-effect waves-light ms-2',exportOptions: { columns: [0,1,2,3] } },],
+            language: {
+                paginate: {
+                    previous: "<i class='mdi mdi-chevron-left'>",
+                    next: "<i class='mdi mdi-chevron-right'>"
+                }
+            },
+            "ajax":{
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                url :"{% url 'message_center_operations' %}", 
+                type: "POST",  
+                "data": function ( data ) {
+                    data.module='list'
+                },
+            },
+            "createdRow": function(row, data, dataIndex ) {
+                $(row).find('td:eq(4)').attr('id','tooltip-container'+dataIndex);
+            },
+            drawCallback: function () {
+                $(".dataTables_paginate > .pagination").addClass("pagination-rounded"),
+                $(".dataTables_length select").addClass("form-select form-select-sm")
+                $('[data-bs-toggle="tooltip"]').tooltip();
+            },
+        });
+        table.buttons().container()
+            .appendTo('#userManage_wrapper #userManage_filter');
+
+        
+
+        $('.select2').select2({
+            minimumResultsForSearch: -1
+        })
+
+        $('.select2').select2()
+    })
+
+    function gettypeofmem(category){
+        if(category == '0') {
+            $('#typeofmem').select2({ data: data_default});
+            $('#memnames').select2({ data: data_default});
+            return false;
+        }else{
+            $.ajax({
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                url: "{% url 'message_center_operations' %}",
+                type: "POST",
+                data: {
+                    'module': 'typeofmem',
+                    'category': category,
+                },
+                dataType: 'json',
+                async: false,
+                success: function(data){
+                    if(data!=''){
+                        $('#typeofmem').html(data['option']);
+                        $("#typeofmem").select2({
+                            placeholder: "Select Member Type"
+                        });
+                    }
+                }
+            });
+        }				
+    }
+
+    function getmemnames(memnames){
+        if(category == '0') {
+            $('#memnames').select2({ data: data_default});
+            return false;
+        }else{
+            $.ajax({
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                url: "{% url 'message_center_operations' %}",
+                type: "POST",
+                data: {
+                    'module': 'memnames',
+                    'memnames': memnames,
+                },
+                dataType: 'json',
+                async: false,
+                success: function(data){
+                    if(data!=''){
+                        $('#memnames').html(data['option']);
+                        $("#memnames").select2({
+                            placeholder: "Select Member Name"
+                        });
+                    }
+                }
+            });
+        }
+    }
+    
+    $("#message_form").submit(function(e){
+        e.preventDefault();
+        e.stopPropagation();
+        var category=$("#category").val()
+        var typeofmem=$("#typeofmem").val()
+        var memnames=$("#memnames").val()
+        var message=$("#message").val()
+        var datas = new FormData(this);
+        datas.append('module','add_message');
+        if(category!='' && typeofmem!='' && memnames!='' && message!=''){
+            $("#message_form_sub").prop("disabled",true)
+            $.ajax({
+                url: "{% url 'message_center_operations' %}",
+                type: "POST",
+                data: datas,
+                dataType: 'json',
+                contentType: false,
+                cache: false,
+                processData: false,
+                success: function(data) {
+                    $("#message_form_sub").prop("disabled",false)
+                    if(data['err']==''){
+                        swal.fire({
+                            title: 'Success',
+                            html: data['msg'],
+                            icon: 'success',
+                            confirmButtonColor: '#3085d6',
+                            confirmButtonText: 'Ok'
+                        }).then((result) => {
+                            $('#userManage').DataTable().ajax.reload();
+                            cancel()
+                        }); 
+                    }
+                    else{
+                        swal.fire({
+                            title: 'Error',
+                            text: data['err'],
+                            icon: 'error',
+                            confirmButtonColor: '#3085d6',
+                            confirmButtonText: 'Ok'
+                        });
+                    }
+                },
+                error: function() {}
+            });  
+        }
+    });
+
+    function cancel(){
+        $('#memnames').html("<option></option><option value='0'>All</option>");
+        $("#memnames").select2({
+            placeholder: "Select Member Name"
+        });
+        $('#typeofmem').html("<option value='0'>All</option>");
+        $("#typeofmem").val('').select2()
+        $("#category").val('').select2()
+        $("#message").val('')
+        $("#message").html('')
+        $("#addWorkshop").modal('hide')
+        $("#message_form").removeClass('was-validated')
+    }
+
+    $(document).on('click', '.view_msg', function () {
+        $("#hid_search_on").val('')
+        $("#msg_text").html($(this).attr("data-msg"))
+        $("#ref_id").val($(this).attr("data-id"))
+        $('#delReport').DataTable().ajax.reload();
+        $("#delReportModal").modal("show")
+    });
+
+    $(document).on('click', '.tabDelete', function () {
+        let id=$(this).attr('data-id')
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "You won't be able to revert this!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#6259ca',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, delete it!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                    url :"{% url 'message_center_operations' %}", 
+                    type: "POST",  
+                    data:{module:'delete',id:id},
+                    success: function(data) {
+                        if(data.res==1){
+                            swal.fire({
+                                title: 'Deleted!',
+                                html: 'Your message has been deleted.',
+                                icon: 'success',
+                                confirmButtonColor: '#3085d6',
+                                confirmButtonText: 'Ok'
+                            }).then((result) => {
+                                $('#userManage').DataTable().ajax.reload();
+                            }); 
+                        }
+                    },
+                    error: function() {}
+                });  
+            }
+        })
+    })
+
+    $(document).on("change","#search_on",function(){
+        $("#hid_search_on").val($(this).val())
+        $('#delReport').DataTable().ajax.reload();
+    })
+    
+        var repTable = $('#delReport').DataTable({
+            scrollX: "100%",
+            dom: "<'row'<'col-xl-5 col-lg-3'l><'col-xl-7 col-lg-9'f>>t<'row'<'col-md-6'i><'col-md-6'p>>r",
+            language: {
+                searchPlaceholder: 'Search...',
+                sSearch: '',
+            },
+            buttons: [{
+                extend: 'csv',
+                text: 'Export CSV',
+                className: 'msgreport buttons-csv'
+            }],
+            "processing": true,
+			"serverSide": true,
+            pageLength:10,
+            "ajax":{
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                url :"{% url 'message_center_operations' %}", 
+                type: "POST",  
+                "data": function ( data ) {
+                    data.module='view_msg'
+                    data.ref_id=document.getElementById("ref_id").value
+                    data.search_on=document.getElementById("hid_search_on").value
+                },
+            },
+            "createdRow": function(row, data, dataIndex ) {
+                $(row).addClass("border-bottom");
+            },
+            "drawCallback" : function () {
+                var isExportClicked  = $("#isExportClicked").val();
+                $("#isExportClicked").val("");
+                if(isExportClicked == 1){
+                    setTimeout(function(){ repTable.button( '.buttons-csv' ).trigger(); $(".loading").hide(); }, 300);
+                } else {$(".loading").hide();}
+            },
+        });
+        $('#exportButton').appendTo('#delReport_wrapper #delReport_filter');
+        $('.dataTables_filter label').append(`<i class="ti-close fs-13 searchClear"></i>`)
+        $('#selTypeCont').prependTo('#delReport_filter')
+
+        var myModalEl = document.getElementById('delReportModal')
+        myModalEl.addEventListener('shown.bs.modal', function (event) {
+            $($.fn.dataTable.tables(true)).DataTable()
+                .columns.adjust()
+                .responsive.recalc();
+
+            $('.modalTooltip').tooltip({
+                container: $(this)
+            });
+        })
+    
+    $("#exportButton").on("click", function() {
+        $("#isExportClicked").val(1);
+        $('#delReport').DataTable().page.len(-1).draw();
+    });
+
+</script>
+
+{% endblock extra_javascript %}

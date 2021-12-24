@@ -1,0 +1,427 @@
+{% extends 'partials/base.html' %}
+{% load static %}
+
+{% block extra_css %}
+
+
+<link href="{% static 'libs/select2/css/select2.min.css' %}" rel="stylesheet" type="text/css">
+
+<link href="{% static 'libs/bootstrap-datepicker/css/bootstrap-datepicker.min.css' %}" rel="stylesheet">
+
+<!-- Sweet Alert-->
+<link href="{% static 'libs/sweetalert2/sweetalert2.min.css' %}" rel="stylesheet" type="text/css" />
+
+<style>
+    .pntCont {
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        /* margin: 15px 0; */
+        height: 100%;
+        padding: 20px;
+    }
+
+    th.bg-color {
+        font-size: 13px;
+        background: #7164d530 !important;
+        color: #454545;
+    }
+
+    .table>thead>tr>th.bg-color strong {
+        font-weight: 700;
+    }
+
+    .webView {
+        padding: 30px 20px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        max-width: 1000px;
+        margin: 30px auto 30px;
+        /* min-width: 800px; */
+        position: relative;
+        min-height: 297mm;
+        background: #fff;
+        /* overflow: scroll; */
+    }
+
+    .table-responsive {
+        overflow: auto;
+    }
+
+    @page {
+        size: A4;
+        /* margin: 0; */
+        background: #fff !important;
+    }
+
+    @media print {
+        strong {
+            font-weight: 400 !important;
+        }
+
+        html,
+        body {
+            width: 100%;
+            height: 297mm;
+            background: #fff !important;
+            /* font-size: 9pt !important; */
+        }
+
+        /* body * {
+            font-size: .8em;
+        } */
+    }
+
+    @media (max-width: 767px) {
+        .webViewlogo {
+            height: 45px !important;
+        }
+
+        .pntCont {
+            padding: 20px !important;
+        }
+    }
+</style>
+
+
+<style type="text/css" media="print">
+    th,
+    td {
+        border-width: 2pt !important;
+    }
+
+    table {
+        border-color: transparent !important;
+    }
+</style>
+
+{% endblock extra_css %}
+{% block content %}
+
+<div class="page-header">
+    <div class='justify-content-end d-flex w-100 align-items-center flex-wrap'>
+        <!-- <h1 class="page-title">TRANSACTION DETAILS</h1> -->
+        <div class='mt-sm-0 mt-3'>
+            <a href="#!" class="btn btn-sm btn-primary btn-icon px-3 me-2">
+                <span>
+                    <i class="mdi mdi-download me-1"></i>
+                </span> Download
+            </a>
+            <button class="btn btn-sm btn-success btn-icon px-3" onclick="printDiv('printableArea')">
+                <span>
+                    <i class="mdi mdi-printer me-1"></i>
+                </span> Print
+            </button>
+        </div>
+    </div>
+
+</div>
+<!-- <div class="row">
+    <div class="col-lg-12">
+        <div class="card">
+            <div class="card-body"> -->
+<div class='webView'>
+    <div class="row">
+        <div class="col-6" style='padding-bottom: 15px;'>
+            <img class='webViewlogo' src="/static/images/uda-logo-blue.png" style='height: 85px' alt="Logo">
+        </div>
+
+        <div class='col-lg-12 pe-2 my-3'>
+            <div class='pntCont' style='border: 1px solid #ddd;border-radius: 5px;padding: 30px;'>
+
+                <h4 style="font-size: 20px;margin-bottom: 15px"><strong>Exhibitor Details</strong></h4>
+                <p style="margin-bottom: 7px;"><strong style='color: #000;'>Company Name :</strong> Hexagon IT Solutions
+                </p>
+                <p style="margin-bottom: 7px;"><strong style='color: #000;'>Name :</strong> Musthafa Kamal</p>
+                <p style="margin-bottom: 7px;"><strong style='color: #000;'>Phone :</strong> 8013621597</p>
+                <p style="margin-bottom: 7px;"><strong style='color: #000;'>E-Mail:</strong>
+                    m.kamal@hexagonitsolutions.com</p>
+                <p style="margin-bottom: 7px;"><strong style='color: #000;'>Address :</strong> 1481 N 150 E, Utah,
+                    Springville. </p>
+                <p style="margin-bottom: 7px;"><strong style='color: #000;'>Zip Code :</strong> 84663</p>
+            </div>
+        </div>
+    </div>
+    <div class="table-responsive">
+        <table border="0" align="center" cellpadding="0" cellspacing="0"
+            style='margin: 10px auto;width: 100%; min-width: 800px;max-width: 1000px;margin: 0 auto;background: #fff;'>
+            <tbody>
+                <tr>
+                    <td colspan="2">
+                        <h4 class='mb-0 mt-4 text-lg-center py-1'><strong>UDA - Exhibitor Staff Details</strong></h4>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan='2'>
+                        <table style="width: 100%;border-bottom: 0;border-left: 0;margin-top: 10px;"
+                            class="table-bordered table">
+                            <thead>
+                                <tr>
+                                    <th class='bg-color text-uppercase'><strong>Name</strong></th>
+                                    <th class='bg-color text-uppercase'><strong>Email</strong></th>
+                                    <th class='bg-color text-uppercase'><strong>Phone</strong></th>
+                                    <th class='bg-color text-uppercase'><strong>QR code</strong></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td style='vertical-align: middle;'>dent</td>
+                                    <td style='vertical-align: middle;'>mohan@hexagonitsolutions.com</td>
+                                    <td style='vertical-align: middle;'>01121213113</td>
+                                    <td style='vertical-align: middle;'>
+                                        <img src="/static/images/sampleQR.png" style='height: 90px' alt="Logo">
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Print View -->
+<div id='printableArea' class="d-none">
+    <div class='printView' style='page-break-after:always'>
+        <table border="0" align="center" cellpadding="0" cellspacing="0"
+            style='margin: 10px auto;width: 100%; min-width: 800px;max-width: 1000px;margin: 0 auto;background: #fff;'>
+            <tbody>
+                <tr>
+                    <td class='text-start' style='width: 50%;padding-bottom: 15px; padding-top: 15px;'>
+                        <img src="/static/images/uda-logo-blue.png" style='height: 75px;max-width: 350px;' alt="Logo">
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan='2'>
+                        <div style='margin: 0 -15px;'>
+                            <table border='0'
+                                style='border-collapse: initial;border-spacing: 15px;margin-top: 15px;width:100%;'>
+                                <tbody>
+                                    <tr>
+                                        <td
+                                            style='border: 1px solid #ddd;border-radius: 5px; padding: 20px 25px; min-height: 300px; width: 50%;    vertical-align: top;'>
+                                            <div>
+
+                                                <h4 style="font-size: 20px;color: #000;margin-bottom: 10px;">
+                                                    <strong>Exhibitor Details</strong>
+                                                </h4>
+                                                <p style="margin-bottom: 7px;font-size: 17px"><strong
+                                                        style='color: #000'>Company Name
+                                                        :</strong> Hexagon IT Solutions</p>
+                                                <p style="margin-bottom: 7px;font-size: 17px"><strong
+                                                        style='color: #000'>Name :</strong>
+                                                    Musthafa Kamal</p>
+                                                <p style="margin-bottom: 7px;font-size: 17px"><strong
+                                                        style='color: #000'>Phone :</strong>
+                                                    8013621597</p>
+                                                <p style="margin-bottom: 7px;font-size: 17px"><strong
+                                                        style='color: #000'>E-Mail:</strong>
+                                                    m.kamal@hexagonitsolutions.com</p>
+                                                <p style="margin-bottom: 7px;font-size: 17px"><strong
+                                                        style='color: #000'>Address :</strong>
+                                                    1481 N 150 E, Utah, Springville. </p>
+                                                <p style="margin-bottom: 7px;font-size: 17px"><strong
+                                                        style='color: #000'>Zip Code
+                                                        :</strong> 84663</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2">
+                        <h4 class='mb-0 text-center py-1'
+                            style='font-size: 23px;color: #000;margin-top: 25px;margin-bottom:25px;'>
+                            <strong>UDA - Exhibitor Staff Details</strong>
+                        </h4>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan='2'>
+                        <table style="width: 100%;border-bottom: 0;border-left: 0;margin-top: 10px;"
+                            class="table-bordered table">
+                            <thead>
+                                <tr>
+                                    <th class='bg-color text-uppercase'
+                                        style='font-size: 17px; color: #000; border-color: #ddd !important;'>
+                                        <strong>Name</strong>
+                                    </th>
+                                    <th class='bg-color text-uppercase'
+                                        style='font-size: 17px; color: #000; border-color: #ddd !important;'>
+                                        <strong>Email</strong>
+                                    </th>
+                                    <th class='bg-color text-uppercase'
+                                        style='font-size: 17px; color: #000; border-color: #ddd !important;'>
+                                        <strong>Phone</strong>
+                                    </th>
+                                    <th class='bg-color text-uppercase'
+                                        style='font-size: 17px; color: #000; border-color: #ddd !important;'><strong>QR
+                                            code</strong></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td
+                                        style='font-size: 17px; color: #555;border-color: #ddd !important;vertical-align: middle;'>
+                                        dent</td>
+                                    <td
+                                        style='font-size: 17px; color: #555;border-color: #ddd !important;vertical-align: middle;'>
+                                        mohan@hexagonitsolutions.com</td>
+                                    <td
+                                        style='font-size: 17px; color: #555;border-color: #ddd !important;vertical-align: middle;'>
+                                        01121213113</td>
+                                    <td
+                                        style='font-size: 17px; color: #555;border-color: #ddd !important;vertical-align: middle;'>
+                                        <img src="/static/images/sampleQR.png" style='height: 115px' alt="Logo">
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class='printView' style='page-break-after:always'>
+        <table border="0" align="center" cellpadding="0" cellspacing="0"
+            style='margin: 10px auto;width: 100%; min-width: 800px;max-width: 1000px;margin: 0 auto;background: #fff;'>
+            <tbody>
+                <tr>
+                    <td class='text-start' style='width: 50%;padding-bottom: 15px; padding-top: 15px;'>
+                        <img src="/static/images/uda-logo-blue.png" style='height: 75px;max-width: 350px;' alt="Logo">
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan='2'>
+                        <div style='margin: 0 -15px;'>
+                            <table border='0'
+                                style='border-collapse: initial;border-spacing: 15px;margin-top: 15px;width:100%;'>
+                                <tbody>
+                                    <tr>
+                                        <td
+                                            style='border: 1px solid #ddd;border-radius: 5px; padding: 20px 25px; min-height: 300px; width: 50%;    vertical-align: top;'>
+                                            <div>
+
+                                                <h4 style="font-size: 20px;color: #000;margin-bottom: 10px;">
+                                                    <strong>Exhibitor Details</strong>
+                                                </h4>
+                                                <p style="margin-bottom: 7px;font-size: 17px"><strong
+                                                        style='color: #000'>Company Name
+                                                        :</strong> Hexagon IT Solutions</p>
+                                                <p style="margin-bottom: 7px;font-size: 17px"><strong
+                                                        style='color: #000'>Name :</strong>
+                                                    Musthafa Kamal</p>
+                                                <p style="margin-bottom: 7px;font-size: 17px"><strong
+                                                        style='color: #000'>Phone :</strong>
+                                                    8013621597</p>
+                                                <p style="margin-bottom: 7px;font-size: 17px"><strong
+                                                        style='color: #000'>E-Mail:</strong>
+                                                    m.kamal@hexagonitsolutions.com</p>
+                                                <p style="margin-bottom: 7px;font-size: 17px"><strong
+                                                        style='color: #000'>Address :</strong>
+                                                    1481 N 150 E, Utah, Springville. </p>
+                                                <p style="margin-bottom: 7px;font-size: 17px"><strong
+                                                        style='color: #000'>Zip Code
+                                                        :</strong> 84663</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2">
+                        <h4 class='mb-0 text-center py-1'
+                            style='font-size: 23px;color: #000;margin-top: 25px;margin-bottom:25px;'>
+                            <strong>UDA - Exhibitor Staff Details</strong>
+                        </h4>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan='2'>
+                        <table style="width: 100%;border-bottom: 0;border-left: 0;margin-top: 10px;"
+                            class="table-bordered table">
+                            <thead>
+                                <tr>
+                                    <th class='bg-color text-uppercase'
+                                        style='font-size: 17px; color: #000; border-color: #ddd !important;'>
+                                        <strong>Name</strong>
+                                    </th>
+                                    <th class='bg-color text-uppercase'
+                                        style='font-size: 17px; color: #000; border-color: #ddd !important;'>
+                                        <strong>Email</strong>
+                                    </th>
+                                    <th class='bg-color text-uppercase'
+                                        style='font-size: 17px; color: #000; border-color: #ddd !important;'>
+                                        <strong>Phone</strong>
+                                    </th>
+                                    <th class='bg-color text-uppercase'
+                                        style='font-size: 17px; color: #000; border-color: #ddd !important;'><strong>QR
+                                            code</strong></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td
+                                        style='font-size: 17px; color: #555;border-color: #ddd !important;vertical-align: middle;'>
+                                        dent</td>
+                                    <td
+                                        style='font-size: 17px; color: #555;border-color: #ddd !important;vertical-align: middle;'>
+                                        mohan@hexagonitsolutions.com</td>
+                                    <td
+                                        style='font-size: 17px; color: #555;border-color: #ddd !important;vertical-align: middle;'>
+                                        01121213113</td>
+                                    <td
+                                        style='font-size: 17px; color: #555;border-color: #ddd !important;vertical-align: middle;'>
+                                        <img src="/static/images/sampleQR.png" style='height: 115px' alt="Logo">
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- </div>
+
+        </div>
+    </div>
+</div> -->
+<!-- end row -->
+
+{% endblock content %}
+
+{% block extra_javascript %}
+
+<!-- Sweet Alerts js -->
+<script src="{% static 'libs/sweetalert2/sweetalert2.min.js' %}"></script>
+
+
+<script src="{% static 'libs/bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}"></script>
+
+<!-- Form validation -->
+<script src="{% static 'js/pages/form-validation.init.js' %}"></script>
+
+<script>
+    function printDiv(divName) {
+        var printContents = document.getElementById(divName).innerHTML;
+        var originalContents = document.body.innerHTML;
+
+        document.body.innerHTML = printContents;
+
+        window.print();
+
+        document.body.innerHTML = originalContents;
+    }
+</script>
+
+
+{% endblock extra_javascript %}

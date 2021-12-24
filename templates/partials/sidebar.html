@@ -1,0 +1,90 @@
+{% load static %} {% block sidebar %}
+<!-- ========== Left Sidebar Start ========== -->
+<div class="vertical-menu">
+    <div data-simplebar class="h-100">
+        <!--- Sidemenu -->
+        <div id="sidebar-menu">
+            <!-- Left Menu Start -->
+            <ul class="metismenu list-unstyled" id="side-menu">
+                <!-- <li class="menu-title" key="t-menu">Menu</li> -->
+                <li>
+                    <a href="{% url 'dashboard' %}" class="waves-effect"> <i class="ri-home-5-line"></i>
+                        <!-- <span class="badge rounded-pill bg-success float-end">3</span> -->
+                        <span key="t-dashboards">Home</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="javascript: void(0);" class="has-arrow waves-effect"> <i class="ri-store-2-line"></i>
+                        <span key="t-ecommerce">Registration</span>
+                    </a>
+                    <ul class="sub-menu" aria-expanded="false">
+                        <li><a href="{% url 'convention_registration' %}" key="t-products">Convention Registration</a>
+                        </li>
+                        <li><a href="{% url 'spring_registration' %}" key="t-product-detail">Spring
+                                Registration</a>
+                        </li>
+                        <li><a href="{% url 'fall_registration' %}" key="t-orders">Fall Registration</a>
+                        </li>
+                        <li><a href="/exhibitor_registration" key="t-customers">Exhibitor Registration</a>
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="javascript: void(0);" class="has-arrow waves-effect"> <i class="ri-mail-send-line"></i>
+                        <span key="t-email">Convention Transaction</span>
+                    </a>
+                    <ul class="sub-menu" aria-expanded="false">
+                        <li><a href="{% url 'convention_transaction' %}" key="t-read-email">Convention Transaction List</a>
+                        </li>
+                        <li><a href="{% url 'spring_transaction' %}" key="t-read-email">Spring Transaction List</a>
+                        </li>
+                        <li><a href="{% url 'fall_transaction' %}" key="t-read-email">Fall Transaction List</a>
+                        </li>
+                        <li><a href="javascript: void(0);" class="has-arrow" key="t-level-1-2">Archive</a>
+                            <ul class="sub-menu" aria-expanded="true">
+                                <li><a href="javascript: void(0);" key="t-level-2-1">Add New</a>
+                                </li>
+                                <li><a href="javascript: void(0);" key="t-level-2-2">Archive 2020</a>
+                                </li>
+                                <li><a href="javascript: void(0);" key="t-level-2-2">Archive 2019</a>
+                                </li>
+                                <li><a href="javascript: void(0);" key="t-level-2-2">Archive 2018</a>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="javascript: void(0);" class="has-arrow waves-effect"> <i class="ri-account-circle-line"></i>
+                        <span key="t-authentication"> Convention Workshop</span>
+                    </a>
+                    <ul class="sub-menu" aria-expanded="false">
+                        <li><a href="{% url 'convention_workshop' %}" key="t-login">Workshops</a>
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="javascript: void(0);" class="has-arrow waves-effect" key=> <i class="ri-settings-2-line"></i>
+                        <span key="t-utility">Settings</span>
+                    </a>
+                    <ul class="sub-menu" aria-expanded="false">
+                        <li><a href="{% url 'membership' %}" key="t-starter-page">ADA Membership Check</a>
+                        </li>
+                        <li><a href="{% url 'hygienist' %}" key="t-maintenance">Hygienist</a>
+                        </li>
+                        <li><a href="{% url 'user_management' %}" key="t-coming-soon">User Management</a>
+                        </li>
+                        <li><a href="#" key="t-timeline">Scan QR Code</a>
+                        </li>
+                        <li><a href="{% url 'message_center' %}" key="t-faqs">Message Center</a>
+                        </li>
+                    </ul>
+                </li>
+
+            </ul>
+        </div>
+        <!-- Sidebar -->
+    </div>
+</div>
+<!-- Left Sidebar End -->
+{% endblock sidebar %}

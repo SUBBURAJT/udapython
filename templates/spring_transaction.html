@@ -1,0 +1,611 @@
+{% extends 'partials/base.html' %} {% load static %} {% block extra_css %}
+<link href="{% static 'libs/select2/css/select2.min.css' %}" rel="stylesheet" type="text/css">
+<!-- DataTables -->
+<link href="{% static 'libs/datatables.net-bs4/css/dataTables.bootstrap4.min.css' %}" rel="stylesheet" type="text/css" />
+<link href="{% static 'libs/datatables.net-buttons-bs4/css/buttons.bootstrap4.min.css' %}" rel="stylesheet" type="text/css" />
+<link href="{% static 'libs/datatables.net-select-bs4/css//select.bootstrap4.min.css' %}" rel="stylesheet" type="text/css" />
+
+<!-- Responsive datatable examples -->
+<link href="{% static 'libs/datatables.net-responsive-bs4/css/responsive.bootstrap4.min.css' %}" rel="stylesheet" type="text/css" />
+
+<!-- Sweet Alert-->
+<link href="{% static 'libs/sweetalert2/sweetalert2.min.css' %}" rel="stylesheet" type="text/css" />
+
+<link href="{% static 'libs/bootstrap-datepicker/css/bootstrap-datepicker.min.css' %}" rel="stylesheet">
+<style>
+    .page-content {
+        overflow: auto !important;
+        min-height: 100vh;
+    }
+    .offstatus{
+        color: #395dad !important;
+    }
+</style>
+{% endblock extra_css %} {% block content %}
+<div class="row">
+    <div class="col-lg-12">
+        <div class="card">
+            <div class="card-header bg-white border-bottom d-flex align-items-center justify-content-between">
+                <h4 class="card-title mb-0">Spring Transactions List</h4>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <ul class="pagination mt-0 mb-4 alphaUl">
+                            <li class="active ms-0 singleall"><a href="#" data-id="all">All</a></li>
+                            <li><a class="singlenamesearch" data-id="A" href="#">A</a></li>
+                            <li><a class="singlenamesearch" data-id="B" href="#">B</a></li>
+                            <li><a class="singlenamesearch" data-id="C" href="#">C</a></li>
+                            <li><a class="singlenamesearch" data-id="D" href="#">D</a></li>
+                            <li><a class="singlenamesearch" data-id="E" href="#">E</a></li>
+                            <li><a class="singlenamesearch" data-id="F" href="#">F</a></li>
+                            <li><a class="singlenamesearch" data-id="G" href="#">G</a></li>
+                            <li><a class="singlenamesearch" data-id="H" href="#">H</a></li>
+                            <li><a class="singlenamesearch" data-id="I" href="#">I</a></li>
+                            <li><a class="singlenamesearch" data-id="J" href="#">J</a></li>
+                            <li><a class="singlenamesearch" data-id="K" href="#">K</a></li>
+                            <li><a class="singlenamesearch" data-id="L" href="#">L</a></li>
+                            <li><a class="singlenamesearch" data-id="M" href="#">M</a></li>
+                            <li><a class="singlenamesearch" data-id="N" href="#">N</a></li>
+                            <li><a class="singlenamesearch" data-id="O" href="#">O</a></li>
+                            <li><a class="singlenamesearch" data-id="P" href="#">P</a></li>
+                            <li><a class="singlenamesearch" data-id="Q" href="#">Q</a></li>
+                            <li><a class="singlenamesearch" data-id="R" href="#">R</a></li>
+                            <li><a class="singlenamesearch" data-id="S" href="#">S</a></li>
+                            <li><a class="singlenamesearch" data-id="T" href="#">T</a></li>
+                            <li><a class="singlenamesearch" data-id="U" href="#">U</a></li>
+                            <li><a class="singlenamesearch" data-id="V" href="#">V</a></li>
+                            <li><a class="singlenamesearch" data-id="W" href="#">W</a></li>
+                            <li><a class="singlenamesearch" data-id="X" href="#">X</a></li>
+                            <li><a class="singlenamesearch" data-id="Y" href="#">Y</a></li>
+                            <li><a class="singlenamesearch" data-id="Z" href="#">Z</a></li>
+                        </ul>
+                        <input type="hidden" id="hdn_singlenamesearch">
+                    </div>
+                </div>
+                <div class='pos-relative w-sm-100 filterMoreCont' id='filterCont'>
+                    <div class="filter-fade" style='display:none'></div>
+                    <a href="#!" class='btn btn-sm btn-light mr-2 w-sm-100 filterMore mb-md-0 mb-3 ms-md-2'><i
+                            class='fa fa-filter me-1'></i> Filter by</a>
+                    <div class='filterDropdown'>
+                        <div class="row whiteBox text-start">
+                            <div class="col-12 text-right">
+                                <div class='d-flex justify-content-between'>
+                                    <p class='mb-3'>FILTERS</p>
+                                    <a href="#advancedSearch" class='cancelFilter' data-bs-toggle='modal'>Advanced</a>
+                                </div>
+                            </div>
+                            <div class="col-12 ">
+                                <label for="" class='filterLabel text-start'>Filter By Date</label>
+                                <div class="input-group">
+                                    <div class="input-group-text">
+                                        <i class="fa fa-calendar tx-16 lh-0 op-6"></i>
+                                    </div>
+                                    <div class="input-daterange input-group" id="datepicker6" data-date-format="mm/dd/yyyy" data-date-autoclose="true" data-provide="datepicker" data-date-container='#datepicker6'>
+                                        <input type="text" class="form-control ms-0" name="start" placeholder="Start Date" id="flt_start_date" />
+                                        <input type="text" class="form-control" name="end" id="flt_end_date" placeholder="End Date" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-12 mt-3">
+                                <label for="" class='filterLabel text-start'>Filter by Status</label>
+                                <div class='w-100'>
+                                    <select class="form-control select2 offiSel w-100 mb-0" id="flt_status" data-placement='below'>
+                                        <option value="">All</option>
+                                        <option value="1">Online</option>
+                                        <option value="2">Offline</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-12 mt-4">
+                                <div class="row">
+                                    <div class="col-6 pe-1">
+                                        <a href="#" class="btn btn-primary w-100 cancelFilter text-white" id="flt_app">Apply
+                                            Filters</a>
+                                    </div>
+                                    <div class="col-6 ps-1">
+                                        <a href="#" class="btn btn-light w-100" id="flt_res">Reset</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="tableCont filterTable">
+                    <table id="userManage" class="table table-centered datatable responsive nowrap" data-bs-page-length="6" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="desktop tablet">Date</th>
+                                <th class="all">Name</th>
+                                <th class="desktop">Practice Info</th>
+                                <th class="desktop">Transaction Info</th>
+                                <th class="desktop tablet">Status</th>
+                                <th class="desktop">Browser Log</th>
+                                <th class="no-sort all" data-orderable="false">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+<form id="export_transaction" method="post">
+    {% csrf_token %}
+    <input type="hidden" name="module" value="export">
+</form>
+<!-- Modal -->
+<div class="modal fade effect-flip-vertical" id="advancedSearch" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+            <form class='needs-validation' id="ad_search_form" novalidate>
+                <div class="modal-header">
+                    <h5 class="modal-title text-uppercase">Advanced Search</h5>
+                    <button class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-lg-12 col-sm-6">
+                            <input type="text" class="form-control" placeholder='Keyword Search' id="keyword" name="keyword">
+                        </div>
+                        <div class="col-lg-4 col-sm-6">
+                            <div class="form-group">
+                                <label class="form-label mt-3">First Name</label>
+                                <input type="text" class="form-control" placeholder='' id="ad_first_name" name="ad_first_name">
+                            </div>
+                        </div>
+                        <div class="col-lg-4 col-sm-6">
+                            <div class="form-group">
+                                <label class="form-label mt-3">Last Name</label>
+                                <input type="text" class="form-control" placeholder='' id="ad_last_name" name="ad_last_name">
+                            </div>
+                        </div>
+                        <div class="col-lg-4 col-sm-6">
+                            <div class="form-group">
+                                <label class="form-label mt-3">Practice Name</label>
+                                <input type="text" class="form-control" placeholder='' id="ad_prac_name" name="ad_prac_name">
+                            </div>
+                        </div>
+                        <div class="col-lg-4 col-sm-6">
+                            <div class="form-group">
+                                <label class="form-label mt-3">Phone</label>
+                                <input type="number" class="form-control" placeholder='(999) 999-9999' id="ad_phone" name="ad_phone">
+                            </div>
+                        </div>
+                        <div class="col-lg-4 col-sm-6">
+                            <div class="form-group">
+                                <label class="form-label mt-3">Email</label>
+                                <input type="email" class="form-control" placeholder='email@uda.org' id="ad_email" name="ad_email">
+                            </div>
+                        </div>
+                        <div class="col-lg-4 col-sm-6">
+                            <div class="form-group">
+                                <label class="form-label mt-3">Transaction No</label>
+                                <input type="number" class="form-control" placeholder='15698389' id="ad_transaction_no" name="ad_transaction_no">
+                            </div>
+                        </div>
+                        <div class="col-lg-4 col-6">
+                            <div class="form-group">
+                                <label class="form-label mt-3">Price Range</label>
+                                <input type="text" class="form-control" placeholder='From' id="ad_price_start" name="ad_price_start">
+                            </div>
+                        </div>
+                        <div class="col-lg-4 col-6">
+                            <div class="form-group">
+                                <label class="form-label"></label>
+                                <input type="text" class="form-control mt-30" placeholder='To' id="ad_price_end" name="ad_price_end">
+                            </div>
+                        </div>
+                        <div class="col-lg-4 col-sm-6">
+                            <div class="form-group">
+                                <label class="form-label mt-3">Date Range</label>
+                                <div class="input-group">
+                                    <div class="input-group-text">
+                                        <i class="fa fa-calendar tx-16 lh-0 op-6"></i>
+                                    </div>
+                                    <div class="input-daterange input-group" id="datepicker7" data-date-format="mm/dd/yyyy" data-date-autoclose="true" data-provide="datepicker" data-date-container='#datepicker7'>
+                                        <input type="text" class="form-control ms-0" name="ad_start_date" id="ad_start_date" placeholder="Start Date" />
+                                        <input type="text" class="form-control" name="ad_end_date" id="ad_end_date" placeholder="End Date" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4 col-sm-6">
+                            <div class="form-group">
+                                <label class="form-label mt-3">Choose Register category</label>
+                                <select class='form-control select2 withSearch' id="ad_reg_cat" name="ad_reg_cat[]" multiple>
+                                    <option value="all">All</option>
+                                    {% for con in con_types %}
+                                    <option value="ct-{{con.id}}">{{con.name}}</option>
+                                    {% endfor %}
+                                </select>
+                                <input type="hidden" name="ad_reg_cat_hid" value="" id="ad_reg_cat_hid">
+                            </div>
+                        </div>
+                        <div class="col-lg-4 col-sm-6">
+                            <div class="form-group ">
+                                <label class="form-label mt-3 mb-2">Payment Mode</label>
+                                <div class="custom-controls-stacked d-flex">
+                                    <div class="form-check mb-0 me-4">
+                                        <input class="form-check-input" type="checkbox" id="formCheck4" name="ad_online" value="1">
+                                        <label class='form-check-label' for="formCheck4">Online</label>
+                                    </div>
+                                    <div class="form-check mb-0">
+                                        <input class="form-check-input" type="checkbox" id="formCheck5" name="ad_offline" value="2">
+                                        <label class='form-check-label' for="formCheck5">Offline</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type='button' class="btn btn-light" id="ad_clear">Clear</button>
+                    <button class="btn btn-primary" data-bs-dismiss="modal" type='button' id="ad_search_btn"> <i
+                            class='ti-search me-1'></i> Search</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade effect-flip-vertical" id="archieve_tran" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-uppercase">Move to Archive</h5>
+                <button class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="col-lg-4 col-sm-6">
+                    <div class="form-group">
+                        <label class="form-label mt-3">Choose Archive</label>
+                        <select class='form-control select2 withSearch' id="arc_tran" name="arc_tran">
+                        <option value="">Choose Archive</option>
+                        {% for con in con_arc %}
+                        <option value="{{con.id}}">{{con.archive}}</option>
+                        {% endfor %}
+                    </select>
+                        <input type="hidden" name="hid_tid" id="hid_tid">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type='button' data-bs-dismiss="modal" class="btn btn-light">Close</button>
+                <button class="btn btn-primary" type='button' id="move_to_archive"> Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- end row -->
+
+{% endblock content %} {% block extra_javascript %}
+<!-- Required datatable js -->
+<script src="{% static 'libs/datatables.net/js/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'libs/datatables.net-bs4/js/dataTables.bootstrap4.min.js' %}"></script>
+<!-- Buttons examples -->
+<script src="{% static 'libs/datatables.net-buttons/js/dataTables.buttons.min.js' %}"></script>
+<script src="{% static 'libs/datatables.net-buttons-bs4/js/buttons.bootstrap4.min.js' %}"></script>
+<script src="{% static 'libs/jszip/jszip.min.js' %}"></script>
+<script src="{% static 'libs/pdfmake/build/pdfmake.min.js' %}"></script>
+<script src="{% static 'libs/pdfmake/build/vfs_fonts.js' %}"></script>
+<script src="{% static 'libs/datatables.net-buttons/js/buttons.html5.min.js' %}"></script>
+<script src="{% static 'libs/datatables.net-buttons/js/buttons.print.min.js' %}"></script>
+<script src="{% static 'libs/datatables.net-buttons/js/buttons.colVis.min.js' %}"></script>
+
+<script src="{% static 'libs/datatables.net-keytable/js/dataTables.keyTable.min.js' %}"></script>
+<script src="{% static 'libs/datatables.net-select/js/dataTables.select.min.js' %}"></script>
+
+<!-- Responsive examples -->
+<script src="{% static 'libs/datatables.net-responsive/js/dataTables.responsive.min.js' %}"></script>
+<script src="{% static 'libs/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js' %}"></script>
+
+<!-- Sweet Alerts js -->
+<script src="{% static 'libs/sweetalert2/sweetalert2.min.js' %}"></script>
+
+<script src="{% static 'libs/select2/js/select2.min.js' %}"></script>
+
+<script src="{% static 'libs/bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}"></script>
+
+<!-- Form validation -->
+<!-- <script src="{% static 'js/pages/form-validation.init.js' %}"></script> -->
+
+<script>
+    $(document).ready(function() {
+        $(".alphaUl a").click(function() {
+            $(".alphaUl li").removeClass('active');
+            $(this).closest('li').addClass('active');
+        })
+        $(window).on('resize', function() {
+            $($.fn.dataTable.tables(true)).DataTable()
+                .columns.adjust()
+                .responsive.recalc();
+        })
+
+        $("#ad_reg_cat").change(function() {
+            $("#ad_reg_cat_hid").val($(this).val())
+        })
+
+        var table = $('#userManage').DataTable({
+            dom: "<'row'<'col-xl-5 col-lg-3'l><'col-xl-7 col-lg-9'fB>>t<'row'<'col-md-6'i><'col-md-6'p>>r",
+            buttons: [{
+                text: 'Export CSV',
+                className: 'dtExportButton btn-primary  btn-sm waves-effect waves-light ms-2 tranexport'
+            }],
+            language: {
+                paginate: {
+                    previous: "<i class='mdi mdi-chevron-left'>",
+                    next: "<i class='mdi mdi-chevron-right'>"
+                }
+            },
+            "ajax": {
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                url: "{% url 'spring_transaction_operations' %}",
+                type: "POST",
+                "data": function(data) {
+                    data.module = 'list'
+                    data.singlenamesearch = $('#hdn_singlenamesearch').val();
+                    data.flt_start_date = $('#flt_start_date').val();
+                    data.flt_end_date = $('#flt_end_date').val();
+                    data.flt_status = $('#flt_status').val();
+                    if ($("#formCheck4").prop("checked") == true) {
+                        data.adv_on = $("#formCheck4").val()
+                    } else {
+                        data.adv_on = '0'
+                    }
+                    if ($("#formCheck5").prop("checked") == true) {
+                        data.adv_off = $("#formCheck5").val()
+                    } else {
+                        data.adv_off = '0'
+                    }
+                    var frm_data = $('#ad_search_form').serializeArray();
+                    $.each(frm_data, function(key, val) {
+                        data[val.name] = val.value;
+                    });
+                },
+            },
+            drawCallback: function() {
+                $(".dataTables_paginate > .pagination").addClass("pagination-rounded"),
+                    $(".dataTables_length select").addClass("form-select form-select-sm")
+            }
+        });
+        $('#filterCont').appendTo('#userManage_wrapper #userManage_filter');
+        table.buttons().container()
+            .appendTo('#userManage_wrapper #userManage_filter');
+
+        $('.select2').select2()
+    })
+
+    $('.filterMore').click(function() {
+        $('.filterDropdown').toggleClass('active')
+        $('.filter-fade').toggle()
+    })
+
+    $('.cancelFilter, .filter-fade').click(function() {
+        $('.filterDropdown').removeClass('active')
+        $('.dropdown-menu[data-parent]').addClass('show')
+        $('.filter-fade').hide()
+    })
+
+    /*$('#flt_start_date,#flt_end_date').on('changeDate', function() {
+        $('#userManage').DataTable().ajax.reload();
+    });*/
+
+    $(document).on("click", "#flt_app", function() {
+        $('#userManage').DataTable().ajax.reload();
+    })
+    $("#ad_search_btn").click(function() {
+        $('#userManage').DataTable().ajax.reload();
+        $("#advancedSearch").modal('hide')
+    })
+    $(document).on("click", "#flt_res", function() {
+        $('.input-daterange input').each(function() {
+            $(this).datepicker('clearDates');
+        });
+        $('#flt_status').val('').select2();
+        $('#userManage').DataTable().ajax.reload();
+        $('.filterDropdown').removeClass('active')
+        $('.dropdown-menu[data-parent]').addClass('show')
+        $('.filter-fade').hide()
+    });
+
+    $(document).on("click", ".view_details", function(e) {
+        $('.action-dd').addClass("show")
+        let ids = $(this).attr('data-id')
+        let method = $(this).attr('data-method')
+        window.open("../convention_detail/"+ids+"/"+method+"", "_blank");
+    });
+    $(document).on("click", ".id_card_print", function(e) {
+        $('.action-dd').addClass("show")
+        let ids = $(this).attr('data-id')
+        window.open("../convention_id_card_print/"+ids+"", "_blank");
+    });
+
+    $(document).on("click", ".tranexport", function(e) {
+        $("#export_transaction").submit()
+    })
+
+    $(".singlenamesearch,.singleall").click(function() {
+        $("#hdn_singlenamesearch").val('')
+        let lett = $(this).attr('data-id')
+        $("#hdn_singlenamesearch").val(lett)
+        $('#userManage').DataTable().ajax.reload();
+    })
+
+    $("#ad_clear").click(function() {
+        document.getElementById("ad_search_form").reset();
+        $("#ad_reg_cat").val('').select2();
+        $("#ad_reg_cat_hid").val('');
+        $('#userManage').DataTable().ajax.reload();
+        $("#advancedSearch").modal('hide')
+    })
+
+    $("#move_to_archive").click(function() {
+        let id = $("#hid_tid").val()
+        let arch = $("#arc_tran").val()
+        if (arch != '') {
+            $("#archieve_tran").modal('hide')
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "You want to archive it!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#6259ca',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, archive it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        headers: {
+                            'X-CSRFToken': '{{ csrf_token }}'
+                        },
+                        url: "{% url 'spring_transaction_operations' %}",
+                        type: "POST",
+                        data: {
+                            module: 'archive',
+                            id: id,
+                            arch: arch
+                        },
+                        success: function(data) {
+                            if (data.res == 1) {
+                                swal.fire({
+                                    title: 'Archive!',
+                                    html: 'Transaction archived Successfully.',
+                                    icon: 'success',
+                                    confirmButtonColor: '#3085d6',
+                                    confirmButtonText: 'Ok'
+                                }).then((result) => {
+                                    $("#hid_tid").val('')
+                                    $("#arc_tran").val('').select2()
+                                    $('#userManage').DataTable().ajax.reload();
+                                });
+                            }
+                        },
+                        error: function() {}
+                    });
+                } else {
+                    $("#hid_tid").val('')
+                    $("#arc_tran").val('').select2()
+                }
+            })
+        }
+    })
+
+    $(document).on('click', '.tabArchieve', function() {
+        $('.action-dd').addClass("show")
+        let id = $(this).attr('data-id')
+        $("#hid_tid").val(id)
+        $("#archieve_tran").modal("show");
+    });
+
+    $(document).on('click', '.tabDelete', function() {
+        $('.action-dd').addClass("show")
+        let id = $(this).attr('data-id')
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "You won't be able to revert this!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#6259ca',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, delete it!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    url: "{% url 'spring_transaction_operations' %}",
+                    type: "POST",
+                    data: {
+                        module: 'delete',
+                        id: id
+                    },
+                    success: function(data) {
+                        if (data.res == 1) {
+                            swal.fire({
+                                title: 'Deleted!',
+                                html: 'Transaction deleted Successfully.',
+                                icon: 'success',
+                                confirmButtonColor: '#3085d6',
+                                confirmButtonText: 'Ok'
+                            }).then((result) => {
+                                $('#userManage').DataTable().ajax.reload();
+                            });
+                        }
+                    },
+                    error: function() {}
+                });
+            }
+        })
+    })
+
+
+    $(document).click(function(event) {
+        $('.dropdown-menu[data-parent]').show();
+    });
+
+    $(document).on('click', '.tableCont [data-toggle="dropdown"]', function() {
+
+        if ($('body').hasClass('modal-open')) {
+            throw new Error("This solution is not working inside a responsive table inside a modal, you need to find out a way to calculate the modal Z-index and add it to the element")
+            return true;
+        }
+
+        let datUl = $(this).parent().attr('data-attachedUl')
+        if ($(`[data-parent='${datUl}']`).hasClass('show')) {
+            $('.action-dd').addClass('show')
+            $(`[data-parent='${datUl}']`).removeClass('show')
+            $('.filter-fade').show()
+        } else {
+            $('.action-dd').addClass('show')
+            $(`[data-parent='${datUl}']`).addClass('show')
+            $('.filter-fade').hide()
+        }
+
+
+
+        var $buttonGroup = $(this).parent();
+        if (!$buttonGroup.attr('data-attachedUl')) {
+            var ts = +new Date;
+            var $ul = $(this).siblings('ul.dropdown-menu');
+            $ul.attr('data-parent', ts);
+            $buttonGroup.attr('data-attachedUl', ts);
+            $(window).resize(function() {
+                // $ul.css('display', 'none').data('top');
+            });
+        } else {
+            $ul = $('[data-parent=' + $buttonGroup.attr('data-attachedUl') + ']');
+        }
+        if (!$buttonGroup.hasClass('show')) {
+            // $ul.hide()
+            // return;
+            var $ul = $(this).siblings('ul.dropdown-menu');
+            $ul.addClass('show')
+        }
+        dropDownFixPosition($(this).parent(), $ul);
+
+        function dropDownFixPosition(button, dropdown) {
+            dropdown.addClass('action-dd')
+            dropdown.removeClass('show')
+            dropdown.appendTo('body');
+            var dropDownTop = button.offset().top + button.outerHeight();
+            dropdown.css('top', ` ${dropDownTop}px`);
+            dropdown.css('left', (button.offset().left - 150) + "px");
+            dropdown.css('position', "absolute");
+            dropdown.css('heigt', dropdown.height());
+            console.log(dropdown.attr('style'))
+        }
+    });
+</script>
+
+{% endblock extra_javascript %}
