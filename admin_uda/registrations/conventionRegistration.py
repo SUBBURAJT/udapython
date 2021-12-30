@@ -227,10 +227,8 @@ class ConventionRegistration():
         if res:
             result = res[0]
             #get convention workshop
-            result['convention_ws'] = {}
             result['convention_ws'] = self.get_convention_ws(hand_id)
             #get handon workshop
-            result['handon_ws'] = {}
             result['handon_ws'] = self.get_handon_ws(hand_id)
         return result
 
