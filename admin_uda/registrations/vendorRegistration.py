@@ -1,6 +1,7 @@
 from admin_uda.models import *
 import datetime as dt
 from django.db.models import Q
+from hashids import Hashids
 
 class VendorRegistration():
     def check_email(request):  
@@ -54,6 +55,8 @@ class VendorRegistration():
         nd=[]
         for vendor in vendor_lists:
             nestedData=[]
+            hashids = Hashids(salt='UDAHEALTHDENTALSALT',min_length=10)
+            vendor_id = hashids.encode(vendor.id) 
             name_sec = '''<div class="d-flex align-items-center">
                                         <div class="activity-icon avatar-xs me-2">
                                             <span class="avatar-title bg-soft-warning text-warning br-5">'''+ vendor.first_name[0].capitalize()+vendor.last_name[0].capitalize() +'''</span>
@@ -68,10 +71,10 @@ class VendorRegistration():
                                         </button>
                                         <ul class="dropdown-menu show action-dd" role="menu"
                                             data-popper-placement="bottom-end">
-                                            <li><a href="/vendor_detail/'''+ str(vendor.id) +'''" class="text-dark"><span
+                                            <li><a href="/vendor_detail/'''+ vendor_id +'''" class="text-dark"><span
                                                         class='avatar avatar-xs brround bg-violet-transparent'><i
                                                             class='fa fa-eye'></i></span> View</a></li>
-                                            <li><a href="/vendor_edit/'''+ str(vendor.id) +'''" class="text-dark"><span
+                                            <li><a href="/vendor_edit/'''+ vendor_id +'''" class="text-dark"><span
                                                         class='avatar avatar-xs brround bg-green-transparent'><i
                                                             class=' fas fa-pencil-alt'></i></span> Edit</a></li>
                                             <li><a class="text-dark"><span

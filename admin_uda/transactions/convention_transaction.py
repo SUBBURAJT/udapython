@@ -270,7 +270,11 @@ class convention_transactions():
                                     <li><a class="text-dark view_details" data-method="view" data-id="""+hashid+"""><span
                                                 class='avatar avatar-xs brround bg-violet-transparent'><i
                                                     class='fa fa-eye'></i></span> View</a></li>
-                                    <li><a class="text-dark"><span
+                                    <li><a data-id="""+hashid+""" data-bs-effect="effect-flip-vertical"
+                                                    data-bs-toggle="modal" class="text-dark edit_details"><span
+                                                        class='avatar avatar-xs brround bg-green-transparent'><i
+                                                            class=' fas fa-pencil-alt'></i></span> Edit</a></li>
+                                    <li><a class="text-dark view_pdf" data-id="""+hashid+"""><span
                                                 class='avatar avatar-xs brround bg-brown-transparent'><i
                                                     class='fa fa-download'></i></span> Download</a></li>
                                     <li><a class="text-dark view_details" data-method="print" data-id="""+hashid+"""><span

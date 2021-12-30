@@ -1,0 +1,180 @@
+{% load static %}
+{% block content %}
+
+
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>{{title}} | UDA</title>
+	<meta content="Premium Multipurpose Admin & Dashboard Template" name="description" />
+	<meta content="Themesdesign" name="author" />
+	<!-- App favicon -->
+	<link rel="shortcut icon" href="static/images/uda-small.jpg">
+</head>
+<style>
+    @page {
+           size: A4;
+           margin: 1cm;
+       }
+       @font-face {
+           font-family: Pacifico;
+           src: url('static/fonts/pacifico.ttf');
+       }
+       .tablelist tr th td{
+           white-space: nowrap;
+       }
+       .tablelist th {
+           padding: 5px;
+           vertical-align: top;
+           background-color: #e8e8e8;
+       }
+       .tablelist td {
+           padding: 5px;
+           vertical-align: top;
+           -pdf-keep-with-next: false;
+       }
+</style>
+<body>
+<div class='pdfView' id='pdfView'
+    style="margin: 20px auto;padding: 20px;border-radius: 5px;background: #fff;width: 100%;min-width: 600px;max-width: 1000px;">
+    
+    <table border="0" align="center" cellpadding="0" cellspacing="0"
+        style='margin: 10px auto;width: 100%;min-width: 600px;max-width: 1000px;margin: 0 auto;background: #fff;'>
+        <tbody>
+            <tr>
+                <td class='text-start' style='width: 50%;padding-bottom: 15px; padding-top: 15px;'>
+                    <img src="static/images/uda-logo-blue.jpg" style='height: 80px;max-width: 350px;' alt="Logo">
+                </td>
+                <td style='width: 50%;padding-bottom: 15px; padding-top: 15px;'>
+                    {% if datas.all_data.form_status == 1 or datas.all_data.form_status == 2 %}
+                    <h5 style='font-size: 22px;font-weight: 600;text-align: right;font-family: Nunito, sans-serif;padding: 0px;margin: 0px;'>
+                        Transaction Details</h5>
+                    <p style='text-align:right;margin-bottom: 0px;margin-top: 0px;padding: 0px;font-size: 15px;font-family: Nunito, sans-serif;'>{{datas.input.transaction_on}}</p>
+                    {% else %}
+                    <img src="static/images/uda-dark-logo.png" style='height: 80px;max-width: 350px;' alt="Logo">
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <td colspan='2'>
+                    <div style='margin: 0 -15px;'>
+                        <table border='0'
+                            style='border-collapse: initial;border-spacing: 5px;margin-top: 5px;width:100%;'>
+                            <tbody>
+                                <tr>
+                                    <td
+                                        style='border: 1px solid #ddd;border-radius: 5px; padding: 20px 25px; min-height: 300px; width: 50%;    vertical-align: top;'>
+                                        <div>
+                                            <h4
+                                                style=" font-size: 19px;color: #000;margin-bottom: 0px;padding: 5px;font-family: Nunito, sans-serif;line-height: 0px;">
+                                                <strong>User
+                                                    Details</strong>
+                                            </h4>
+                                            <p
+                                                style="margin-bottom: 0px;margin-top: 0px;padding: 5px;font-size: 15px;font-family: Nunito, sans-serif;line-height: 0px;">
+                                                <strong style='color: #000'>Practice Name :</strong> {{datas.all_data.practice_name}}
+                                            </p>
+                                            <p
+                                                style="margin-bottom: 0px;margin-top: 0px;padding: 5px;font-size: 15px;font-family: Nunito, sans-serif;line-height: 0px;">
+                                                <strong style='color: #000'>Name
+                                                    :</strong> {{datas.all_data.name}} {{datas.all_data.last_name}}
+                                            </p>
+                                            <p
+                                                style="margin-bottom: 0px;margin-top: 0px;padding: 5px;font-size: 15px;font-family: Nunito, sans-serif;line-height: 0px;">
+                                                <strong style='color: #000'>Phone
+                                                    :</strong> {{datas.all_data.phone}}
+                                            </p>
+                                            <p
+                                                style="margin-bottom: 0px;margin-top: 0px;padding: 5px;font-size: 15px;font-family: Nunito, sans-serif;line-height: 0px;">
+                                                <strong style='color: #000'>E-Mail:</strong> {{datas.all_data.email}}
+                                            </p>
+                                            <p
+                                                style="margin-bottom: 0px;margin-top: 0px;padding: 5px;font-size: 15px;font-family: Nunito, sans-serif;line-height: 0px;">
+                                                <strong style='color: #000'>Address :</strong> {{datas.input.full_address}}
+                                            </p>
+                                            <p
+                                                style="margin-bottom: 0px;margin-top: 0px;padding: 5px;font-size: 15px;font-family: Nunito, sans-serif;line-height: 0px;">
+                                                <strong style='color: #000'>Zip
+                                                    Code :</strong> {{datas.all_data.zipcode}}
+                                            </p>
+                                        </div>
+                                    </td>
+                                    <td
+                                        style='border: 1px solid #ddd;border-radius: 5px; padding: 20px 25px; min-height: 300px;width: 50%;    vertical-align: top;'>
+                                        <div>
+                                            <h4
+                                                style=" font-size: 19px;color: #000;margin-bottom: 0px;padding: 5px;font-family: Nunito, sans-serif;line-height: 0px;">
+                                                <strong>Transaction
+                                                    Details</strong>
+                                            </h4>
+                                            <p
+                                                style="margin-bottom: 0px;margin-top: 0px;padding: 5px;font-size: 15px;font-family: Nunito, sans-serif;line-height: 0px;">
+                                                <strong style='color: #000'>Transaction ID :</strong> {{datas.input.transaction_id}}
+                                            </p>
+                                            <p
+                                                style="margin-bottom: 0px;margin-top: 0px;padding: 5px;font-size: 15px;font-family: Nunito, sans-serif;line-height: 0px;">
+                                                <strong style='color: #000'>Transaction Date :</strong> {{datas.input.transaction_date}}
+                                            </p>
+                                            <p
+                                                style="margin-bottom: 0px;margin-top: 0px;padding: 5px;font-size: 15px;font-family: Nunito, sans-serif;line-height: 0px;">
+                                                <strong style='color: #000'>Amount
+                                                    ($) :</strong> {{datas.input.grand_price}}
+                                            </p>
+                                            {% if datas.all_data.off_transaction_status == 1 %}
+                                            <p
+                                                style="margin-bottom: 0px;margin-top: 0px;padding: 5px;font-size: 15px;font-family: Nunito, sans-serif;line-height: 0px;">
+                                                <strong style='color: #000'>Transaction Reference No :</strong> {{datas.input.transaction_ref}}
+                                            </p>
+                                            <p
+                                                style="margin-bottom: 0px;margin-top: 0px;padding: 5px;font-size: 15px;font-family: Nunito, sans-serif;line-height: 0px;">
+                                                <strong style='color: #000'>Transaction Status :</strong> {{datas.input.transaction_status}}
+                                            </p>
+                                            {% elif datas.all_data.off_transaction_status == 2 %}
+                                            <p
+                                                style="margin-bottom: 0px;margin-top: 0px;padding: 5px;font-size: 15px;font-family: Nunito, sans-serif;line-height: 0px;">
+                                                <strong style='color: #000'>Payment Mode :</strong> {{datas.input.off_transaction_payment_mode}}
+                                            </p>
+                                            <p
+                                                style="margin-bottom: 0px;margin-top: 0px;padding: 5px;font-size: 15px;font-family: Nunito, sans-serif;line-height: 0px;">
+                                                <strong style='color: #000'>Payment Details :</strong> {{datas.input.off_transaction_payment_details}}
+                                            </p>
+                                            <p
+                                                style="margin-bottom: 0px;margin-top: 0px;padding: 5px;font-size: 15px;font-family: Nunito, sans-serif;line-height: 0px;">
+                                                <strong style='color: #000'>Memo
+                                                    :</strong> {{datas.input.off_transaction_memo}}
+                                            </p>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </td>
+            </tr>
+            {{datas.con_datas|safe}}
+            <tr>
+                <td colspan='2'
+                    style='font-size: 17px;padding-top: 24px;text-align:center;font-family: Nunito, sans-serif'>
+                    *Copyright © 2021 Utah Dental Association. Reproduction or republication strictly
+                    prohibited without
+                    prior written permission.
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>
+<!-- </div>
+
+        </div>
+    </div>
+</div> -->
+<!-- end row -->
+
+{% endblock content %}
+

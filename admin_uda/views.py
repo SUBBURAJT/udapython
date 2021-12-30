@@ -6,6 +6,8 @@ from admin_uda.setting.membership_upload import membership
 from admin_uda.setting.hygienist_upload import hygienist
 from admin_uda.setting.convention_workshop import convention_workshops
 from admin_uda.setting.message_center import message_centers
+from admin_uda.setting.user_management import user_managements
+from admin_uda.setting.qr_search import qr_search_list
 from django.core.mail import send_mail
 from django.conf import settings
 from django.core import serializers
@@ -30,26 +32,60 @@ from django.http import HttpResponse
 from django.template.loader import get_template
 from xhtml2pdf import pisa
 from django.contrib.auth.decorators import login_required
+from os import path
 from django.utils.html import strip_tags
+from django.contrib.staticfiles import finders
 
+succ_message = "Registered Successfully"
 
+def link_callback(uri, rel):
+            """
+            Convert HTML URIs to absolute system paths so xhtml2pdf can access those
+            resources
+            """
+            result = finders.find(uri)
+            if result:
+                    if not isinstance(result, (list, tuple)):
+                            result = [result]
+                    result = list(os.path.realpath(path) for path in result)
+                    path=result[0]
+            else:
+                    sUrl = settings.STATIC_URL        # Typically /static/
+                    sRoot = settings.STATIC_ROOT      # Typically /home/userX/project_static/
+                    mUrl = settings.MEDIA_URL         # Typically /media/
+                    mRoot = settings.MEDIA_ROOT       # Typically /home/userX/project_static/media/
+
+                    if uri.startswith(mUrl):
+                            path = os.path.join(mRoot, uri.replace(mUrl, ""))
+                    elif uri.startswith(sUrl):
+                            path = os.path.join(sRoot, uri.replace(sUrl, ""))
+                    else:
+                            return uri
+
+            # make sure that file exists
+            if not os.path.isfile(path):
+                    raise Exception(
+                            'media URI must start with %s or %s' % (sUrl, mUrl)
+                    )
+            return path
 def render_to_pdf(template_src, context_dict={}):
     template = get_template(template_src)
     html  = template.render(context_dict)
     result = BytesIO()
-    pdf = pisa.pisaDocument(BytesIO(html.encode("ISO-8859-1")), result)
+    pdf = pisa.pisaDocument(BytesIO(html.encode("ISO-8859-1")), result,link_callback=link_callback)
     if not pdf.err:
         return HttpResponse(result.getvalue(), content_type='application/pdf')
     return None
 def myview(request):
     #Retrieve data or whatever you need
-    return render_to_pdf(
-            'mail_attachment_ui.html',
-            {
-                'pagesize':'A4',
-                'mylist': '123',
-            }
-        )    
+    # # return render_to_pdf(
+    #         'mail_attachment.html',
+    #         {
+    #             'pagesize':'A4',
+    #             'mylist': '123',
+    #         }
+    #     )  
+    return HttpResponse(succ_message)  
 
 def send_sms(request):
     txt_res=Send_Sms.Send(msg_txt='Test Message for text',to_number='9962220345')
@@ -320,19 +356,33 @@ def qr_search_ui(request):
     greeting['title'] = 'Scan QR Code'
     return render(request,'qr_search_ui.html',greeting)
 
-
 def user_email_check(request):
     if request.is_ajax and request.method=='POST':
         req_email = request.POST.get('email')
         req_id = request.POST.get('id')
-        if req_id:
-            if Users.objects.filter(~Q(id=req_id), email=req_email,status=1).exists():
-                return JsonResponse({"valid":True,"err":1,"msg":"Email Already Exists"}, status = 200)
+        if req_id!='' and Users.objects.filter(~Q(id=req_id), email=req_email,status=1).exists():
+            return JsonResponse({"valid":True,"err":1,"msg":"Email Already Exists"}, status = 200)
+        elif req_id=='' and Users.objects.filter( email=req_email,status=1).exists():
+            return JsonResponse({"valid":True,"err":1,"msg":"Email Already Exists"}, status = 200)
         else:
-            if Users.objects.filter(email=req_email,status=1).exists():
-                return JsonResponse({"valid":True,"err":1,"msg":"Email Already Exists"}, status = 200)
-    else:
-        return JsonResponse({"valid":True,"err":0,"msg":""}, status = 200)
+            return JsonResponse({"valid":True,"err":0,"msg":""}, status = 200)
+        
+@login_required()
+def user_management_operations(request):
+    module=request.POST.get('module')
+    if module and module=='list_user_management':
+        result=user_managements.list_user_management(request)
+        return JsonResponse(result, status = 200)
+    if module and module=='add_user_management':
+        err=''
+        msg=''
+        result=user_managements.add_user_management(request)
+        if result['error']:
+            err=result['error']
+        if result['msg']:
+            msg=result['msg']
+        return JsonResponse({"valid":True,"err":err,"msg":msg}, status = 200)
+    
 
 @login_required()
 def user_management(request):
@@ -340,87 +390,12 @@ def user_management(request):
     greeting['title'] = 'User Management'
     greeting['pageview'] = "Dashboard"
 
-    if(request.method == "POST"):
-        err_cnt = 0
-        req_email = request.POST.get('email')
-        req_id = request.POST.get('data_id')
-        req_name = request.POST.get('name')
-        req_mobile = request.POST.get('mobile')
-        req_password = request.POST.get('password')
-
-        x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
-        if x_forwarded_for:
-                ip = x_forwarded_for.split(',')[0]
-        else:
-                ip = request.META.get('REMOTE_ADDR')
-
-        if req_id:
-            if (req_email != '' and req_name !='' and req_mobile!='' ):
-                user = Users.objects.get(id=req_id)
-                user.name = req_name
-                user.email = req_email
-                user.mobile = req_mobile
-                auth_id=user.auth_user_id 
-                if req_password!='':
-                    user.password   = make_password(request.POST.get('password'))                
-                # user.role       = "User"
-                user.modified_at = datetime.datetime.now()
-                user.modified_ip = ip
-                if Users.objects.filter(~Q(id=req_id), email=req_email,status=1).exists():
-                    err_cnt = 1
-                    messages.error(request,'Email Already Exists')
-                if err_cnt == 0:                    
-                    user.save()
-                    #Udate auth_user table
-                    auth_user = User.objects.get(id=auth_id)
-                    auth_user.username=req_email
-                    auth_user.email=req_email
-                    if req_password!='':
-                        auth_user.password   = user.password
-                    auth_user.save()  
-
-                    messages.success(request, "User updated Successfully")                    
-            else:
-                messages.success(request, "User Added Failed! Missing reqired fields")
-        else:
-            if (req_email != '' and req_name !='' and req_mobile!='' and req_password!='' ):
-                user = Users(
-                    name = req_name,
-                    email = req_email,
-                    mobile = req_mobile
-                )
-                user.password   = make_password(request.POST.get('password'))                
-                user.role       = "User"
-                user.modified_at = datetime.datetime.now()
-                user.modified_ip = ip
-                if Users.objects.filter(email=req_email,status=1).exists():
-                    err_cnt = 1
-                    messages.error(request,'Email Already Exists')
-                else:
-                    #Save To auth_user table 
-                    auth_user = User.objects.create_user(username=req_email, email=req_email, password=user.password)
-                    auth_user.save()
-                    lastid=auth_user.id
-                    user.auth_user_id=lastid
-
-                    user.save()
-                    messages.success(request, "User Added Successfully")
-
-            else:
-                messages.error(request, "User Added Failed! Missing reqired fields")
-
-    all_data = Users.objects.all().filter(status=1, role="User")
-    greeting['all_data'] = all_data
-
-    bg_rand = ['bg-soft-primary text-primary', 'bg-soft-warning text-warning', 'bg-soft-danger text-danger']
-    for i in all_data:
-        random_bg =  random.sample(bg_rand, 1)
-        i.bg = random_bg[0]
-
     return render(request,'user_management.html',greeting )
 
 @login_required()
 def delete_user_management(request,id):
+     id_session=request.session['user_id']
+     print(id_session)
      if request.is_ajax and request.method=='POST':
         error=''
         user = Users.objects.get(id=id)
@@ -430,7 +405,7 @@ def delete_user_management(request,id):
         else:
             ip = request.META.get('REMOTE_ADDR')
         user.status = 0
-        user.deleted_by = 0
+        user.deleted_by = id_session
         user.deleted_at = datetime.datetime.now()
         user.deleted_ip = ip
         user.save()
@@ -448,14 +423,21 @@ def get_users(request):
         user = serializers.serialize("json", users)        
         return JsonResponse({"valid":True,"data":user}, status = 200)
 
-@login_required()                
+@login_required()
+def delete_profile_img(request):
+    id=request.session['user_id']
+    Users.objects.filter(id=id).update(profile_img=None)
+    return JsonResponse({"valid":True,"msg":"Profile Image deleted."}, status = 200)
+
+@login_required()
 def edit_profile(request):
     id=request.session['user_id']
     greeting = {}
     greeting['pageview'] = "Dashboard"
     greeting['title'] = 'Edit Profile'
-    datas = Users.objects.values().get(id=id)
-    greeting['datas'] = datas
+   
+    # print(data.auth_user_id)
+
     if(request.method == "POST"):
         c = False
         file_action = False
@@ -463,15 +445,15 @@ def edit_profile(request):
         email = request.POST.get('email')
         oldPassword = request.POST.get('old_pass')
         newPassword = request.POST.get('new_pass')
-       
+
         data     = Users.objects.values().get(id=id)
-        password_check=check_password(oldPassword,data['password'])
+        password_check = check_password(oldPassword,data['password'])
         
         if len(request.FILES) != 0:
             image = request.FILES['changepro']
             file_action = True
         else:
-            image = data['profile_img']
+           image = data['profile_img']
 
         if(email!=""):
             if Users.objects.filter(~Q(id=id),email=email).exists():
@@ -489,7 +471,8 @@ def edit_profile(request):
                 Users.objects.filter(id=id).update(
                     name=name,
                     email=email,
-                    profile_img = image
+                    profile_img = image,
+                  
                 )
                 if(file_action):
                     messages.success(request, "File & General details updated successfully")
@@ -505,7 +488,9 @@ def edit_profile(request):
                 password =make_password(newPassword),
                 reset_pass =make_password(newPassword) ,
             )
+            data     = Users.objects.get(id=id)
             auth_user = User.objects.get(id=data.auth_user_id)
+            # print(auth_user)
             auth_user.password   = make_password(newPassword)
             auth_user.save()  
             if(file_action):
@@ -513,10 +498,22 @@ def edit_profile(request):
             else:
                 messages.success(request, "Your details updated successfully")
 
-    datas = Users.objects.values().get(id=id)
+    datas = Users.objects.get(id=id)
     greeting['datas'] = datas
-    #return JsonResponse({'id':datas})
-
+    
     return render(request,'edit_profile.html',greeting)
 
+@login_required()
+def qr_search(request):
+    if request.is_ajax and request.method=='POST':
+        result=qr_search_list.list_registered_name(request)
+        return JsonResponse(result, status = 200)
+    greeting = {}
+    greeting['pageview'] = "Settings"
+    greeting['title'] = 'Scan QR Code'
+    return render(request,'qr_search.html',greeting)
 
+def qrcode_search(request,ids,types):
+    if request.is_ajax and request.method=='GET':
+        result=qr_search_list.list_registered_name_qr(request,ids,types)
+        return JsonResponse(result, status = 200)

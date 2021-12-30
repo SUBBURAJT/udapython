@@ -3,7 +3,7 @@ from admin_uda.models import *
 import json
 import datetime as dt
 from admin_uda.registrations.registration import Registration
-
+from django.conf import settings
 
 class FallRegistration():
     def get_ip(request):
@@ -56,7 +56,7 @@ class FallRegistration():
             form_status = 3,            
             created_ip=FallRegistration.get_ip(request),   
             created_on=dt.datetime.now(),
-            created_by=1,
+            created_by=request.session['user_id'],
         )
         form_data.save()
         LastInsertId = form_data.id
@@ -94,8 +94,20 @@ class FallRegistration():
                     data.delete()
                     result = 0
                 else:
+                    file = []
+                    rt = os.path.join(settings.BASE_DIR).replace("\\","/")
                     body_content = Registration.mail_template(3,LastInsertId)
-                    txt_res=Send_Mail.Send(subject='UDA Registration Mail',body=body_content['plain'],to_mail='rajiveorchids@gmail.com',html_message=body_content['html'])
+                    file_name = Registration.mail_pdf(LastInsertId)
+                    file1 = rt+'/uploads/mail_pdf/'+file_name
+                    file.append(file1)
+                    qr_code = Registration.mail_qr_attachment(LastInsertId)
+                    if(qr_code['convention']):
+                        for cv in qr_code['convention']:
+                            tmp_file = ''
+                            tmp_file = rt+'/uploads/mail_qrcode/'+ cv +'.pdf'
+                            file.append(tmp_file)
+                                        
+                    txt_res=Send_Mail.Send(subject='UDA Registration Mail',body=body_content['plain'],to_mail='rajiveorchids@gmail.com',html_message=body_content['html'],file_name=file)
                     if txt_res:
                         result = txt_res
                     else:

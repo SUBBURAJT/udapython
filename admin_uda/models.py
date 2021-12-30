@@ -4,7 +4,7 @@ import os
 from twilio.rest import Client
 from twilio.base.exceptions import TwilioRestException
 from uda.settings import DEFAULT_FROM_EMAIL,TWILIO_ACCOUNT_SID,TWILIO_AUTH_TOKEN,TWILIO_FROM_NUMBER,TWILIO_COUNTRY_CODE
-from django.core.mail import send_mail
+from django.core.mail import send_mail,EmailMessage
 
 class Send_Sms():
 
@@ -31,12 +31,27 @@ class Send_Mail():
         body=data['body']
         to_mail=data['to_mail']
         html_message = data['html_message'] if data['html_message'] else None
+        attachment = data['file_name'] if data['file_name'] else None
         is_sent=1
         
         try:
-            send_mail(subject, body,DEFAULT_FROM_EMAIL,[to_mail],fail_silently= False,html_message=html_message )
+            # send_mail(subject, body,DEFAULT_FROM_EMAIL,[to_mail],fail_silently= False,html_message=html_message )
+            email_msg = EmailMessage(
+                subject = subject,
+                body = body,
+                from_email = DEFAULT_FROM_EMAIL,
+                to = [to_mail],                
+            )
+            if html_message !=None:
+                email_msg.content_subtype = "html"
+                email_msg.body = html_message
+            if attachment!=None:
+                for file in attachment:
+                    if os.path.isfile(file):
+                        email_msg.attach_file(file)  
+            email_msg.send()
         except Exception as e:
-            is_sent=0
+            is_sent=str(e)
         return is_sent
 
 # Create your models here.

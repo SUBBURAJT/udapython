@@ -23,7 +23,7 @@
             <div class="card-header bg-white border-bottom d-flex align-items-center justify-content-between">
                 <h4 class="card-title mb-0">User List</h4>
                 <div class="dropdown float-end">
-                    <a href="#addWorkshop" data-bs-effect="effect-flip-vertical" data-bs-toggle="modal" class="btn btn-primary btn-sm waves-effect waves-light text-white px-3">
+                    <a href="#adduser" data-bs-effect="effect-flip-vertical" data-bs-toggle="modal" class="btn btn-primary btn-sm waves-effect waves-light text-white px-3">
                         <i class='fa fa-plus me-2 fs-12'></i>Add New User
                     </a>
                 </div>
@@ -41,29 +41,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            {%for data in all_data %}
-                            <tr>
-                                <td>
-                                    <div class="d-flex align-items-center">
-                                        <div class="activity-icon avatar-xs me-2">
-                                            <span class="avatar-title {{data.bg}}  br-5">
-                                                                                                {{data.name.0}}
-                                                                                            </span>
-                                        </div>
-                                        {{data.name}}
-                                    </div>
 
-                                </td>
-                                <td>{{data.email}}</td>
-                                <td>{{data.mobile}}</td>
-                                <td id="tooltip-container1">
-                                    <a href="#" id="edit" name="{{data.id}}" class="me-3 text-primary edit_user_management" data-bs-container="#tooltip-container1" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit"><i class="mdi mdi-pencil font-size-18"></i></a>
-
-                                    <a class="text-danger tabDelete" data-id="{{data.id}}" data-bs-container="#tooltip-container1" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete" name="{{data.id}}"><i class="mdi mdi-trash-can font-size-18"></i></a>
-                                </td>
-
-                            </tr>
-                            {% endfor %}
 
                         </tbody>
                     </table>
@@ -76,7 +54,7 @@
 <!-- end row -->
 
 <!-- Modal -->
-<div class="modal fade effect-flip-vertical edit" id="addWorkshop" tabindex="-1" role="dialog">
+<div class="modal fade effect-flip-vertical edit" id="adduser" tabindex="-1" role="dialog">
     <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
         <div class="modal-content">
             <form class='needs-validation' id="user_frm" method="POST" action="" novalidate>
@@ -199,6 +177,16 @@
                     next: "<i class='mdi mdi-chevron-right'>"
                 }
             },
+            "ajax": {
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                url: "{% url 'user_management_operations' %}",
+                type: "POST",
+                "data": function(data) {
+                    data.module = 'list_user_management'
+                },
+            },
             drawCallback: function() {
                 $(".dataTables_paginate > .pagination").addClass("pagination-rounded"),
                     $(".dataTables_length select").addClass("form-select form-select-sm")
@@ -246,19 +234,19 @@
         var name = $("#firstname").val();
         var email = $("#email").val();
         var mobile = $("#mobile").val();
-        var password = $("#pass").val()
-        var repeated_password = $("#re_enter_pass").val()
+        var password = $("#pass").val();
+        var repeated_password = $("#re_enter_pass").val();
         var editId = $("#data_id").val();
 
+
         if (editId != '' && editId != undefined) {
-            if ($("#pass").val() == '' && $("#re_enter_pass").val() == '') {
-                $("#pass").removeAttr('required');
-                $("#re_enter_pass").removeAttr('required');
-            } else {
-                $("#pass").prop('required', true);
-                $("#re_enter_pass").prop('required', true);
-            }
+            $("#pass").removeAttr('required');
+            $("#re_enter_pass").removeAttr('required');
+        } else {
+            $("#pass").prop('required', true);
+            $("#re_enter_pass").prop('required', true);
         }
+
 
         if (name != '' && email != '' && mobile != '' && password != '' && repeated_password != "") {
             var err = 0;
@@ -283,11 +271,12 @@
             }
             if (err == 0) {
                 $("#user_frm").submit();
+
             } else {
                 return false;
             }
-        }
 
+        }
 
     });
     $(document).on('click', '.tabDelete', function() {
@@ -339,9 +328,10 @@
             }
         })
     })
-    $(".edit_user_management").on("click", function(e) {
+    $(document).delegate(".edit_user_management", "click", function(e) {
         e.preventDefault();
-        var id = $(this).attr('name');
+        $('.modal-title').html('Edit User');
+        var id = $(this).data('id');
         $.ajax({
             headers: {
                 'X-CSRFToken': '{{ csrf_token }}'
@@ -354,7 +344,6 @@
             },
             success: function(data) {
                 $('.edit').modal("show");
-                $('.modal-title').html('Edit User');
                 var result = JSON.parse(data.data)
                 var fields1 = result[0]['fields'];
                 $("#data_id").val(result[0]['pk']);
@@ -363,15 +352,91 @@
                 $("#mobile").val(fields1['mobile']);
             }
         });
-    })
+    });
 
-    $("#add_btn").on("click", function(e) {
+    $("#add_new_user").on("click", function(e) {
         $('.modal-title').html('Add New User');
+    });
 
-    })
-    setTimeout(function() {
-        $("#alert_mess").css("display", 'none');
-    }, 8000);
+    $("#user_frm").submit(function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        var fname = $("#firstname").val();
+        var mobile = $("#mobile").val();
+        var email = $("#email").val();
+        var pass = $("#pass").val();
+        var datas = new FormData(this);
+        var id = $('#data_id').val();
+        datas.append('module', 'add_user_management');
+        if (fname != '' && mobile != '' && email != '') {
+            $("#add_new_user").prop("disabled", true);
+            $.ajax({
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                url: "{% url 'user_email_check' %}",
+                type: "POST",
+                data: {
+                    email: email,
+                    id: id
+                },
+                success: function(data) {
+                    if (data['err'] == 1) {
+                        $("#email").addClass('err');
+                        $("#email").closest('div').find('.invalid-feedback').html(data['msg']);
+                        $("#email").closest('div').find('.invalid-feedback').css('display', 'block');
+                        $("#add_new_user").removeAttr("disabled");
+                    } else {
+                        $("#email").removeClass('err');
+                        $("#email").closest('div').find('.invalid-feedback').html("Email is required");
+                        $("#email").closest('div').find('.invalid-feedback').css('display', 'none');
+
+                        /* Form submission starts after email duplication verfied*/
+                        $.ajax({
+                            url: "{% url 'user_management_operations' %}",
+                            type: "POST",
+                            data: datas,
+                            dataType: 'json',
+                            contentType: false,
+                            cache: false,
+                            processData: false,
+                            success: function(data) {
+                                $("#add_new_user").prop("disabled", false)
+                                if (data['err'] == '') {
+                                    swal.fire({
+                                        title: 'Success',
+                                        html: data['msg'],
+                                        icon: 'success',
+                                        confirmButtonColor: '#3085d6',
+                                        confirmButtonText: 'Ok'
+                                    }).then((result) => {
+
+                                        cancel_user()
+                                        location.href = "{% url 'user_management' %}"
+                                    });
+
+                                } else {
+                                    swal.fire({
+                                        title: 'Error',
+                                        text: data['err'],
+                                        icon: 'error',
+                                        confirmButtonColor: '#3085d6',
+                                        confirmButtonText: 'Ok'
+                                    });
+                                }
+                            },
+                            error: function() {}
+                        });
+                        /* Form submisson ends here */
+
+                    }
+                },
+                error: function() {}
+            });
+        }
+    });
+
+
 
     function cancel_user() {
         $("#firstname").val('');
@@ -385,6 +450,9 @@
         $("#user_frm").find('.is-valid').removeClass("is-valid");
         $("#user_frm").find('.invalid-feedback').hide();
         $("#user_frm").find('.valid-feedback').hide();
+        $('#add_new_user').removeAttr('disabled');
+        $("#adduser").modal('hide')
+        location.href = "{% url 'user_management' %}"
     }
 
     function IsEmail(email) {

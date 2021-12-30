@@ -264,7 +264,7 @@ class spring_transactions():
                                 <li><a class="text-dark view_details" data-method="view" data-id="""+hashid+"""><span
                                             class='avatar avatar-xs brround bg-violet-transparent'><i
                                                 class='fa fa-eye'></i></span> View</a></li>
-                                <li><a class="text-dark"><span
+                                <li><a class="text-dark view_pdf" data-id="""+hashid+"""><span
                                             class='avatar avatar-xs brround bg-brown-transparent'><i
                                                 class='fa fa-download'></i></span> Download</a></li>
                                 <li><a class="text-dark view_details" data-method="print" data-id="""+hashid+"""><span
@@ -309,7 +309,7 @@ class spring_transactions():
         ids=request.POST.get('id')
         form=Handon_form.objects.get(id=ids)
         form.status=2
-        form.deleted_by = 0
+        form.deleted_by = request.session['user_id']
         form.deleted_on = dt.datetime.now()
         form.deleted_ip = spring_transactions.get_ip(request)
         form.save()
@@ -325,7 +325,7 @@ class spring_transactions():
         arch=request.POST.get('arch')
         form=Handon_form.objects.get(id=ids)
         form.archive_id=arch
-        form.updated_by = 0
+        form.updated_by = request.session['user_id']
         form.updated_on = dt.datetime.now()
         form.updated_ip = spring_transactions.get_ip(request)
         form.save()

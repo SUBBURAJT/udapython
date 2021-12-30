@@ -3,6 +3,7 @@ from django.core.checks.messages import Error
 from admin_uda.models import *
 import datetime as dt
 from admin_uda.registrations.registration import Registration
+from django.conf import settings
 
 class SpringRegistration():
     def get_convention_type():
@@ -54,7 +55,7 @@ class SpringRegistration():
         form.form_status=2
         form.created_ip=SpringRegistration.get_ip(request)    
         form.created_on=dt.datetime.now()
-        form.created_by=1
+        form.created_by=request.session['user_id']
         form.os=request.POST.get('os')
         form.browser=request.POST.get('browser')
         form.mobile_true=request.POST.get('mobile_true')
@@ -97,8 +98,20 @@ class SpringRegistration():
                     data.delete()
                     result = 0
                 else:
+                    file = []
+                    rt = os.path.join(settings.BASE_DIR).replace("\\","/")
                     body_content = Registration.mail_template(2,LastInsertId)   
-                    txt_res=Send_Mail.Send(subject='UDA Registration Mail',body=body_content['plain'],to_mail='rajiveorchids@gmail.com',html_message=body_content['html'])
+                    file_name = Registration.mail_pdf(LastInsertId)
+                    file1 = rt+'/uploads/mail_pdf/'+file_name
+                    file.append(file1)
+                    qr_code = Registration.mail_qr_attachment(LastInsertId)
+                    if(qr_code['convention']):
+                        for cv in qr_code['convention']:
+                            tmp_file = ''
+                            tmp_file = rt+'/uploads/mail_qrcode/'+ cv +'.pdf'
+                            file.append(tmp_file)
+                    
+                    txt_res=Send_Mail.Send(subject='UDA Registration Mail',body=body_content['plain'],to_mail='rajiveorchids@gmail.com',html_message=body_content['html'],file_name=file)
                     if txt_res:
                         result = txt_res
                     else:

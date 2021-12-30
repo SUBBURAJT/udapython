@@ -27,13 +27,14 @@
 
                                             <div class='d-flex flex-wrap align-items-center justify-content-center'>
                                                 <div class='pos-relative'>
-                                                    <img alt="User Avatar" id="prof_img" class="rounded-circle avatar-md me-md-2 mb-md-0 mb-2" src="{% static '/prof_image/'%}{{datas.profile_img}}">
+                                                    <img alt="User Avatar" id="prof_img" class="rounded-circle avatar-md me-md-2 mb-md-0 mb-2" {% if datas.profile_img %} src="../uploads/profile_upload/{{datas.profile_img}}" {% else %} src="../uploads/profile_upload/download.png" {% endif %}>
                                                     <span class='rounded-circle avatar-md closeBadge'><i
-                                                        class='fa fa-trash' id="delete_prof_img"></i></span>
+                                                        class='fa fa-trash' id="delete_prof_img" name='delete_prof_img'></i></span>
                                                     <input type="file" name="changepro" class='d-none' id='changepro'>
                                                     <label for="changepro" class="editBadge badge bg-primary"><i
                                                         class='fas fa-pencil-alt'></i></label>
                                                 </div>
+
                                                 <div class='ms-md-2 w-sm-100'>
                                                     <p class='fs-14 mb-0 fw-bold text-md-start text-center'>{{ datas.name }}</p>
                                                     <p class='text-muted mb-0 mt-0 fs-13 text-md-left text-center'>
@@ -43,7 +44,7 @@
 
                                         </div>
                                     </div>
-                                    
+
                                     <div class="col-md-12">
                                         <div class="form-group">
                                             <div class="withIcon">
@@ -193,24 +194,22 @@
     }, 2000);
 
 
-    // function previewFile(input) {
-    //     var file = $("input[type=file]").get(0).files[0];
-
-    //     if (file) {
-    //         var reader = new FileReader();
-
-    //         reader.onload = function() {
-    //             $("#prof_img").attr("src", reader.result);
-    //         }
-
-    //         reader.readAsDataURL(file);
-    //     }
-    // }
-
     $(document).on('click', '#delete_prof_img', function() {
+        $.ajax({
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            url: "{% url 'delete_profile_img' %}",
+            type: "POST",
+            data: {},
+            success: function(data) {
+                $('#prof_img').attr('src', '../uploads/profile_upload/download.png');
+                location.href = "{% url 'edit_profile' %}"
+            },
+            error: function() {
 
-        $('#prof_img').attr('src', '/static/images/download.png');
-
+            }
+        });
     });
 </script>
 

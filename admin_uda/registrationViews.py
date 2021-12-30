@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render,redirect
 from admin_uda.models import Handon_form,Ada_membership
 from admin_uda.registrations.fallRegistration import FallRegistration
 from admin_uda.registrations.springRegistration import SpringRegistration
@@ -12,16 +12,20 @@ from django.http import JsonResponse
 from django.core import serializers
 from django.db.models import Value
 from django.db.models.functions import Lower, Replace, Concat
+from admin_uda.registrations.registration import Registration
+from hashids import Hashids
 from django.contrib.auth.decorators import login_required
 
-
+reg_succ_msg = "Registered Successfully"
+update_succ_msg = "Updated Successfully"
+reg_err_msg = "Someting went to wrong! Please Try Again"
 
 @register.filter
 def get_range(value):
     return range(value)
 @register.filter
-def get_str(value):
-    return str(value)
+def get_int(value):
+    return int(value)
 
 @login_required()
 def fall_registration(request):
@@ -38,14 +42,13 @@ def fall_registration(request):
         save_form = FallRegistration.save_form(request)
         if save_form == 1:
             error = 0
-            msg="Registered Successfully"
-            # messages.success(request, "Registered Successfully")
+            msg=reg_succ_msg
         elif save_form == 2:
             error = 1
             msg="Mail send error";
         else:
             error = 1
-            msg="Someting went to wrong! Please Try Again"
+            msg=reg_err_msg
         return JsonResponse({"valid":True,"err":error,"msg":msg}, status = 200)
 
     return render(request,'fall_registration.html',greeting)
@@ -90,10 +93,10 @@ def spring_registration(request):
         spr_form=SpringRegistration.saveRegistration(request)
         if spr_form == 1:
             error = 0
-            msg="Registered Successfully"
+            msg=reg_succ_msg
         else:
             error = 1
-            msg="Someting went to wrong! Please Try Again"
+            msg=reg_err_msg
         return JsonResponse({"valid":True,"err":error,"msg":msg}, status = 200)
 
     return render(request,'spring_registration.html',greeting)
@@ -114,10 +117,10 @@ def convention_registration(request):
         save_form = ConventionRegistration.save_form(request)
         if save_form == 1:
             error = 0
-            msg="Registered Successfully"
+            msg=reg_succ_msg
         else:
             error = 1
-            msg="Someting went to wrong! Please Try Again"
+            msg=reg_err_msg
         return JsonResponse({"valid":True,"err":error,"msg":msg}, status = 200)
 
     return render(request,'convention_registration.html',greeting)
@@ -139,19 +142,24 @@ def vendor_edit(request,id):
     greeting = {}
     greeting['pageview'] = "Dashboard"
     greeting['title'] = 'Exhibitor'
+    hashids = Hashids(salt='UDAHEALTHDENTALSALT',min_length=10)
+    decoded_id = hashids.decode(id) 
+    if decoded_id:
+        vendor_id = decoded_id[0]
+
 
     if request.method=='GET':        
-        vendor_res = VendorRegistration.get_vendor(request,id)
+        vendor_res = VendorRegistration.get_vendor(request,vendor_id)
         greeting['vendor'] = vendor_res[0]
         
     if request.is_ajax and request.method=='POST':
         save_form = VendorRegistration.save_form(request)
         if save_form == 1:
             error = 0
-            msg="Updated Successfully";
+            msg=update_succ_msg
         else:
             error = 1
-            msg="Someting went to wrong! Please Try Again";
+            msg=reg_err_msg
         return JsonResponse({"valid":True,"err":error,"msg":msg}, status = 200)
 
     return render(request,'vendor_edit.html',greeting)
@@ -161,10 +169,15 @@ def vendor_detail(request,id):
     greeting = {}
     greeting['pageview'] = "Dashboard"
     greeting['title'] = 'Exhibitor Details'
+    hashids = Hashids(salt='UDAHEALTHDENTALSALT',min_length=10)
+    decoded_id = hashids.decode(id) 
+    if decoded_id:
+        vendor_id = decoded_id[0]
+
     if request.method=='GET':        
-        vendor_res = VendorRegistration.get_vendor(request,id)
+        vendor_res = VendorRegistration.get_vendor(request,vendor_id)
         greeting['vendor'] = vendor_res[0]
-        staff_res = VendorRegistration.get_staff(request,id)
+        staff_res = VendorRegistration.get_staff(request,vendor_id)
         greeting['staff'] = staff_res
         greeting['staff_cnt'] = len(staff_res)
 
@@ -184,6 +197,34 @@ def exhibitor_registration(request):
 
     return render(request,'exhibitor_registration.html',greeting)
 
+def convention_edit(request,param1):
+    greeting = {}
+    greeting['pageview'] = "Dashboard"
+    greeting['title'] = 'Convention Edit'
+    hashids = Hashids(salt='UDAHEALTHDENTALSALT',min_length=10)
+    decoded_id = hashids.decode(param1) 
+    if decoded_id:
+        hand_id = decoded_id[0]
+        handon_details = ConventionRegistration.getForm(hand_id)
+        greeting['handon_details'] = handon_details
+        if len(handon_details)==0:
+            return redirect('convention_transaction')
 
+    today = dt.date.today() 
+    greeting['convention'] = ConventionRegistration.get_convention(today)
+    greeting['workshops'] = ConventionRegistration.get_worshop()
+    greeting['workshops_cnt'] = len(ConventionRegistration.get_worshop())  
+
+    if request.is_ajax and request.method=='POST':
+        save_form = ConventionRegistration.update_form(request,hand_id)
+        if save_form == 1:
+            error = 0
+            msg=update_succ_msg
+        else:
+            error = 1
+            msg=reg_err_msg
+        return JsonResponse({"valid":True,"err":error,"msg":msg}, status = 200)
+
+    return render(request,'convention_edit.html',greeting)
     
     

@@ -422,13 +422,23 @@
         $('.action-dd').addClass("show")
         let ids = $(this).attr('data-id')
         let method = $(this).attr('data-method')
-        window.open("../convention_detail/"+ids+"/"+method+"", "_blank");
+        window.open("../convention_detail/"+ids+"-"+method+"", "_blank");
     });
-
+    $(document).on("click", ".edit_details", function(e) {
+        $('.action-dd').addClass("show")
+        let id = $(this).attr('data-id')
+        window.open("../convention_edit/"+id+"/", "_blank");
+    });
+    
     $(document).on("click", ".id_card_print", function(e) {
         $('.action-dd').addClass("show")
         let ids = $(this).attr('data-id')
         window.open("../convention_id_card_print/"+ids+"", "_blank");
+    });
+    $(document).on("click", ".view_pdf", function(e) {
+        $('.action-dd').addClass("show")
+        let ids = $(this).attr('data-id')
+        window.open("../convention_detail_pdf/"+ids+"", "_blank");
     });
 
     // Filter Reset

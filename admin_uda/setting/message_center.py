@@ -48,7 +48,7 @@ class message_centers():
         data=Convention_types.objects.filter(status=1,form_status=int(category)).order_by('name')
         opt="<option value='0'>All</option>"
         for datas in data:
-            opt+="<option value='"+str(datas.id)+"'>"+datas.name+"</option>"
+            opt+="<option value='"+str(datas.id)+"'>"+datas.name.replace("NAME", "")+"</option>"
         return opt
 
     def member_names(request):
@@ -78,7 +78,7 @@ class message_centers():
         form.reg_type=reg_type
         form.type_of_member=type_of_member
         form.uni_con_id=ids
-        form.created_by=0
+        form.created_by=request.session['user_id']
         form.created_on=dt.datetime.now()
         form.created_ip=message_centers.get_ip(request)
         form.save()
@@ -106,7 +106,7 @@ class message_centers():
             if arr:
                 msg="Message Add to Queue"
             else:
-                msg="Message Not Added"
+                error="Message Not Added"
         else:
             error="Message Not Added"
             msg=""
@@ -116,8 +116,8 @@ class message_centers():
         ids=request.POST.get('id')
         form=Message_center.objects.get(id=ids)
         form.status=1
-        form.deleted_by = 0
-        form.deleted_at = dt.datetime.now()
+        form.deleted_by = request.session['user_id']
+        form.deleted_on = dt.datetime.now()
         form.deleted_ip = message_centers.get_ip(request)
         form.save()
         if form.id:

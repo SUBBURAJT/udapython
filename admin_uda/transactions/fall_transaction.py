@@ -264,7 +264,7 @@ class fall_transactions():
                                 <li><a class="text-dark view_details" data-method="view" data-id="""+hashid+"""><span
                                             class='avatar avatar-xs brround bg-violet-transparent'><i
                                                 class='fa fa-eye'></i></span> View</a></li>
-                                <li><a class="text-dark"><span
+                                <li><a class="text-dark view_pdf" data-id="""+hashid+"""><span
                                             class='avatar avatar-xs brround bg-brown-transparent'><i
                                                 class='fa fa-download'></i></span> Download</a></li>
                                 <li><a class="text-dark view_details" data-method="print" data-id="""+hashid+"""><span

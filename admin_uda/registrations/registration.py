@@ -1,10 +1,53 @@
+from django.http.response import JsonResponse
 from admin_uda.models import *
 import datetime as dt
 from django_mysql.models import GroupConcat
 import json
 from django.utils.html import strip_tags
+from uda.settings import *
+from admin_uda.transactions.convention_detail_pdf import convention_details_pdf
+from django.core.files.storage import FileSystemStorage
+from django.conf import settings
+from io import BytesIO
+from django.template.loader import get_template,render_to_string
+from xhtml2pdf import pisa
+from django.contrib.staticfiles import finders
+import qrcode
+from django.core.files import File
+from PIL import ImageDraw,Image
+from hashids import Hashids
 
 class Registration():
+    def link_callback(uri, rel):
+        """
+        Convert HTML URIs to absolute system paths so xhtml2pdf can access those
+        resources
+        """
+        result = finders.find(uri)
+        if result:
+                if not isinstance(result, (list, tuple)):
+                        result = [result]
+                result = list(os.path.realpath(path) for path in result)
+                path=result[0]
+        else:
+                sUrl = settings.STATIC_URL        # Typically /static/
+                sRoot = settings.STATIC_ROOT      # Typically /home/userX/project_static/
+                mUrl = settings.MEDIA_URL         # Typically /media/
+                mRoot = settings.MEDIA_ROOT       # Typically /home/userX/project_static/media/
+
+                if uri.startswith(mUrl):
+                        path = os.path.join(mRoot, uri.replace(mUrl, ""))
+                elif uri.startswith(sUrl):
+                        path = os.path.join(sRoot, uri.replace(sUrl, ""))
+                else:
+                        return uri
+
+        # make sure that file exists
+        if not os.path.isfile(path):
+                raise Exception(
+                        'media URI must start with %s or %s' % (sUrl, mUrl)
+                )
+        return path
     def get_payment_method(method):
         payment = {
             '1':"Cash",
@@ -20,6 +63,97 @@ class Registration():
             result = ''
 
         return result
+
+    def mail_qr_attachment(hand_id):
+        result = {}
+        rt = os.path.join(settings.BASE_DIR).replace("\\","/")
+        if hand_id>0:
+            hashids = Hashids(salt='UDAHEALTHDENTALSALT',min_length=10)
+            hashid = hashids.encode(hand_id)
+            none_to_str=lambda a:str(a) if str(a) != 'None' else ''
+            handon_res = (Handon_form.objects.values().filter(id=hand_id,status=1)[:1])[0]
+            convention_ws = Convention_form_workshop.objects.filter(is_deleted=1,hand_id=hand_id)
+            # .aggregate(con_ws_ids = GroupConcat('work_id'))
+            handon_ws = Handon_form_workshop.objects.filter(is_deleted=1,hand_id=hand_id)
+            # .aggregate(hands_ws_ids = GroupConcat('work_id'))
+            if not os.path.exists(rt+f'/uploads/mail_qrcode/'):
+                os.makedirs(rt+f'/uploads/mail_qrcode/')
+            if convention_ws:
+                # convention_lists = Convention_types.objects.filter(status=1,id__in= (none_to_str(convention_ws['con_ws_ids']).split(","))).order_by('id')
+                con_list = []
+                for cv in convention_ws:
+                    hashids_cvid = Hashids(salt='UDAHEALTHDENTALSALT',min_length=10)
+                    hashid_cvid = hashids_cvid.encode(cv.id)
+                    if cv.id != 9:                        
+                        url = 'admin/convention-id-card-print-ind.php?q={hashid}&cfw={hashid_cvid}'
+                        filename = cv.name.replace(' ','') + '_cfw' + str(cv.id)
+                        #qrcode image
+                        img=qrcode.make(url)
+                        img.save(rt+f"/uploads/mail_qrcode/"+ filename +".png")
+                        #qrcode pdf
+                        pdf = Image.open(rt+f"/uploads/mail_qrcode/"+ filename +".png")
+                        pdf_off = pdf.convert('RGB')
+                        pdf_off.save(rt+f"/uploads/mail_qrcode/"+ filename +".pdf")
+                        con_list.append(filename)
+                result['convention'] = con_list
+            if handon_ws:
+                workshop_lists = []
+                # workshop_lists = Handon_workshop.objects.filter(status=1,id__in= (none_to_str(handon_ws['hands_ws_ids']).split(","))).order_by('id')
+
+                for ws in handon_ws:
+                    hashids_wsid = Hashids(salt='UDAHEALTHDENTALSALT',min_length=10)
+                    hashid_wsid = hashids_wsid.encode(cv.id)
+
+                    url = 'admin/convention-id-card-print-ind.php?q={hashid}&hfw={hashid_wsid}'
+                    filename = ws.name.replace(' ','') + '_hfw' + str(ws.id)
+                    #qrcode image
+                    img=qrcode.make(url)
+                    img.save(rt+f"/uploads/mail_qrcode/"+ filename +".png")
+                    #qrcode pdf
+                    pdf = Image.open(rt+f"/uploads/mail_qrcode/"+ filename +".png")
+                    pdf_off = pdf.convert('RGB')
+                    pdf_off.save(rt+f"/uploads/mail_qrcode/"+ filename +".pdf")
+                    workshop_lists.append(filename)
+                result['workshops'] = workshop_lists
+        return result
+
+
+    def mail_pdf(hand_id):
+        context_dict = {}
+        file_name = ''
+        rt = os.path.join(settings.BASE_DIR).replace("\\","/")
+        dat=convention_details_pdf.pdf_transaction_details(hand_id)
+
+        if dat['input']['form_status'] and dat['input']['form_status']==1:
+            context_dict['title'] = 'Convention Transaction Details'
+        elif dat['input']['form_status'] and dat['input']['form_status']==2:
+            context_dict['title'] = 'Spring Transaction Details'
+        elif dat['input']['form_status'] and dat['input']['form_status']==3:
+            context_dict['title'] = 'Fall Transaction Details'
+        else:
+            context_dict['title'] = ''
+
+        context_dict['datas'] = dat
+        
+        template = get_template('mail_attachment.html')        
+        html  = template.render(context_dict)        
+        result = BytesIO()
+        pdf = pisa.pisaDocument(BytesIO(html.encode("ISO-8859-1")), result,link_callback=Registration.link_callback) 
+        t1=dt.datetime.now().timestamp()
+        t = str(t1).replace(".","_")
+        file_name= str(hand_id)+'-'+str(t)+'.pdf'
+
+        try:
+            if not os.path.exists(rt+f'/uploads/mail_pdf/'):
+                os.makedirs(rt+f'/uploads/mail_pdf/')
+            with open(rt+f'/uploads/mail_pdf/{file_name}','wb+') as output:
+                pdf = pisa.pisaDocument(BytesIO(html.encode("ISO-8859-1")), output,link_callback=Registration.link_callback)
+
+        except Exception as e:
+            print(e)
+
+        if not pdf.err:
+            return file_name
 
     def mail_template(form,hand_id):
         result = {}
@@ -60,7 +194,8 @@ class Registration():
             if form == 1:
                 thank_mess = 'Thank You ! <p style=" font-size: 14px; margin: 0; ">For  Registering. Please Find Your Registered Conventions...</p>'
                 if none_to_str(handon_res['transaction_on']) != '':
-                   trans_date = dt.datetime.strptime(none_to_str(handon_res['transaction_on']),'%Y-%m-%d %H:%M:%S.%f%z').strftime('%m/%d/%Y %I:%M:%S %p')
+                    # trans_date = dt.datetime.strptime(none_to_str(handon_res['transaction_on']),'%Y-%m-%d %H:%M:%S.%f%z').strftime('%m/%d/%Y %I:%M:%S %p')
+                    trans_date = dt.datetime.strptime(none_to_str(handon_res['transaction_on'])[:19],'%Y-%m-%d %H:%M:%S').strftime('%m/%d/%Y %I:%M:%S %p')
                 else:
                     trans_date = ''
 
@@ -76,7 +211,8 @@ class Registration():
             elif form == 2:
                 thank_mess = 'Thank You ! - Spring Convention Registration <p style=" font-size: 14px; margin: 0; ">For  Registering. Please Find Your Registered Spring...</p>'
                 if none_to_str(handon_res['created_on']) != '':
-                   trans_date = dt.datetime.strptime(none_to_str(handon_res['created_on']),'%Y-%m-%d %H:%M:%S.%f%z').strftime('%m/%d/%Y %I:%M:%S %p')
+                    #    trans_date = dt.datetime.strptime(none_to_str(handon_res['created_on']),'%Y-%m-%d %H:%M:%S.%f%z').strftime('%m/%d/%Y %I:%M:%S %p')
+                    trans_date = dt.datetime.strptime(none_to_str(handon_res['created_on'])[:19],'%Y-%m-%d %H:%M:%S').strftime('%m/%d/%Y %I:%M:%S %p')
                 else:
                     trans_date = ''
                 if none_to_str(handon_res["off_transaction_payment_mode"]):
@@ -95,7 +231,7 @@ class Registration():
             elif form == 3:
                 thank_mess = 'Thank You ! - Fall Convention Registration <p style=" font-size: 14px; margin: 0; ">For  Registering. Please Find Your Registered Fall...</p>'
                 if none_to_str(handon_res['created_on']) != '':
-                   trans_date = dt.datetime.strptime(none_to_str(handon_res['created_on']),'%Y-%m-%d %H:%M:%S.%f%z').strftime('%m/%d/%Y %I:%M:%S %p')
+                   trans_date = dt.datetime.strptime(none_to_str(handon_res['created_on'])[:19],'%Y-%m-%d %H:%M:%S').strftime('%m/%d/%Y %I:%M:%S %p')
                 else:
                     trans_date = ''
 
@@ -274,7 +410,7 @@ class Registration():
                 balance = handon_res['amount'] - (handon_res['updated_grand_amount'] if none_to_str(handon_res['updated_grand_amount']) else 0)
                 updated_grand_amount_sec += '''
                     <td style="font-weight:600;padding:10px 0px;">'''+ 'UDA to pay' if balance>0 else 'User to pay' +'''</td>
-                    <td style="font-weight:600;padding:10px 0px;">$'''+ balance if balance>0 else balance*-1 +'''</td>
+                    <td style="font-weight:600;padding:10px 0px;">$'''+ str(balance) if balance>0 else str(balance-1) +'''</td>
                 </tr>'''
             head_sec = "Registration " if handon_res['amount']==0 else "Transaction " 
 
@@ -308,7 +444,7 @@ class Registration():
                                         <tr>
                                             <!-- ======= logo ======= -->
                                             <td align="center" class="section-img">
-                                                <a href="https://udainpy.in/" style="display: block; border-style: none !important; border: 0 !important;"><img width="510" border="0" style="display: block; margin: 60px 0px 20px 0px; width: 270px;" src="https://udainpy.in/static/images/mailer-logo.png" /></a>
+                                                <a href="'''+ EMAIL_URL +'''" style="display: block; border-style: none !important; border: 0 !important;"><img width="510" border="0" style="display: block; margin: 60px 0px 20px 0px; width: 270px;" src="'''+ EMAIL_LOGO +'''" /></a>
                                             </td>
                                         </tr>
                                         <tr>
@@ -370,26 +506,26 @@ class Registration():
                                         <tr>
                                             <td height="35" style="font-size: 35px; line-height: 35px;">&nbsp;</td>
                                         </tr>
-                                        <tr>
+                                        <!-- <tr>
                                             <td align="center">
                                                 <table border="0" align="center" width="220" cellpadding="0" cellspacing="0" bgcolor="3b5ab2" style="margin: 5px 0px 15px 0px; border-radius: 50px; box-shadow: 0 1px 2px rgba(0,0,0,.3);" class="cta-button main_color">
                                                     <tr>
                                                         <td height="13" style="font-size: 13px; line-height: 13px;">&nbsp;</td>
                                                     </tr>
-                                                    <tr>
+                                                   <tr>
                                                         <td align="center" style="color: #ffffff; font-size: 14px; font-family: "Varela Round", sans-serif;" class="cta-text">
-                                                            <!-- ======= main section button ======= -->
+                                                            
                                                             <div style=" line-height: 24px;">
                                                                 <a href="convention-on-transaction.php?p=id&e=email" style="font-size: 17px; color: #ffffff; text-decoration: none;">'''+ head_sec+'''Detail</a>
                                                             </div>
                                                         </td>
-                                                    </tr>
+                                                    </tr> 
                                                     <tr>
                                                         <td height="13" style="font-size: 13px; line-height: 13px;">&nbsp;</td>
                                                     </tr>
                                                 </table>
                                             </td>
-                                        </tr>
+                                        </tr>-->
                                         <tr>
                                             <td height="30" style="font-size: 30px; line-height: 30px;">&nbsp;</td>
                                         </tr>
@@ -406,7 +542,7 @@ class Registration():
                                             <td align="center" style="color: #b0b7c7; font-size: 14px; font-family: "Questrial", sans-serif; mso-line-height-rule: exactly; line-height: 30px;" class="text_color">
                                                 <div style="line-height: 30px">
                                                     <!-- ======= section text ======= -->
-                                                    <a href="www.udaconvention.org/dev" style=" text-decoration: none; color: inherit; ">www.udaconvention.org</a>
+                                                    <a href="'''+ EMAIL_URL +'''" style=" text-decoration: none; color: inherit; ">www.udainpy.in</a>
                                                 </div>
                                             </td>
                                         </tr>

@@ -47,6 +47,7 @@ urlpatterns = [
     #Dev pages
     path('membership_upload/', views.membership_upload,name='membership'),
     path('user_management/', views.user_management,name="user_management"),
+    path('user_management_operations',views.user_management_operations,name="user_management_operations"),
     path('delete_user_management/<id>/',views.delete_user_management,name="delete_user_management"),
     path('edit_user/',views.get_users,name="get_users"),    
     path('user_email_check/',views.user_email_check,name="user_email_check"),
@@ -68,13 +69,16 @@ urlpatterns = [
     path('convention_transaction_operations/', transactionViews.convention_transaction_operations,name="convention_transaction_operations"),
     path('convention_detail/<str:ids>/', transactionViews.convention_detail,name="convention_detail"),
     path('edit_profile/', views.edit_profile,name="edit_profile"),
-    path('vendor_edit/<id>', registrationViews.vendor_edit,name="vendor_registration"),
+    path('delete_profile_img/', views.delete_profile_img,name="delete_profile_img"),
+    path('vendor_edit/<str:id>', registrationViews.vendor_edit,name="vendor_registration"),
     path('vendor_email_check/',registrationViews.vendor_email_check,name="vendor_email_check"),
-    path('vendor_detail/<id>', registrationViews.vendor_detail,name="vendor_details"),
+    path('vendor_detail/<str:id>', registrationViews.vendor_detail,name="vendor_details"),
     path('exhibitor_registration/', registrationViews.exhibitor_registration,name="exhibitor_registration"),
     path('convention_id_card_print/<str:ids>/', transactionViews.convention_detail_idcard,name="convention_id_card_print"),
     path('convention_id_card_print_bulk/', transactionViews.convention_id_card_print_bulk,name="convention_id_card_print_bulk"),
+    path('convention_detail_pdf/<str:ids>/', transactionViews.transactions_pdf,name="convention_detail_pdf"),
     path('qr_code/', include('qr_code.urls', namespace="qr_code")),
+    path('convention_edit/<str:param1>/', registrationViews.convention_edit,name="convention_edit"),
+    path('qr_search/', views.qr_search,name="qr_search"),
+    path('qr_search_code/<str:ids>/<str:types>/', views.qrcode_search,name="qr_search_code"),
 ]
-
-
