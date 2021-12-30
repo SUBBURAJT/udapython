@@ -205,7 +205,7 @@ def convention_edit(request,param1):
     decoded_id = hashids.decode(param1) 
     if decoded_id:
         hand_id = decoded_id[0]
-        handon_details = ConventionRegistration.getForm(hand_id)
+        handon_details = ConventionRegistration.get_form(hand_id)
         greeting['handon_details'] = handon_details
         if len(handon_details)==0:
             return redirect('convention_transaction')

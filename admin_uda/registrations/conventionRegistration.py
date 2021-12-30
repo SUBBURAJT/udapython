@@ -8,6 +8,8 @@ from django.conf import settings
 import os
 
 class ConventionRegistration():
+    rt_qrcode = "/uploads/mail_qrcode/"
+    rt_mailpdf = "/uploads/mail_pdf/"
     def get_ip(self,request):
         x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
         if x_forwarded_for:
@@ -16,7 +18,7 @@ class ConventionRegistration():
             ip = request.META.get('REMOTE_ADDR')
         return ip
 
-    def get_convention(self,today):
+    def get_convention(today):        
         convention_list = Convention_types.objects.filter(status=1,form_status=1)
         convention_prices = Convention_types_prices.objects.values().filter(form_status='1',start_date__lte=today,end_date__gte=today).order_by('id')[:1]
         prices_list = json.loads(convention_prices[0]['bulk_price'])
@@ -29,7 +31,7 @@ class ConventionRegistration():
             cv_res.append(cv)
         return cv_res
 
-    def get_worshop(self):
+    def get_worshop():
         workshop_list = Handon_workshop.objects.values('event_date').filter(status=1).annotate(dcnt = Count('event_date')).all()
         cv_res = []
         if(len(workshop_list) > 0):
@@ -148,18 +150,18 @@ class ConventionRegistration():
                 rt = os.path.join(settings.BASE_DIR).replace("\\","/")
                 body_content = Registration.mail_template(1,last_insert_id)
                 file_name = Registration.mail_pdf(last_insert_id)
-                file1 = rt+'/uploads/mail_pdf/'+file_name
+                file1 = rt+self.rt_mailpdf+file_name
                 file.append(file1)
                 qr_code = Registration.mail_qr_attachment(last_insert_id)
                 if(qr_code['convention']):
                     for cv in qr_code['convention']:
                         tmp_file = ''
-                        tmp_file = rt+'/uploads/mail_qrcode/'+ cv +'.pdf'
+                        tmp_file = rt+self.rt_qrcode+ cv +'.pdf'
                         file.append(tmp_file)
                 if(qr_code['workshops']):
                     for ws in qr_code['workshops']:
                         tmp_file = ''
-                        tmp_file = rt+'/uploads/mail_qrcode/'+ ws +'.pdf'
+                        tmp_file = rt+self.rt_qrcode+ ws +'.pdf'
                         file.append(tmp_file)
 
                 
@@ -172,17 +174,16 @@ class ConventionRegistration():
             result=0
         return result
 
-    def getForm(self,hand_id):
+    def get_form(hand_id):
         result = {}
         res = Handon_form.objects.values().filter(id = hand_id,status =1)
-        none_to_str=lambda a:str(a) if str(a) != 'None' else ''
+        
         if res:
             result = res[0]
             #get convention workshop            
             convention_ws = Convention_form_workshop.objects.values().filter(is_deleted=1,hand_id=hand_id)
             result['convention_ws'] = {}
             result['convention_ws']['cv_ws_ids']=[]
-            x=1
             for cv in convention_ws:                
                 if (cv['work_id'] in result['convention_ws']) == False:
                     result['convention_ws'][cv['work_id']] = []
@@ -244,7 +245,7 @@ class ConventionRegistration():
             form_data.off_transaction_memo= request.POST.get('memo')
             form_data.updated_on=dt.datetime.now()
             form_data.updated_ip=ConventionRegistration.get_ip(request)
-            form_data.updated_by=1 #request.session['user_id']
+            form_data.updated_by= request.session['user_id']
             form_data.updated_grand_amount = request.POST.get('new_tot')
             form_data.balance_amount = request.POST.get('user_to_pay')
             form_data.save()
@@ -273,7 +274,6 @@ class ConventionRegistration():
                                         work_shop_form.work_id = cv['id']
                                         work_shop_form.price = price
                                         work_shop_form.name = val['name']
-                                        # email = val['email']
                                         if cv['id'] == '1' or cv['id'] == '2' or cv['id'] == '5' or cv['id'] == '8' or cv['id'] == '15':
                                             work_shop_form.ada = val['ada'] if val['ada'] != '' else ''
                                         else:
@@ -289,7 +289,6 @@ class ConventionRegistration():
                                             work_id = cv['id'],
                                             price = price,
                                             name = val['name'],
-                                            # email = val['email']
                                         )
                                         if cv['id'] == '1' or cv['id'] == '2' or cv['id'] == '5' or cv['id'] == '8' or cv['id'] == '15':
                                             work_shop_form.ada = val['ada'] if val['ada'] != '' else ''
@@ -341,18 +340,18 @@ class ConventionRegistration():
                     rt = os.path.join(settings.BASE_DIR).replace("\\","/")
                     body_content = Registration.mail_template(1,last_insert_id)
                     file_name = Registration.mail_pdf(last_insert_id)
-                    file1 = rt+'/uploads/mail_pdf/'+file_name
+                    file1 = rt+self.rt_mailpdf+file_name
                     file.append(file1)
                     qr_code = Registration.mail_qr_attachment(last_insert_id)
                     if(qr_code['convention']):
                         for cv in qr_code['convention']:
                             tmp_file = ''
-                            tmp_file = rt+'/uploads/mail_qrcode/'+ cv +'.pdf'
+                            tmp_file = rt+self.rt_qrcode+ cv +'.pdf'
                             file.append(tmp_file)
                     if(qr_code['workshops']):
                         for ws in qr_code['workshops']:
                             tmp_file = ''
-                            tmp_file = rt+'/uploads/mail_qrcode/'+ ws +'.pdf'
+                            tmp_file = rt+self.rt_qrcode+ ws +'.pdf'
                             file.append(tmp_file)
 
                     
