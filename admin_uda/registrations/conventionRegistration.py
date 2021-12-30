@@ -98,45 +98,12 @@ class ConventionRegistration():
             
             no_wrkshop = 0
             a = int(dt.datetime.now().timestamp())
-            if convention_list != [] and len(convention_list)>0:
-                for cv in convention_list:
-                    if cv['input'] and len(cv['input'])>0:
-                        for val in cv['input']:
-                            if val['name'] != '':
-                                price = cv['price']
-                                work_shop_form = Convention_form_workshop(
-                                    sno = a,
-                                    hand_id = last_insert_id,
-                                    work_id = cv['id'],
-                                    price = price,
-                                    name = val['name'],
-                                )
-                                if cv['id'] == '1' or cv['id'] == '2' or cv['id'] == '5' or cv['id'] == '8' or cv['id'] == '15':
-                                    work_shop_form.ada = val['ada'] if val['ada'] != '' else ''
-                                else:
-                                    work_shop_form.ada = ''
-
-                                work_shop_form.save()
-                                last_insert_wid = work_shop_form.id
-                                no_wrkshop += last_insert_wid
+            if len(convention_list)>0:
+                no_wrkshop = self.save_convention(last_insert_id,convention_list)
             else:
                 no_wrkshop = 1
-            if workshops_list != [] and len(workshops_list)>0:
-                for wh in workshops_list:
-                    if wh['input'] and len(wh['input'])>0:
-                        for val in wh['input']:
-                            if val['wh_name'] != '':
-                                price = wh['price']
-                                work_shop_form = Handon_form_workshop(
-                                    sno = a,
-                                    hand_id = Handon_form.objects.get(id = last_insert_id),
-                                    work_id = Handon_workshop.objects.get(id = wh['id']),
-                                    amount = price,
-                                    name = val['wh_name']
-                                )
-                                work_shop_form.save()
-                                last_insert_wid = work_shop_form.id
-                                no_wrkshop += last_insert_wid
+            if len(workshops_list)>0:
+                no_wrkshop = self.save_workshop(last_insert_id,workshops_list)
             else:
                 no_wrkshop = 1
                 
@@ -146,34 +113,149 @@ class ConventionRegistration():
                 data.delete()
                 result = 0
             else:
-                file = []
-                rt = os.path.join(settings.BASE_DIR).replace("\\","/")
-                body_content = Registration.mail_template(1,last_insert_id)
-                file_name = Registration.mail_pdf(last_insert_id)
-                file1 = rt+self.rt_mailpdf+file_name
-                file.append(file1)
-                qr_code = Registration.mail_qr_attachment(last_insert_id)
-                if(qr_code['convention']):
-                    for cv in qr_code['convention']:
-                        tmp_file = ''
-                        tmp_file = rt+self.rt_qrcode+ cv +'.pdf'
-                        file.append(tmp_file)
-                if(qr_code['workshops']):
-                    for ws in qr_code['workshops']:
-                        tmp_file = ''
-                        tmp_file = rt+self.rt_qrcode+ ws +'.pdf'
-                        file.append(tmp_file)
-
-                
-                txt_res=Send_Mail.Send(subject='UDA Registration Mail',body=body_content['plain'],to_mail='rajiveorchids@gmail.com',html_message=body_content['html'],file_name=file)
-                if txt_res:
-                    result = txt_res
-                else:
-                    result = 2
+                result = self.mail_pdf_func(last_insert_id)                
         else:
             result=0
         return result
     
+    def save_convention(self,hand_id,convention_list):
+        a = int(dt.datetime.now().timestamp())
+        no_wrkshop = 0
+        for cv in convention_list:
+            if len(cv['input'])>0:
+                for val in cv['input']:
+                    if val['name'] != '':
+                        price = cv['price']
+                        if 'hdn_cv_ws_id' in val:
+                            work_shop_form = Convention_form_workshop.objects.get(id=val['hdn_cv_ws_id'])
+                            work_shop_form.sno = a
+                            work_shop_form.hand_id = hand_id
+                            work_shop_form.work_id = cv['id']
+                            work_shop_form.price = price
+                            work_shop_form.name = val['name']
+                        else:
+                            work_shop_form = Convention_form_workshop(
+                                sno = a,
+                                hand_id = hand_id,
+                                work_id = cv['id'],
+                                price = price,
+                                name = val['name'],
+                            )
+                        if cv['id'] == '1' or cv['id'] == '2' or cv['id'] == '5' or cv['id'] == '8' or cv['id'] == '15':
+                            work_shop_form.ada = val['ada'] if val['ada'] != '' else ''
+                        else:
+                            work_shop_form.ada = ''
+                        work_shop_form.save()
+                        last_insert_wid = work_shop_form.id
+                        no_wrkshop += last_insert_wid
+        return no_wrkshop
+
+    def save_workshop(self,hand_id,workshops_list):
+        a = int(dt.datetime.now().timestamp())
+        no_wrkshop = 0
+        for wh in workshops_list:
+            if wh['input'] and len(wh['input'])>0:
+                for val in wh['input']:
+                    if val['wh_name'] != '':
+                        price = wh['price']
+                        if 'hdn_ws_id' in val:
+                            work_shop_form = Handon_form_workshop.objects.get(id=val['hdn_ws_id'])
+                            work_shop_form.sno = a
+                            work_shop_form.hand_id = Handon_form.objects.get(id = hand_id)
+                            work_shop_form.work_id = Handon_workshop.objects.get(id = wh['id'])
+                            work_shop_form.amount = price
+                            work_shop_form.name = val['wh_name']
+                        else:
+                            work_shop_form = Handon_form_workshop(
+                                sno = a,
+                                hand_id = Handon_form.objects.get(id = hand_id),
+                                work_id = Handon_workshop.objects.get(id = wh['id']),
+                                amount = price,
+                                name = val['wh_name']
+                            )
+                        work_shop_form.save()
+                        last_insert_wid = work_shop_form.id
+                        no_wrkshop += last_insert_wid
+        return no_wrkshop
+
+    def mail_pdf_func(self,last_insert_id):
+        file = []
+        rt = os.path.join(settings.BASE_DIR).replace("\\","/")
+        body_content = Registration.mail_template(1,last_insert_id)
+        file_name = Registration.mail_pdf(last_insert_id)
+        file1 = rt+self.rt_mailpdf+file_name
+        file.append(file1)
+        qr_code = Registration.mail_qr_attachment(last_insert_id)
+        if(qr_code['convention']):
+            for cv in qr_code['convention']:
+                tmp_file = ''
+                tmp_file = rt+self.rt_qrcode+ cv +'.pdf'
+                file.append(tmp_file)
+        if(qr_code['workshops']):
+            for ws in qr_code['workshops']:
+                tmp_file = ''
+                tmp_file = rt+self.rt_qrcode+ ws +'.pdf'
+                file.append(tmp_file)        
+        txt_res=Send_Mail.Send(subject='UDA Registration Mail',body=body_content['plain'],to_mail='rajiveorchids@gmail.com',html_message=body_content['html'],file_name=file)   
+        if txt_res:
+            result = txt_res
+        else:
+            result = 2
+        return result
+
+
+    def update_form(self,request,hand_id):
+        if hand_id:
+            form_data = Handon_form.objects.get(id=hand_id)
+            form_data.practice_name = request.POST.get('practice_name')
+            form_data.name = request.POST.get('first_name')
+            form_data.last_name = request.POST.get('last_name')
+            form_data.phone = request.POST.get('phone')
+            form_data.email = request.POST.get('email')
+            form_data.address = request.POST.get('address')
+            form_data.city = request.POST.get('city')
+            form_data.state = request.POST.get('state')
+            form_data.zipcode = request.POST.get('zipcode')
+            form_data.off_transaction_payment_details= request.POST.get('payment_details')
+            form_data.off_transaction_memo= request.POST.get('memo')
+            form_data.updated_on=dt.datetime.now()
+            form_data.updated_ip=self.get_ip(request)
+            form_data.updated_by= request.session['user_id']
+            form_data.updated_grand_amount = request.POST.get('new_tot')
+            form_data.balance_amount = request.POST.get('user_to_pay')
+            form_data.save()
+
+            last_insert_id = form_data.id
+            if last_insert_id:
+                convention_type = request.POST.get('conventionType')               
+                convention_list = json.loads(convention_type)
+                # workshop details
+                workshops = request.POST.get('workshops')
+                workshops_list = json.loads(workshops)
+                
+                no_wrkshop = 0
+                if len(convention_list)>0:
+                    no_wrkshop = self.save_convention(last_insert_id,convention_list)
+                else:
+                    no_wrkshop = 1
+                if len(workshops_list)>0:
+                    no_wrkshop = self.save_workshop(last_insert_id,workshops_list)                        
+                else:
+                    no_wrkshop = 1
+                    
+                if no_wrkshop == 0:
+                    # delete
+                    data = Handon_form.objects.get(id=last_insert_id)
+                    data.delete()
+                    result = 0
+                else:
+                    result = self.mail_pdf_func(last_insert_id)
+            else:
+                result=0
+        else:
+            result=0
+        return result
+
     def get_convention_ws(self,hand_id):
         result = {}
         convention_ws = Convention_form_workshop.objects.values().filter(is_deleted=1,hand_id=hand_id)
@@ -230,142 +312,4 @@ class ConventionRegistration():
             result['convention_ws'] = self.get_convention_ws(hand_id)
             #get handon workshop
             result['handon_ws'] = self.get_handon_ws(hand_id)
-        return result
-
-    def update_form(self,request,hand_id):
-        if hand_id:
-            form_data = Handon_form.objects.get(id=hand_id)
-            form_data.practice_name = request.POST.get('practice_name')
-            form_data.name = request.POST.get('first_name')
-            form_data.last_name = request.POST.get('last_name')
-            form_data.phone = request.POST.get('phone')
-            form_data.email = request.POST.get('email')
-            form_data.address = request.POST.get('address')
-            form_data.city = request.POST.get('city')
-            form_data.state = request.POST.get('state')
-            form_data.zipcode = request.POST.get('zipcode')
-            form_data.off_transaction_payment_details= request.POST.get('payment_details')
-            form_data.off_transaction_memo= request.POST.get('memo')
-            form_data.updated_on=dt.datetime.now()
-            form_data.updated_ip=self.get_ip(request)
-            form_data.updated_by= request.session['user_id']
-            form_data.updated_grand_amount = request.POST.get('new_tot')
-            form_data.balance_amount = request.POST.get('user_to_pay')
-            form_data.save()
-
-            last_insert_id = form_data.id
-            if last_insert_id:
-                convention_type = request.POST.get('conventionType')
-               
-                convention_list = json.loads(convention_type)
-                # workshop details
-                workshops = request.POST.get('workshops')
-                workshops_list = json.loads(workshops)
-                
-                no_wrkshop = 0
-                a = int(dt.datetime.now().timestamp())
-                if convention_list != [] and len(convention_list)>0:
-                    for cv in convention_list:
-                        if cv['input'] and len(cv['input'])>0:
-                            for val in cv['input']:
-                                if val['name'] != '':
-                                    price = cv['price']
-                                    if 'hdn_cv_ws_id' in val:
-                                        work_shop_form = Convention_form_workshop.objects.get(id=val['hdn_cv_ws_id'])
-                                        work_shop_form.sno = a
-                                        work_shop_form.hand_id = last_insert_id
-                                        work_shop_form.work_id = cv['id']
-                                        work_shop_form.price = price
-                                        work_shop_form.name = val['name']
-                                        if cv['id'] == '1' or cv['id'] == '2' or cv['id'] == '5' or cv['id'] == '8' or cv['id'] == '15':
-                                            work_shop_form.ada = val['ada'] if val['ada'] != '' else ''
-                                        else:
-                                            work_shop_form.ada = ''
-
-                                        work_shop_form.save()
-                                        last_insert_wid = work_shop_form.id
-                                        no_wrkshop += last_insert_wid
-                                    else:
-                                        work_shop_form = Convention_form_workshop(
-                                            sno = a,
-                                            hand_id = last_insert_id,
-                                            work_id = cv['id'],
-                                            price = price,
-                                            name = val['name'],
-                                        )
-                                        if cv['id'] == '1' or cv['id'] == '2' or cv['id'] == '5' or cv['id'] == '8' or cv['id'] == '15':
-                                            work_shop_form.ada = val['ada'] if val['ada'] != '' else ''
-                                        else:
-                                            work_shop_form.ada = ''
-
-                                        work_shop_form.save()
-                                        last_insert_wid = work_shop_form.id
-                                        no_wrkshop += last_insert_wid
-                else:
-                    no_wrkshop = 1
-                if workshops_list != [] and len(workshops_list)>0:
-                    for wh in workshops_list:
-                        if wh['input'] and len(wh['input'])>0:
-                            for val in wh['input']:
-                                if val['wh_name'] != '':
-                                    price = wh['price']
-                                    if 'hdn_ws_id' in val:
-                                        work_shop_form = Handon_form_workshop.objects.get(id=val['hdn_ws_id'])
-                                        work_shop_form.sno = a
-                                        work_shop_form.hand_id = Handon_form.objects.get(id = last_insert_id)
-                                        work_shop_form.work_id = Handon_workshop.objects.get(id = wh['id'])
-                                        work_shop_form.amount = price
-                                        work_shop_form.name = val['wh_name']
-                                        work_shop_form.save()
-                                        last_insert_wid = work_shop_form.id
-                                        no_wrkshop += last_insert_wid
-                                    else:
-                                        work_shop_form = Handon_form_workshop(
-                                            sno = a,
-                                            hand_id = Handon_form.objects.get(id = last_insert_id),
-                                            work_id = Handon_workshop.objects.get(id = wh['id']),
-                                            amount = price,
-                                            name = val['wh_name']
-                                        )
-                                        work_shop_form.save()
-                                        last_insert_wid = work_shop_form.id
-                                        no_wrkshop += last_insert_wid
-                else:
-                    no_wrkshop = 1
-                    
-                if no_wrkshop == 0:
-                    # delete
-                    data = Handon_form.objects.get(id=last_insert_id)
-                    data.delete()
-                    result = 0
-                else:
-                    file = []
-                    rt = os.path.join(settings.BASE_DIR).replace("\\","/")
-                    body_content = Registration.mail_template(1,last_insert_id)
-                    file_name = Registration.mail_pdf(last_insert_id)
-                    file1 = rt+self.rt_mailpdf+file_name
-                    file.append(file1)
-                    qr_code = Registration.mail_qr_attachment(last_insert_id)
-                    if(qr_code['convention']):
-                        for cv in qr_code['convention']:
-                            tmp_file = ''
-                            tmp_file = rt+self.rt_qrcode+ cv +'.pdf'
-                            file.append(tmp_file)
-                    if(qr_code['workshops']):
-                        for ws in qr_code['workshops']:
-                            tmp_file = ''
-                            tmp_file = rt+self.rt_qrcode+ ws +'.pdf'
-                            file.append(tmp_file)
-
-                    
-                    txt_res=Send_Mail.Send(subject='UDA Registration Mail',body=body_content['plain'],to_mail='rajiveorchids@gmail.com',html_message=body_content['html'],file_name=file)   
-
-                    if txt_res:
-                        result = txt_res
-                    else:
-                        result = 2
-            else:
-                result=0
-        else:
-            result=0
         return result
