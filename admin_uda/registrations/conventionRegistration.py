@@ -173,32 +173,52 @@ class ConventionRegistration():
         else:
             result=0
         return result
-
-    def get_convention_details(self,hand_id):
+    
+    def get_convention_ws(self,hand_id):
         result = {}
-        #get convention workshop            
         convention_ws = Convention_form_workshop.objects.values().filter(is_deleted=1,hand_id=hand_id)
-        result['convention_ws'] = {}
-        result['convention_ws']['cv_ws_ids']=[]
-        for cv in convention_ws:                
-            if (cv['work_id'] in result['convention_ws']) == False:
-                result['convention_ws'][cv['work_id']] = []
-                result['convention_ws']['cv_ws_ids'].append(cv['work_id'])
-            result['convention_ws'][cv['work_id']].append(cv)
-
-        if len(result['convention_ws']):                
+        result['cv_ws_ids']=[]
+        for cv in convention_ws:
+            if (cv['work_id'] in result) == False:
+                result[cv['work_id']] = []
+                result['cv_ws_ids'].append(cv['work_id'])
+            result[cv['work_id']].append(cv)
+        if len(result):
             cnt_values = {}
-            amt_values = {}
-            for key,value in result['convention_ws'].items():
+            amt_values = {} 
+            for key,value in result.items():
                 if key != 'cv_ws_ids':
                     cnt_values[key] = len(value)
                     amt = 0
                     for val in value:
                         amt += float(val['price'])
                     amt_values[key] = amt
+            result['cv_ws_cnt'] = cnt_values                
+            result['cv_ws_price'] = amt_values
+        return result
 
-            result['convention_ws']['cv_ws_cnt'] = cnt_values                
-            result['convention_ws']['cv_ws_price'] = amt_values
+    def get_handon_ws(self,hand_id):
+        result = {}
+        handon_ws = Handon_form_workshop.objects.values().filter(is_deleted=1,hand_id=hand_id)
+        result['ws_ids']=[]
+        for ws in handon_ws:
+            if (ws['work_id_id'] in result) == False:
+                result[ws['work_id_id']] = []
+                result['ws_ids'].append(ws['work_id_id'])
+            result[ws['work_id_id']].append(ws)
+
+        if len(result):                
+            cnt_values = {}
+            amt_values = {}
+            for key,value in result.items():
+                if key != 'ws_ids':
+                    cnt_values[key] = len(value)
+                    amt = 0
+                    for val in value:
+                        amt += float(val['amount'])
+                    amt_values[key] = amt
+            result['cv_ws_cnt'] = cnt_values                
+            result['cv_ws_price'] = amt_values
         return result
 
     def get_form(self,hand_id):
@@ -206,31 +226,12 @@ class ConventionRegistration():
         res = Handon_form.objects.values().filter(id = hand_id,status =1)        
         if res:
             result = res[0]
-            result['convention'] = self.get_convention_details(hand_id)
-
+            #get convention workshop
+            result['convention_ws'] = {}
+            result['convention_ws'] = self.get_convention_ws(hand_id)
             #get handon workshop
-            handon_ws = Handon_form_workshop.objects.values().filter(is_deleted=1,hand_id=hand_id)
             result['handon_ws'] = {}
-            result['handon_ws']['ws_ids']=[]
-            for ws in handon_ws: 
-                if (ws['work_id_id'] in result['handon_ws']) == False:
-                    result['handon_ws'][ws['work_id_id']] = []
-                    result['handon_ws']['ws_ids'].append(ws['work_id_id'])
-                result['handon_ws'][ws['work_id_id']].append(ws)
-
-            if len(result['handon_ws']):                
-                cnt_values = {}
-                amt_values = {}
-                for key,value in result['handon_ws'].items():
-                    if key != 'ws_ids':
-                        cnt_values[key] = len(value)
-                        amt = 0
-                        for val in value:
-                            amt += float(val['amount'])
-                        amt_values[key] = amt
-
-                result['handon_ws']['cv_ws_cnt'] = cnt_values                
-                result['handon_ws']['cv_ws_price'] = amt_values
+            result['handon_ws'] = self.get_handon_ws(hand_id)
         return result
 
     def update_form(self,request,hand_id):
