@@ -174,35 +174,39 @@ class ConventionRegistration():
             result=0
         return result
 
+    def get_convention_details(self,hand_id):
+        result = {}
+        #get convention workshop            
+        convention_ws = Convention_form_workshop.objects.values().filter(is_deleted=1,hand_id=hand_id)
+        result['convention_ws'] = {}
+        result['convention_ws']['cv_ws_ids']=[]
+        for cv in convention_ws:                
+            if (cv['work_id'] in result['convention_ws']) == False:
+                result['convention_ws'][cv['work_id']] = []
+                result['convention_ws']['cv_ws_ids'].append(cv['work_id'])
+            result['convention_ws'][cv['work_id']].append(cv)
+
+        if len(result['convention_ws']):                
+            cnt_values = {}
+            amt_values = {}
+            for key,value in result['convention_ws'].items():
+                if key != 'cv_ws_ids':
+                    cnt_values[key] = len(value)
+                    amt = 0
+                    for val in value:
+                        amt += float(val['price'])
+                    amt_values[key] = amt
+
+            result['convention_ws']['cv_ws_cnt'] = cnt_values                
+            result['convention_ws']['cv_ws_price'] = amt_values
+        return result
+
     def get_form(self,hand_id):
         result = {}
-        res = Handon_form.objects.values().filter(id = hand_id,status =1)
-        
+        res = Handon_form.objects.values().filter(id = hand_id,status =1)        
         if res:
             result = res[0]
-            #get convention workshop            
-            convention_ws = Convention_form_workshop.objects.values().filter(is_deleted=1,hand_id=hand_id)
-            result['convention_ws'] = {}
-            result['convention_ws']['cv_ws_ids']=[]
-            for cv in convention_ws:                
-                if (cv['work_id'] in result['convention_ws']) == False:
-                    result['convention_ws'][cv['work_id']] = []
-                    result['convention_ws']['cv_ws_ids'].append(cv['work_id'])
-                result['convention_ws'][cv['work_id']].append(cv)
-
-            if len(result['convention_ws']):                
-                cnt_values = {}
-                amt_values = {}
-                for key,value in result['convention_ws'].items():
-                    if key != 'cv_ws_ids':
-                        cnt_values[key] = len(value)
-                        amt = 0
-                        for val in value:
-                            amt += float(val['price'])
-                        amt_values[key] = amt
-
-                result['convention_ws']['cv_ws_cnt'] = cnt_values                
-                result['convention_ws']['cv_ws_price'] = amt_values
+            result['convention'] = self.get_convention_details(hand_id)
 
             #get handon workshop
             handon_ws = Handon_form_workshop.objects.values().filter(is_deleted=1,hand_id=hand_id)
