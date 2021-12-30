@@ -106,15 +106,16 @@ def convention_registration(request):
     greeting = {}
     greeting['pageview'] = "Dashboard"
     greeting['title'] = 'Convention Registration'
+    con_obj = ConventionRegistration()
 
     # get convention type
     today = dt.date.today() 
-    greeting['convention'] = ConventionRegistration.get_convention(today)
-    greeting['workshops'] = ConventionRegistration.get_worshop()
-    greeting['workshops_cnt'] = len(ConventionRegistration.get_worshop())  
+    greeting['convention'] = con_obj.get_convention(today)
+    greeting['workshops'] = con_obj.get_worshop()
+    greeting['workshops_cnt'] = len(greeting['workshops'])  
 
     if request.is_ajax and request.method=='POST':
-        save_form = ConventionRegistration.save_form(request)
+        save_form = con_obj.save_form(request)
         if save_form == 1:
             error = 0
             msg=reg_succ_msg

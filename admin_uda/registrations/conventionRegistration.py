@@ -18,7 +18,7 @@ class ConventionRegistration():
             ip = request.META.get('REMOTE_ADDR')
         return ip
 
-    def get_convention(today):        
+    def get_convention(self,today):        
         convention_list = Convention_types.objects.filter(status=1,form_status=1)
         convention_prices = Convention_types_prices.objects.values().filter(form_status='1',start_date__lte=today,end_date__gte=today).order_by('id')[:1]
         prices_list = json.loads(convention_prices[0]['bulk_price'])
@@ -31,7 +31,7 @@ class ConventionRegistration():
             cv_res.append(cv)
         return cv_res
 
-    def get_worshop():
+    def get_worshop(self):
         workshop_list = Handon_workshop.objects.values('event_date').filter(status=1).annotate(dcnt = Count('event_date')).all()
         cv_res = []
         if(len(workshop_list) > 0):
@@ -83,7 +83,7 @@ class ConventionRegistration():
             user_agent = request.POST.get('user_agent'),    
             status = 1,             
             form_status = 1,            
-            created_ip=ConventionRegistration.get_ip(request),   
+            created_ip=self.get_ip(request),   
             created_on=dt.datetime.now(),
             created_by= request.session['user_id']
         )
@@ -174,7 +174,7 @@ class ConventionRegistration():
             result=0
         return result
 
-    def get_form(hand_id):
+    def get_form(self,hand_id):
         result = {}
         res = Handon_form.objects.values().filter(id = hand_id,status =1)
         
@@ -244,7 +244,7 @@ class ConventionRegistration():
             form_data.off_transaction_payment_details= request.POST.get('payment_details')
             form_data.off_transaction_memo= request.POST.get('memo')
             form_data.updated_on=dt.datetime.now()
-            form_data.updated_ip=ConventionRegistration.get_ip(request)
+            form_data.updated_ip=self.get_ip(request)
             form_data.updated_by= request.session['user_id']
             form_data.updated_grand_amount = request.POST.get('new_tot')
             form_data.balance_amount = request.POST.get('user_to_pay')
