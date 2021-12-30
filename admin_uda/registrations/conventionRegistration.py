@@ -97,13 +97,14 @@ class ConventionRegistration():
             workshops_list = json.loads(workshops)
             
             no_wrkshop = 0
-            a = int(dt.datetime.now().timestamp())
             if len(convention_list)>0:
-                no_wrkshop = self.save_convention(last_insert_id,convention_list)
+                res = self.save_convention(last_insert_id,convention_list)
+                no_wrkshop = res
             else:
                 no_wrkshop = 1
             if len(workshops_list)>0:
-                no_wrkshop = self.save_workshop(last_insert_id,workshops_list)
+                res = self.save_workshop(last_insert_id,workshops_list)
+                no_wrkshop = res
             else:
                 no_wrkshop = 1
                 
@@ -141,8 +142,11 @@ class ConventionRegistration():
                                 price = price,
                                 name = val['name'],
                             )
-                        if cv['id'] == '1' or cv['id'] == '2' or cv['id'] == '5' or cv['id'] == '8' or cv['id'] == '15':
-                            work_shop_form.ada = val['ada'] if val['ada'] != '' else ''
+                        if cv['id'] in ['1', '2', '5', '8', '15']:
+                            if val['ada'] != '':
+                                work_shop_form.ada = val['ada'] 
+                            else:
+                                work_shop_form.ada = ''
                         else:
                             work_shop_form.ada = ''
                         work_shop_form.save()
@@ -154,7 +158,7 @@ class ConventionRegistration():
         a = int(dt.datetime.now().timestamp())
         no_wrkshop = 0
         for wh in workshops_list:
-            if wh['input'] and len(wh['input'])>0:
+            if len(wh['input'])>0:
                 for val in wh['input']:
                     if val['wh_name'] != '':
                         price = wh['price']
@@ -205,6 +209,7 @@ class ConventionRegistration():
 
 
     def update_form(self,request,hand_id):
+        result = 0
         if hand_id:
             form_data = Handon_form.objects.get(id=hand_id)
             form_data.practice_name = request.POST.get('practice_name')
@@ -235,11 +240,13 @@ class ConventionRegistration():
                 
                 no_wrkshop = 0
                 if len(convention_list)>0:
-                    no_wrkshop = self.save_convention(last_insert_id,convention_list)
+                    res = self.save_convention(last_insert_id,convention_list)
+                    no_wrkshop = res
                 else:
                     no_wrkshop = 1
                 if len(workshops_list)>0:
-                    no_wrkshop = self.save_workshop(last_insert_id,workshops_list)                        
+                    res = self.save_workshop(last_insert_id,workshops_list)
+                    no_wrkshop = res                        
                 else:
                     no_wrkshop = 1
                     
@@ -250,10 +257,6 @@ class ConventionRegistration():
                     result = 0
                 else:
                     result = self.mail_pdf_func(last_insert_id)
-            else:
-                result=0
-        else:
-            result=0
         return result
 
     def get_convention_ws(self,hand_id):
