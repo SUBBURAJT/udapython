@@ -1,56 +1,50 @@
 import json
-from django.db.models.aggregates import Count
-from django.db.models import Q , FilteredRelation
-from admin_uda.models import *
+from admin_uda.models import Handon_form,Convention_form_workshop,Handon_form_workshop,Handon_workshop,Convention_types,Convention_types_prices
 import datetime as dt
 from django_mysql.models import GroupConcat
-from hashids import Hashids
 
-class convention_details_pdf():
-    def none_to_str(s):
+class convention_details_pdf:
+    def none_to_str(self,s):
         if s is None:
             return ''
         else:
             return s
-    def pdf_transaction_details(hand_id):
+    def pdf_transaction_details(self,hand_id):
         input={}
         table=''
         err=0
         msg=''
-        # hashids = Hashids(salt='UDAHEALTHDENTALSALT',min_length=10)
-        # hashid = hashids.decode(ids) 
-        # Tid=hashid[0]
-        Tid=hand_id
+        tid=hand_id
         hidden_hand_id = 0
         total_grand_val=0
         data={}
-        check_data=Handon_form.objects.filter(form=1,id=Tid).exclude(status=2).exists()
+        check_data=Handon_form.objects.filter(form=1,id=tid).exclude(status=2).exists()
         if check_data:
-            data=list(Handon_form.objects.filter(form=1,id=Tid).exclude(status=2).values())[0]
+            data=list(Handon_form.objects.filter(form=1,id=tid).exclude(status=2).values())[0]
             input['form_status']=data['form_status']
             hidden_hand_id = data["id"]
-            strConvShop=Convention_form_workshop.objects.filter(is_deleted=1,hand_id=hidden_hand_id).aggregate(con_works=GroupConcat('work_id'))
-            strWrkShop=Handon_form_workshop.objects.filter(is_deleted=1,hand_id=hidden_hand_id).aggregate(hand_works=GroupConcat('work_id'))
-            inConventionArr=[]
-            inWorkShopArr=[]
-            if strConvShop['con_works'] is not None:
-                inConventionArr=strConvShop['con_works'].split(',')
-            if strWrkShop['hand_works'] is not None:
-                inWorkShopArr=strWrkShop['hand_works'].split(',')
-            workshopsList=[]
-            coventionList=[]
-            if inWorkShopArr:
-                workshopsList=Handon_workshop.objects.filter(status=1,id__in=inWorkShopArr).order_by('id')
-            if inConventionArr:
-                coventionList=Convention_types.objects.filter(status=1,id__in=inConventionArr).order_by('id')
+            str_conv_shop=Convention_form_workshop.objects.filter(is_deleted=1,hand_id=hidden_hand_id).aggregate(con_works=GroupConcat('work_id'))
+            li_wrk_shop=Handon_form_workshop.objects.filter(is_deleted=1,hand_id=hidden_hand_id).aggregate(hand_works=GroupConcat('work_id'))
+            in_convention_arr=[]
+            in_workshop_arr=[]
+            if str_conv_shop['con_works'] is not None:
+                in_convention_arr=str_conv_shop['con_works'].split(',')
+            if li_wrk_shop['hand_works'] is not None:
+                in_workshop_arr=li_wrk_shop['hand_works'].split(',')
+            workshops_list=[]
+            covention_list=[]
+            if in_workshop_arr:
+                workshops_list=Handon_workshop.objects.filter(status=1,id__in=in_workshop_arr).order_by('id')
+            if in_convention_arr:
+                covention_list=Convention_types.objects.filter(status=1,id__in=in_convention_arr).order_by('id')
             today=dt.date.today()
-            getPrice=[]
+            get_price=[]
             # set condition for differentiate fall or spring or convention price
-            arrPrice=0
+            arr_price=0
             if data['form_status'] is not None and data['form_status']:
-                getPrice=Convention_types_prices.objects.filter(form_status=data['form_status'],start_date__lte=today,end_date__gte=today)[0]
-                arrPrice = json.loads(getPrice.bulk_price)
-            if not getPrice:
+                get_price=Convention_types_prices.objects.filter(form_status=data['form_status'],start_date__lte=today,end_date__gte=today)[0]
+                arr_price = json.loads(get_price.bulk_price)
+            if not get_price:
                 msg='The deadline for all pre-registration is April 11, ' ,today.year
             if data["updated_grand_amount"] is None or data["updated_grand_amount"]=='':
                 grand_price = data["amount"]
@@ -99,7 +93,7 @@ class convention_details_pdf():
                 form_head="UDA - Spring Registration"
             elif data['form_status'] == 3:
                 form_head="UDA - Fall Registration"
-            if coventionList:
+            if covention_list:
                 table+="""<tr>
                             <td colspan="2">
                                 <h4 class='mb-0 text-center py-1'
@@ -138,16 +132,14 @@ class convention_details_pdf():
                             </tr>
                         </thead>
                         <tbody class="pnt">"""
-                for conven in coventionList:
+                for conven in covention_list:
                     in_status=0
-                    in_qty=0
                     in_grand=0
                     if conven.id:
-                        if str(conven.id) in inConventionArr:
+                        if str(conven.id) in in_convention_arr:
                             subrows=Convention_form_workshop.objects.filter(is_deleted=1,hand_id=hidden_hand_id,work_id=conven.id)
                             if subrows:
                                 in_status=1
-                                in_qty=len(subrows)
                                 for sub in subrows:
                                     if sub.updated_price is None or sub.updated_price=='':
                                         in_grand+=int(sub.price)
@@ -157,7 +149,7 @@ class convention_details_pdf():
                                 table+="""<tr style="border: 0.5px #ddd;">
                                             <td colspan="5" class="for-blue"
                                                 style='font-family: Nunito, sans-serif;font-size: 15px;padding: 5px; border: 1px solid #ddd !important;'>
-                                                """+conven.name.replace("NAME", "")+' ($'+str(arrPrice[str(conven.id)])+""")</td>
+                                                """+conven.name.replace("NAME", "")+' ($'+str(arr_price[str(conven.id)])+""")</td>
                                         </tr>"""
                         if conven.id in [1, 2, 5, 15, 18, 19, 20, 22, 23, 24] and in_status:
                                 x=1
@@ -175,15 +167,15 @@ class convention_details_pdf():
                                         """+str(x)+"""</td>
                                     <td
                                         style='font-family: Nunito, sans-serif;font-size: 15px;padding: 5px; border: 1px solid #ddd !important;'>
-                                        """+convention_details_pdf.none_to_str(sub.name)+"""
+                                        """+self.none_to_str(sub.name)+"""
                                     </td>
                                     <td
                                         style='font-family: Nunito, sans-serif;font-size: 15px;padding: 5px; border: 1px solid #ddd !important;width: 200px;'>
-                                        """+convention_details_pdf.none_to_str(sub.email)+"""
+                                        """+self.none_to_str(sub.email)+"""
                                     </td>
                                     <td
                                         style='font-family: Nunito, sans-serif;font-size: 15px;padding: 5px; border: 1px solid #ddd !important;'>
-                                        """+convention_details_pdf.none_to_str(sub.ada)+"""</td>
+                                        """+self.none_to_str(sub.ada)+"""</td>
                                     <td
                                         style='font-family: Nunito, sans-serif;font-size: 15px;padding: 5px; border: 1px solid #ddd !important;'>
                                         $"""+str(p)+"""</td>
@@ -217,11 +209,11 @@ class convention_details_pdf():
                                         """+str(x)+"""</td>
                                     <td
                                         style='font-family: Nunito, sans-serif;font-size: 15px;padding: 5px; border: 1px solid #ddd !important;'>
-                                        """+convention_details_pdf.none_to_str(sub.name)+"""
+                                        """+self.none_to_str(sub.name)+"""
                                     </td>
                                     <td
                                         style='font-family: Nunito, sans-serif;font-size: 15px;padding: 5px; border: 1px solid #ddd !important;width: 200px;' colspan="2">
-                                        """+convention_details_pdf.none_to_str(sub.email)+"""
+                                        """+self.none_to_str(sub.email)+"""
                                     </td>
                                     <td
                                         style='font-family: Nunito, sans-serif;font-size: 15px;padding: 5px; border: 1px solid #ddd !important;'>
@@ -254,7 +246,7 @@ class convention_details_pdf():
                                                         """+str(x)+"""</td>
                                                     <td
                                                         style='font-family: Nunito, sans-serif;font-size: 15px;padding: 5px; border: 1px solid #ddd !important; ' colspan="3">
-                                                        """+convention_details_pdf.none_to_str(sub.name)+""" ("""+convention_details_pdf.none_to_str(sub.ada)+""")
+                                                        """+self.none_to_str(sub.name)+""" ("""+self.none_to_str(sub.ada)+""")
                                                     </td>
                                                     <td
                                                         style='font-family: Nunito, sans-serif;font-size: 15px;padding: 5px; border: 1px solid #ddd !important;'>
@@ -316,7 +308,7 @@ class convention_details_pdf():
                                     $"""+str(a)+"""</td>
                             </tr>"""
                 table+='</tbody></table></td></tr>'
-            if workshopsList:     
+            if workshops_list:     
                 table+="""<tr>
                             <td colspan="2">
                                 <h4 class='mb-0 text-center py-1'
@@ -355,14 +347,12 @@ class convention_details_pdf():
                             </tr>
                         </thead>
                         <tbody class="pnt">"""
-                for work in workshopsList:
+                for work in workshops_list:
                     in_status=0
-                    in_qty=0
                     in_grand=0
                     subrows=Handon_form_workshop.objects.filter(is_deleted=1,hand_id=hidden_hand_id,work_id=work.id)
                     if subrows:
                         in_status=1
-                        in_qty=len(subrows)
                         for sub in subrows:
                             if sub.updated_price is None or sub.updated_price=='':
                                 in_grand+=int(sub.amount)
@@ -372,7 +362,7 @@ class convention_details_pdf():
                     table+="""<tr style="border: 0.5px #ddd;">
                                             <td colspan="5" class="for-blue"
                                                 style='font-family: Nunito, sans-serif;font-size: 15px;padding: 5px; border: 1px solid #ddd !important;'>
-                                                """+convention_details_pdf.none_to_str(work.name)+'($'+ str(work.amount)+""")</td>
+                                                """+self.none_to_str(work.name)+'($'+ str(work.amount)+""")</td>
                                         </tr>""" 
                     if in_status:
                         x=1
@@ -389,15 +379,15 @@ class convention_details_pdf():
                                         """+str(x)+"""</td>
                                     <td
                                         style='font-family: Nunito, sans-serif;font-size: 15px;padding: 5px; border: 1px solid #ddd !important;'>
-                                        """+convention_details_pdf.none_to_str(sub.name)+"""
+                                        """+self.none_to_str(sub.name)+"""
                                     </td>
                                     <td
                                         style='font-family: Nunito, sans-serif;font-size: 15px;padding: 5px; border: 1px solid #ddd !important;width: 200px;'>
-                                        """+convention_details_pdf.none_to_str(sub.email)+"""
+                                        """+self.none_to_str(sub.email)+"""
                                     </td>
                                     <td
                                         style='font-family: Nunito, sans-serif;font-size: 15px;padding: 5px; border: 1px solid #ddd !important;'>
-                                        """+convention_details_pdf.none_to_str(sub.mobile)+"""
+                                        """+self.none_to_str(sub.mobile)+"""
                                     </td>
                                     <td
                                         style='font-family: Nunito, sans-serif;font-size: 15px;padding: 5px; border: 1px solid #ddd !important;'>

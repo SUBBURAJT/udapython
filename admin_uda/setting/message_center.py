@@ -1,10 +1,11 @@
 from django.db.models.aggregates import Count
-from django.db.models import Q , FilteredRelation
-from admin_uda.models import *
+from django.db.models import Q
+from admin_uda.models import Message_center,Message_center_ref,Convention_types,Convention_form_workshop
 import datetime as dt
 
-class message_centers():
-    def list_message_center(request):
+class message_centers:
+    current_time=dt.datetime.now()
+    def list_message_center(self,request):
         tot_count=Message_center.objects.filter(status=0).count()
         qry=Message_center.objects.filter(status=0)
         nd=[]
@@ -19,11 +20,11 @@ class message_centers():
             if datas.created_on:
                 c_date=datas.created_on.strftime("%m-%d-%Y %H:%M %p")
 
-            nestedData=[]
-            nestedData.append(c_date)
-            nestedData.append(reg_cat[datas.reg_type])
-            nestedData.append(datas.message)
-            nestedData.append(del_not_del)
+            nested_data=[]
+            nested_data.append(c_date)
+            nested_data.append(reg_cat[datas.reg_type])
+            nested_data.append(datas.message)
+            nested_data.append(del_not_del)
             actions="""<span class="view_msg" data-id="""+str(datas.id)+""" data-msg="""+datas.message+""">
                             <a href="javascript:void(0);" class="me-3 text-primary"
                                 data-bs-container="#tooltip-container"""+str(j)+""""  data-bs-toggle="tooltip"
@@ -34,8 +35,8 @@ class message_centers():
                             data-bs-placement="top" title="Delete"><i
                                 class="mdi mdi-trash-can font-size-18"></i>
                         </a>"""
-            nestedData.append(actions)
-            nd.append(nestedData)
+            nested_data.append(actions)
+            nd.append(nested_data)
             j+=1
         res['draw']=request.POST.get('draw')
         res['recordsTotal']=tot_count
@@ -43,7 +44,7 @@ class message_centers():
         res['data']=nd
         return res
 
-    def type_of_members(request):
+    def type_of_members(self,request):
         category=request.POST.get('category')
         data=Convention_types.objects.filter(status=1,form_status=int(category)).order_by('name')
         opt="<option value='0'>All</option>"
@@ -51,7 +52,7 @@ class message_centers():
             opt+="<option value='"+str(datas.id)+"'>"+datas.name.replace("NAME", "")+"</option>"
         return opt
 
-    def member_names(request):
+    def member_names(self,request):
         memnames=request.POST.get('memnames')
         data=Convention_form_workshop.objects.raw("SELECT A.id,A.name FROM admin_uda_convention_form_workshop AS A JOIN admin_uda_handon_form AS B ON A.hand_id=B.id WHERE 1=1 AND A.is_deleted=1 AND B.status=1 AND A.work_id="+memnames+" ORDER BY A.name")
         opt="<option value='0'>All</option>"
@@ -59,7 +60,7 @@ class message_centers():
             opt+="<option value='"+str(datas.id)+"'>"+datas.name+"</option>"
         return opt
 
-    def get_ip(request):
+    def get_ip(self,request):
         x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
         if x_forwarded_for:
             ip = x_forwarded_for.split(',')[0]
@@ -67,7 +68,7 @@ class message_centers():
             ip = request.META.get('REMOTE_ADDR')
         return ip
 
-    def add_messages(request):
+    def add_messages(self,request):
         members=request.POST.getlist('memnames')
         ids=','.join(members)
         reg_type=request.POST.get('category')
@@ -79,8 +80,8 @@ class message_centers():
         form.type_of_member=type_of_member
         form.uni_con_id=ids
         form.created_by=request.session['user_id']
-        form.created_on=dt.datetime.now()
-        form.created_ip=message_centers.get_ip(request)
+        form.created_on=self.current_time
+        form.created_ip=self.get_ip(request)
         form.save()
         res=form.id
         if res > 0:
@@ -107,18 +108,19 @@ class message_centers():
                 msg="Message Add to Queue"
             else:
                 error="Message Not Added"
+                msg=''
         else:
             error="Message Not Added"
             msg=""
         return {"error":error,"msg":msg}
 
-    def delete_message(request):
+    def delete_message(self,request):
         ids=request.POST.get('id')
         form=Message_center.objects.get(id=ids)
         form.status=1
         form.deleted_by = request.session['user_id']
-        form.deleted_on = dt.datetime.now()
-        form.deleted_ip = message_centers.get_ip(request)
+        form.deleted_on = self.current_time
+        form.deleted_ip = self.get_ip(request)
         form.save()
         if form.id:
             res=1
@@ -127,7 +129,7 @@ class message_centers():
 
         return {"res":res}
 
-    def view_msgs(request):
+    def view_msgs(self,request):
         nd=[]
         res={}
         tot_count=0
@@ -155,7 +157,7 @@ class message_centers():
             cl_names=["bg-soft-primary text-primary","bg-soft-success text-success","bg-soft-warning text-warning"]
             j=0
             for datas in data:
-                nestedData=[]
+                nested_data=[]
                 name="""<div class="d-flex align-items-center">
                         <div class="activity-icon avatar-xs me-2">
                             <span class="avatar-title """+cl_names[(j%3)]+""" br-5">J</span>
@@ -176,12 +178,12 @@ class message_centers():
                 status="""<div class="d-flex align-items-center"><i
                                 class='fa fa-circle me-2 fs-10 mt-1 """+cl+"""'></i>"""+st+"""
                         </div>"""
-                nestedData.append(name)
-                nestedData.append(p_number)
-                nestedData.append(reg_type)
-                nestedData.append(c_date)
-                nestedData.append(status)
-                nd.append(nestedData)
+                nested_data.append(name)
+                nested_data.append(p_number)
+                nested_data.append(reg_type)
+                nested_data.append(c_date)
+                nested_data.append(status)
+                nd.append(nested_data)
                 j+=1
         res['draw']=request.POST.get('draw')
         res['recordsTotal']=tot_count

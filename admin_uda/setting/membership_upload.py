@@ -1,4 +1,4 @@
-from admin_uda.models import *
+from admin_uda.models import Ada_membership
 import os
 from django.conf import settings
 from django.core.files.storage import FileSystemStorage
@@ -6,11 +6,11 @@ import datetime as dt
 import random
 import csv
 
-class membership():
-    def add_membership(request):
+class membership:
+    def add_membership(self,request):
         file=request
-        logoRoot = os.path.join(settings.MEDIA_ROOT, 'membership_upload/')
-        logoRoot=logoRoot.replace("\\","/")
+        logo_root = os.path.join(settings.MEDIA_ROOT, 'membership_upload/')
+        logo_root=logo_root.replace("\\","/")
         al_e_a=[]
         ids=[]
         invalid_ada=[]
@@ -23,7 +23,7 @@ class membership():
         t=str(random.randint(111111111, 9999999999))
         ext='.csv'
         new_file_name='membership_upload_'+d+t+ext
-        fs=FileSystemStorage(location=logoRoot)
+        fs=FileSystemStorage(location=logo_root)
         filename=fs.save(new_file_name,file)
         rem_mul=lambda a:a.replace("\t"," ")
         if os.path.exists('uploads/membership_upload/'+new_file_name):
@@ -119,7 +119,7 @@ class membership():
 
         return {"exists_id":al_e_a,"Added_id":add_count,"err":err,'total_given':c_all}
 
-    def list_membership():
+    def list_membership(self):
         data=Ada_membership.objects.all()
         return data
     

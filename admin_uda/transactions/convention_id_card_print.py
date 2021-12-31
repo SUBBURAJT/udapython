@@ -1,13 +1,10 @@
-import json
-from django.db.models.aggregates import Count
-from django.db.models import Q , FilteredRelation
-from admin_uda.models import *
+from admin_uda.models import Handon_form,Convention_form_workshop,Handon_form_workshop,Handon_workshop,Convention_types,Id_prints
 import datetime as dt
 from django_mysql.models import GroupConcat
 from hashids import Hashids
 
 class convention_id_card_details():
-    def transformNameAndTitle(record):
+    def transform_name_title(self,record):
         res={}
         name=record['name'].strip().lower()
         title=record['title'].strip().upper()
@@ -30,44 +27,38 @@ class convention_id_card_details():
             res['name']=name
             res['title']=title
         return res
-    def id_card_details(request,ids):
+    def id_card_details(self,request,ids):
         ext=0
         result=''
         result_print=''
         hashids = Hashids(salt='UDAHEALTHDENTALSALT',min_length=10)
         hashid = hashids.decode(ids) 
-        Tid=hashid[0]
-        input = []
-        inWorkShopArr = []
-        inConventionArr = []
-        Action = 0
+        tid=hashid[0]
+        in_workshop_arr = []
+        in_convention_arr = []
         hidden_hand_id = 0
-        check_data=Handon_form.objects.filter(form=1,id=Tid).exclude(status=2).exists()
+        check_data=Handon_form.objects.filter(form=1,id=tid).exclude(status=2).exists()
         if check_data:
-            all_data=list(Handon_form.objects.filter(form=1,id=Tid).exclude(status=2).values())[0]
+            all_data=list(Handon_form.objects.filter(form=1,id=tid).exclude(status=2).values())[0]
             hidden_hand_id = all_data["id"]
-            strConvShop=Convention_form_workshop.objects.filter(is_deleted=1,hand_id=hidden_hand_id).aggregate(con_works=GroupConcat('work_id'))
-            strWrkShop=Handon_form_workshop.objects.filter(is_deleted=1,hand_id=hidden_hand_id).aggregate(hand_works=GroupConcat('work_id'))
-            inConventionArr=[]
-            inWorkShopArr=[]
-            if strConvShop['con_works'] is not None:
-                inConventionArr=strConvShop['con_works'].split(',')
-            if strWrkShop['hand_works'] is not None:
-                inWorkShopArr=strWrkShop['hand_works'].split(',')
-            workshopsList=[]
-            coventionList=[]
-            if inWorkShopArr:
-                workshopsList=Handon_workshop.objects.filter(status=1,id__in=inWorkShopArr).order_by('id')
-            if inConventionArr:
-                coventionList=Convention_types.objects.filter(status=1,id__in=inConventionArr).order_by('id')
+            li_convshop=Convention_form_workshop.objects.filter(is_deleted=1,hand_id=hidden_hand_id).aggregate(con_works=GroupConcat('work_id'))
+            li_wrkshop=Handon_form_workshop.objects.filter(is_deleted=1,hand_id=hidden_hand_id).aggregate(hand_works=GroupConcat('work_id'))
+            if li_convshop['con_works'] is not None:
+                in_convention_arr=li_convshop['con_works'].split(',')
+            if li_wrkshop['hand_works'] is not None:
+                in_workshop_arr=li_wrkshop['hand_works'].split(',')
+            workshops_list=[]
+            covention_list=[]
+            if in_workshop_arr:
+                workshops_list=Handon_workshop.objects.filter(status=1,id__in=in_workshop_arr).order_by('id')
+            if in_convention_arr:
+                covention_list=Convention_types.objects.filter(status=1,id__in=in_convention_arr).order_by('id')
             data={}
-            if coventionList:
-                for conven in coventionList:
+            if covention_list:
+                for conven in covention_list:
                     in_status = 0
-                    in_qty = 0
-                    in_grand = 0
                     if conven.id:
-                        if str(conven.id) in inConventionArr:
+                        if str(conven.id) in in_convention_arr:
                             subrows=Convention_form_workshop.objects.filter(is_deleted=1,hand_id=hidden_hand_id,work_id=conven.id)
                             if subrows:
                                 for sub in subrows:
@@ -78,16 +69,13 @@ class convention_id_card_details():
                                         data[index]['title']=conven.name.replace("NAME", "")
                                         add_count=Id_prints(con_type=2,ref_id=sub.id,printing_date_time=dt.datetime.now(),parent_id=hidden_hand_id)
                                         add_count.save()
-            if workshopsList:
-                for work in workshopsList:
+            if workshops_list:
+                for work in workshops_list:
                     in_status=0
-                    in_qty=0
-                    in_grand=0
                     if work.id:
                         subrows=Handon_form_workshop.objects.filter(is_deleted=1,hand_id=hidden_hand_id,work_id=work.id)
                         if subrows:
                             in_status=1
-                            in_qty = len(subrows)
                     if in_status:
                         for sub in subrows:
                             index=len(data)
@@ -151,14 +139,14 @@ class convention_id_card_details():
                                             <div style="display: flex;">
                                                 <div class='mt-2' style="width:50%">
                                                     <div class='text-center'>
-                                                        <p class='doc-name text-center mt-4'>"""+convention_id_card_details.transformNameAndTitle(res1)['name']+"""</p>
-                                                        <p class='doc-title text-center'>"""+convention_id_card_details.transformNameAndTitle(res1)['title']+"""</p>
+                                                        <p class='doc-name text-center mt-4'>"""+self.transform_name_title(res1)['name']+"""</p>
+                                                        <p class='doc-title text-center'>"""+self.transform_name_title(res1)['title']+"""</p>
                                                     </div>
                                                 </div>
                                                 <div class='mt-2' style="width:50%">
                                                     <div class='text-center'>
-                                                        <p class='doc-name text-center mt-4'>"""+convention_id_card_details.transformNameAndTitle(res2)['name']+"""</p>
-                                                        <p class='doc-title text-center'>"""+convention_id_card_details.transformNameAndTitle(res2)['title']+"""</p>
+                                                        <p class='doc-name text-center mt-4'>"""+self.transform_name_title(res2)['name']+"""</p>
+                                                        <p class='doc-title text-center'>"""+self.transform_name_title(res2)['title']+"""</p>
                                                     </div>
                                                 </div>
                                             </div>
@@ -191,16 +179,16 @@ class convention_id_card_details():
                                                         <div style="width: 50%;">
                                                             <p
                                                                 style='font-size: 20px;text-align: center;margin-bottom: 0;color: #000;font-weight: 600 !important;'>
-                                                                """+convention_id_card_details.transformNameAndTitle(res1)['name']+"""
+                                                                """+self.transform_name_title(res1)['name']+"""
                                                             </p>
-                                                            <p style='font-size: 18px;margin-top: 0;color: #000;text-align: center;'>"""+convention_id_card_details.transformNameAndTitle(res1)['title']+"""</p>
+                                                            <p style='font-size: 18px;margin-top: 0;color: #000;text-align: center;'>"""+self.transform_name_title(res1)['title']+"""</p>
                                                         </div>
                                                         <div style="width: 50%;">
                                                             <p
                                                                 style='font-size: 20px;text-align: center;margin-bottom: 0;color: #000;font-weight: 600 !important;'>
-                                                                """+convention_id_card_details.transformNameAndTitle(res2)['name']+"""
+                                                                """+self.transform_name_title(res2)['name']+"""
                                                             </p>
-                                                            <p style='font-size: 18px;margin-top: 0;color: #000;text-align: center;'>"""+convention_id_card_details.transformNameAndTitle(res2)['title']+"""</p>
+                                                            <p style='font-size: 18px;margin-top: 0;color: #000;text-align: center;'>"""+self.transform_name_title(res2)['title']+"""</p>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -228,8 +216,8 @@ class convention_id_card_details():
                                             <div style="display: flex;">
                                                 <div class='mt-2' style="width:50%">
                                                     <div class='text-center'>
-                                                        <p class='doc-name text-center mt-4'>"""+convention_id_card_details.transformNameAndTitle(res3)['name']+"""</p>
-                                                        <p class='doc-title text-center'>"""+convention_id_card_details.transformNameAndTitle(res3)['title']+"""</p>
+                                                        <p class='doc-name text-center mt-4'>"""+self.transform_name_title(res3)['name']+"""</p>
+                                                        <p class='doc-title text-center'>"""+self.transform_name_title(res3)['title']+"""</p>
                                                     </div>
                                                 </div>
                                             </div>
@@ -256,9 +244,9 @@ class convention_id_card_details():
                                 <div style="width: 50%;">
                                     <p
                                         style='font-size: 20px;text-align: center;margin-bottom: 0;color: #000;font-weight: 600 !important;'>
-                                        """+convention_id_card_details.transformNameAndTitle(res3)['name']+"""
+                                        """+self.transform_name_title(res3)['name']+"""
                                     </p>
-                                    <p style='font-size: 18px;margin-top: 0;color: #000;text-align: center;'>"""+convention_id_card_details.transformNameAndTitle(res3)['title']+"""</p>
+                                    <p style='font-size: 18px;margin-top: 0;color: #000;text-align: center;'>"""+self.transform_name_title(res3)['title']+"""</p>
                                 </div>
                             </div>
                         </div>
