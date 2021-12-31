@@ -99,16 +99,11 @@ class ConventionRegistration():
             
             no_wrkshop = 0
             if len(convention_list)>0:
-                no_wrkshop = 0
-                no_wrkshop = self.save_convention(last_insert_id,convention_list)
-            else:
                 no_wrkshop = 1
+                self.save_convention(last_insert_id,convention_list)
             if len(workshops_list)>0:
-                no_wrkshop = 0
-                no_wrkshop = self.save_workshop(last_insert_id,workshops_list)
-                
-            else:
                 no_wrkshop = 1
+                self.save_workshop(last_insert_id,workshops_list)
                 
             if no_wrkshop == 0:
                 # delete
@@ -142,13 +137,9 @@ class ConventionRegistration():
                                 price = price,
                                 name = val['name'],
                             )
-                        if cv['id'] in ['1', '2', '5', '8', '15']:
-                            if val['ada'] != '':
-                                work_shop_form.ada = val['ada'] 
-                            else:
-                                work_shop_form.ada = ''
-                        else:
-                            work_shop_form.ada = ''
+                        work_shop_form.ada = ''    
+                        if 'ada' in val:
+                            work_shop_form.ada = val['ada'] 
                         work_shop_form.save()
                         last_insert_wid = work_shop_form.id
                         no_wrkshop += last_insert_wid
@@ -240,14 +231,10 @@ class ConventionRegistration():
                 
                 no_wrkshop = 0
                 if len(convention_list)>0:
-                    res = self.save_convention(last_insert_id,convention_list)
-                    no_wrkshop = res
-                else:
+                    self.save_convention(last_insert_id,convention_list)
                     no_wrkshop = 1
                 if len(workshops_list)>0:
-                    res = self.save_workshop(last_insert_id,workshops_list)
-                    no_wrkshop = res                        
-                else:
+                    self.save_workshop(last_insert_id,workshops_list)
                     no_wrkshop = 1
                     
                 if no_wrkshop == 0:
