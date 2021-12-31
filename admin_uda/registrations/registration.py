@@ -1,10 +1,10 @@
 from django.http.response import JsonResponse
-from admin_uda.models import *
+from admin_uda.models import Handon_form,Convention_form_workshop,Handon_form_workshop,Convention_types,Handon_workshop,Convention_types_prices,Convention_types_prices
 import datetime as dt
 from django_mysql.models import GroupConcat
 import json
 from django.utils.html import strip_tags
-from uda.settings import *
+import os
 from admin_uda.transactions.convention_detail_pdf import convention_details_pdf
 from django.core.files.storage import FileSystemStorage
 from django.conf import settings
@@ -18,7 +18,7 @@ from PIL import ImageDraw,Image
 from hashids import Hashids
 
 class Registration():
-    def link_callback(uri, rel):
+    def link_callback(self,uri, rel):
         """
         Convert HTML URIs to absolute system paths so xhtml2pdf can access those
         resources
@@ -48,7 +48,7 @@ class Registration():
                         'media URI must start with %s or %s' % (sUrl, mUrl)
                 )
         return path
-    def get_payment_method(method):
+    def get_payment_method(self,method):
         payment = {
             '1':"Cash",
             '2':"Cheque/DD",
@@ -64,7 +64,7 @@ class Registration():
 
         return result
 
-    def mail_qr_attachment(hand_id):
+    def mail_qr_attachment(self,hand_id):
         result = {}
         rt = os.path.join(settings.BASE_DIR).replace("\\","/")
         if hand_id>0:
@@ -118,7 +118,7 @@ class Registration():
         return result
 
 
-    def mail_pdf(hand_id):
+    def mail_pdf(self,hand_id):
         context_dict = {}
         file_name = ''
         rt = os.path.join(settings.BASE_DIR).replace("\\","/")
@@ -138,7 +138,7 @@ class Registration():
         template = get_template('mail_attachment.html')        
         html  = template.render(context_dict)        
         result = BytesIO()
-        pdf = pisa.pisaDocument(BytesIO(html.encode("ISO-8859-1")), result,link_callback=Registration.link_callback) 
+        pdf = pisa.pisaDocument(BytesIO(html.encode("ISO-8859-1")), result,link_callback=self.link_callback) 
         t1=dt.datetime.now().timestamp()
         t = str(t1).replace(".","_")
         file_name= str(hand_id)+'-'+str(t)+'.pdf'
@@ -147,7 +147,7 @@ class Registration():
             if not os.path.exists(rt+f'/uploads/mail_pdf/'):
                 os.makedirs(rt+f'/uploads/mail_pdf/')
             with open(rt+f'/uploads/mail_pdf/{file_name}','wb+') as output:
-                pdf = pisa.pisaDocument(BytesIO(html.encode("ISO-8859-1")), output,link_callback=Registration.link_callback)
+                pdf = pisa.pisaDocument(BytesIO(html.encode("ISO-8859-1")), output,link_callback=self.link_callback)
 
         except Exception as e:
             print(e)
@@ -155,7 +155,7 @@ class Registration():
         if not pdf.err:
             return file_name
 
-    def mail_template(form,hand_id):
+    def mail_template(self,form,hand_id):
         result = {}
         body = ''
         
@@ -216,7 +216,7 @@ class Registration():
                 else:
                     trans_date = ''
                 if none_to_str(handon_res["off_transaction_payment_mode"]):
-                    pay_mode = Registration.get_payment_method(none_to_str(handon_res["off_transaction_payment_mode"]))
+                    pay_mode = self.get_payment_method(none_to_str(handon_res["off_transaction_payment_mode"]))
                 else:
                     pay_mode = ''
                 transaction_section = '''<h4 style="padding-left: 20px; font-size: 20px"><strong>Transaction Details</strong></h4>
@@ -236,7 +236,7 @@ class Registration():
                     trans_date = ''
 
                 if none_to_str(handon_res["off_transaction_payment_mode"]):
-                    pay_mode = Registration.get_payment_method(none_to_str(handon_res["off_transaction_payment_mode"]))
+                    pay_mode = self.get_payment_method(none_to_str(handon_res["off_transaction_payment_mode"]))
                 else:
                     pay_mode = ''
 
@@ -444,7 +444,7 @@ class Registration():
                                         <tr>
                                             <!-- ======= logo ======= -->
                                             <td align="center" class="section-img">
-                                                <a href="'''+ EMAIL_URL +'''" style="display: block; border-style: none !important; border: 0 !important;"><img width="510" border="0" style="display: block; margin: 60px 0px 20px 0px; width: 270px;" src="'''+ EMAIL_LOGO +'''" /></a>
+                                                <a href="'''+ settings.EMAIL_URL +'''" style="display: block; border-style: none !important; border: 0 !important;"><img width="510" border="0" style="display: block; margin: 60px 0px 20px 0px; width: 270px;" src="'''+ settings.EMAIL_LOGO +'''" /></a>
                                             </td>
                                         </tr>
                                         <tr>
@@ -542,7 +542,7 @@ class Registration():
                                             <td align="center" style="color: #b0b7c7; font-size: 14px; font-family: "Questrial", sans-serif; mso-line-height-rule: exactly; line-height: 30px;" class="text_color">
                                                 <div style="line-height: 30px">
                                                     <!-- ======= section text ======= -->
-                                                    <a href="'''+ EMAIL_URL +'''" style=" text-decoration: none; color: inherit; ">www.udainpy.in</a>
+                                                    <a href="'''+ settings.EMAIL_URL +'''" style=" text-decoration: none; color: inherit; ">www.udainpy.in</a>
                                                 </div>
                                             </td>
                                         </tr>

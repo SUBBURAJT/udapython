@@ -156,13 +156,14 @@ def membership_upload(request):
 
 @login_required()
 def hygienist_upload(request):
+    hyg_obj = hygienist()
     greeting = {}
-    datas=hygienist.list_hygienist()
+    datas=hyg_obj.list_hygienist()
     greeting['pageview'] = "Dashboard"
     greeting['title'] = 'Hygienist Upload'
     greeting['data']=datas
     if request.is_ajax and request.method=='POST':
-        mem=hygienist.add_hygienist(request.FILES['file'])
+        mem=hyg_obj.add_hygienist(request.FILES['file'])
         msg=''
         error=''
         if mem['err']:
@@ -199,11 +200,12 @@ def convention_workshop(request):
 
 @login_required()
 def convention_workshop_form(request):
+    con_obj = convention_workshops()
     module=request.POST.get('module')
     if module and module=='form_submit':
         err=''
         msg=''
-        res=convention_workshops.save_convention_workshop(request)
+        res=con_obj.save_convention_workshop(request)
         if res['error']:
             err=res['error']
 
@@ -212,17 +214,17 @@ def convention_workshop_form(request):
 
         return JsonResponse({"valid":True,"err":err,"msg":msg}, status = 200)
     elif module and module=='list':
-        result=convention_workshops.list_convention_workshop(request)
+        result=con_obj.list_convention_workshop(request)
         return JsonResponse(result, status = 200)
     elif module and module=='delete':
-        result=convention_workshops.delete_convention_workshop(request)
+        result=con_obj.delete_convention_workshop(request)
         return JsonResponse(result, status = 200)
     elif module and module=='getdatas':
-        result=convention_workshops.get_convention_workshop(request)
+        result=con_obj.get_convention_workshop(request)
         datas = serializers.serialize("json", result)        
         return JsonResponse({"data":datas}, status = 200)
     elif module and module=='block':
-        result=convention_workshops.block_convention_workshop(request)
+        result=con_obj.block_convention_workshop(request)
         return JsonResponse(result, status = 200)
 
 @login_required()
@@ -369,14 +371,15 @@ def user_email_check(request):
         
 @login_required()
 def user_management_operations(request):
+    user_obj = user_managements()
     module=request.POST.get('module')
     if module and module=='list_user_management':
-        result=user_managements.list_user_management(request)
+        result=user_obj.list_user_management(request)
         return JsonResponse(result, status = 200)
     if module and module=='add_user_management':
         err=''
         msg=''
-        result=user_managements.add_user_management(request)
+        result=user_obj.add_user_management(request)
         if result['error']:
             err=result['error']
         if result['msg']:

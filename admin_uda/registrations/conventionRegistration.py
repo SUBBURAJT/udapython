@@ -174,13 +174,14 @@ class ConventionRegistration():
         return no_wrkshop
 
     def mail_pdf_func(self,last_insert_id):
+        reg_obj = Registration()
         file = []
         rt = os.path.join(settings.BASE_DIR).replace("\\","/")
-        body_content = Registration.mail_template(1,last_insert_id)
-        file_name = Registration.mail_pdf(last_insert_id)
+        body_content = reg_obj.mail_template(1,last_insert_id)
+        file_name = reg_obj.mail_pdf(last_insert_id)
         file1 = rt+self.rt_mailpdf+file_name
         file.append(file1)
-        qr_code = Registration.mail_qr_attachment(last_insert_id)
+        qr_code = reg_obj.mail_qr_attachment(last_insert_id)
         if(qr_code['convention']):
             for cv in qr_code['convention']:
                 tmp_file = ''

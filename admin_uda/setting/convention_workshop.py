@@ -1,10 +1,10 @@
 from django.db.models.aggregates import Count
 from django.db.models import Q , FilteredRelation
-from admin_uda.models import *
+from admin_uda.models import Handon_workshop,Handon_form_workshop
 import datetime as dt
 
 class convention_workshops():
-    def save_convention_workshop(request):
+    def save_convention_workshop(self,request):
         last_id=''
         msg=''
         event_date_get=request.POST.get('event_date')
@@ -52,7 +52,7 @@ class convention_workshops():
             
         return {"error":error,"ids":last_id,"msg":msg}
 
-    def list_convention_workshop(request):
+    def list_convention_workshop(self,request):
         flt_date=request.POST.get('flt_date')
         flt_event_date=''
         if flt_date:
@@ -139,7 +139,7 @@ class convention_workshops():
         res['data']=nd
         return res
 
-    def delete_convention_workshop(request):
+    def delete_convention_workshop(self,request):
         ids=request.POST.get('id')
         form=Handon_workshop.objects.get(id=ids)
         form.status=2
@@ -151,7 +151,7 @@ class convention_workshops():
 
         return {"res":res}
 
-    def block_convention_workshop(request):
+    def block_convention_workshop(self,request):
         ids=request.POST.get('id')
         mod=request.POST.get('mod')
         form=Handon_workshop.objects.get(id=ids)
@@ -168,7 +168,7 @@ class convention_workshops():
 
         return {"res":res}
 
-    def get_convention_workshop(request):
+    def get_convention_workshop(self,request):
         ids=request.POST.get('id')
         datas=Handon_workshop.objects.filter(id=ids)
         return datas

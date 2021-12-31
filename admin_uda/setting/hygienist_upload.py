@@ -1,4 +1,4 @@
-from admin_uda.models import *
+from admin_uda.models import Hygienist
 import os
 from django.conf import settings
 from django.core.files.storage import FileSystemStorage
@@ -7,7 +7,7 @@ import random
 import csv
 
 class hygienist():
-    def add_hygienist(request):
+    def add_hygienist(self,request):
         file=request
         logoRoot = os.path.join(settings.MEDIA_ROOT, 'hygienist_upload/')
         logoRoot=logoRoot.replace("\\","/")
@@ -80,7 +80,7 @@ class hygienist():
 
         return {"exists_id":al_e_a,"Added_id":add_count,"err":err,'total_given':c_all,'invalid_ada':invalid_ada}
 
-    def list_hygienist():
+    def list_hygienist(self):
         data=Hygienist.objects.all()
         return data
     

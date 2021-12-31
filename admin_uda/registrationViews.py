@@ -19,6 +19,7 @@ from django.contrib.auth.decorators import login_required
 reg_succ_msg = "Registered Successfully"
 update_succ_msg = "Updated Successfully"
 reg_err_msg = "Someting went to wrong! Please Try Again"
+vendor_obj = VendorRegistration()
 
 @register.filter
 def get_range(value):
@@ -32,14 +33,14 @@ def fall_registration(request):
     greeting = {}
     greeting['pageview'] = "Dashboard"
     greeting['title'] = 'Fall Registration' 
-    
+    fall_obj = FallRegistration()
     # get convention type
     today = dt.date.today() 
-    greeting['convention'] = FallRegistration.get_convention(today)    
+    greeting['convention'] = fall_obj.get_convention(today)    
     greeting['convention_cnt'] = len(greeting['convention'])
 
     if request.is_ajax and request.method=='POST':
-        save_form = FallRegistration.save_form(request)
+        save_form = fall_obj.save_form(request)
         if save_form == 1:
             error = 0
             msg=reg_succ_msg
@@ -130,7 +131,7 @@ def vendor_email_check(request):
     error = 0
     msg = ""
     if request.is_ajax and request.method=='POST':
-        email_check = VendorRegistration.check_email(request)
+        email_check = vendor_obj.check_email(request)
         if email_check==1:
             error = 1
             msg = "Email Already Exists"
@@ -150,11 +151,11 @@ def vendor_edit(request,id):
 
 
     if request.method=='GET':        
-        vendor_res = VendorRegistration.get_vendor(request,vendor_id)
+        vendor_res = vendor_obj.get_vendor(request,vendor_id)
         greeting['vendor'] = vendor_res[0]
         
     if request.is_ajax and request.method=='POST':
-        save_form = VendorRegistration.save_form(request)
+        save_form = vendor_obj.save_form(request)
         if save_form == 1:
             error = 0
             msg=update_succ_msg
@@ -176,9 +177,9 @@ def vendor_detail(request,id):
         vendor_id = decoded_id[0]
 
     if request.method=='GET':        
-        vendor_res = VendorRegistration.get_vendor(request,vendor_id)
+        vendor_res = vendor_obj.get_vendor(request,vendor_id)
         greeting['vendor'] = vendor_res[0]
-        staff_res = VendorRegistration.get_staff(request,vendor_id)
+        staff_res = vendor_obj.get_staff(request,vendor_id)
         greeting['staff'] = staff_res
         greeting['staff_cnt'] = len(staff_res)
 
@@ -192,7 +193,7 @@ def exhibitor_registration(request):
 
     module=request.POST.get('module')
     if module and module=='list':
-        result=VendorRegistration.vendor_registrations_list(request)
+        result=vendor_obj.vendor_registrations_list(request)
         return JsonResponse(result, status = 200)
 
 

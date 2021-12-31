@@ -1,13 +1,13 @@
 from django.db.models.aggregates import Count
 from django.db.models import Q , FilteredRelation
-from admin_uda.models import *
+from admin_uda.models import Users
 from django.contrib.auth.hashers import make_password,check_password
 import datetime
 from django.contrib.auth.models import User
 
 class user_managements():
  
-    def get_ip(request):
+    def get_ip(self,request):
         x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
         if x_forwarded_for:
             ip = x_forwarded_for.split(',')[0]
@@ -15,7 +15,7 @@ class user_managements():
             ip = request.META.get('REMOTE_ADDR')
         return ip
 
-    def add_user_management(request):
+    def add_user_management(self,request):
         err=""
         msg = ""
         err_cnt = 0
@@ -39,7 +39,7 @@ class user_managements():
                     user.password   = make_password(request.POST.get('password'))                
                 # user.role       = "User"
                 user.modified_at = datetime.datetime.now()
-                user.modified_ip = user_managements.get_ip(request)
+                user.modified_ip = self.get_ip(request)
                 user.modified_by = id
                 if Users.objects.filter(~Q(id=req_id), email=req_email,status=1).exists():
                     err_cnt = 1
@@ -68,7 +68,7 @@ class user_managements():
                 user.password   = make_password(request.POST.get('password'))                
                 user.role       = "User"
                 user.created_at = datetime.datetime.now()
-                user.created_ip = user_managements.get_ip(request)
+                user.created_ip = self.get_ip(request)
                 user.created_by = id
 
                 if Users.objects.filter(email=req_email,status=1).exists():
@@ -86,7 +86,7 @@ class user_managements():
             err = "User not added"
         return {"error":err,"msg":msg}
 
-    def list_user_management(request):
+    def list_user_management(self,request):
         qry=Users.objects.filter(status=1,role="User")
         nd=[]
         res={}

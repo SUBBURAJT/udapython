@@ -14,7 +14,7 @@ from django.template.loader import render_to_string
 from django.core.mail import send_mail
 from django.contrib import messages
 from django.contrib.auth.hashers import make_password,check_password
-from .models import *
+from .models import Users
 
 
 # Login
@@ -30,6 +30,9 @@ class LoginView(View):
 
     def post(self,request):
         if(request.method == "POST"):
+            data={}
+            data['error_message'] ='Invalid Credentials'
+
             username = request.POST.get('username')
             password = request.POST.get('password')
              
@@ -47,16 +50,7 @@ class LoginView(View):
                         request.session.set_expiry(300)
                         LoginView.username.append(username)
                         data['success_message'] ='Successfully login'
-                        return JsonResponse(data,safe=False)
-                    else:
-                        data={}
-                        data['error_message'] ='Invalid Credentials'
-                        return JsonResponse(data,safe=False)
-
-                else:
-                    data={}
-                    data['error_message'] ='Invalid Credentials'
-                    return JsonResponse(data,safe=False)
+                return JsonResponse(data,safe=False)
             else:
                 data={}
                 data['error_message'] ='Some field is empty'
