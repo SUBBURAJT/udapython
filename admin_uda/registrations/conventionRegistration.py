@@ -58,6 +58,7 @@ class ConventionRegistration():
         return cv_res
 
     def save_form(self,request):
+        result=0
         form_data = Handon_form(
             form = 1,
             practice_name = request.POST.get('practice_name'),
@@ -98,13 +99,14 @@ class ConventionRegistration():
             
             no_wrkshop = 0
             if len(convention_list)>0:
-                res = self.save_convention(last_insert_id,convention_list)
-                no_wrkshop = res
+                no_wrkshop = 0
+                no_wrkshop = self.save_convention(last_insert_id,convention_list)
             else:
                 no_wrkshop = 1
             if len(workshops_list)>0:
-                res = self.save_workshop(last_insert_id,workshops_list)
-                no_wrkshop = res
+                no_wrkshop = 0
+                no_wrkshop = self.save_workshop(last_insert_id,workshops_list)
+                
             else:
                 no_wrkshop = 1
                 
@@ -114,9 +116,7 @@ class ConventionRegistration():
                 data.delete()
                 result = 0
             else:
-                result = self.mail_pdf_func(last_insert_id)                
-        else:
-            result=0
+                result = self.mail_pdf_func(last_insert_id)  
         return result
     
     def save_convention(self,hand_id,convention_list):
