@@ -18,6 +18,8 @@ from PIL import ImageDraw,Image
 from hashids import Hashids
 
 class Registration():
+    datetime_format = "%Y-%m-%d %H:%M:%S"
+    datetime_format_time = "%m/%d/%Y %I:%M:%S %p"
     def link_callback(self,uri, rel):
         """
         Convert HTML URIs to absolute system paths so xhtml2pdf can access those
@@ -195,7 +197,7 @@ class Registration():
                 thank_mess = 'Thank You ! <p style=" font-size: 14px; margin: 0; ">For  Registering. Please Find Your Registered Conventions...</p>'
                 if none_to_str(handon_res['transaction_on']) != '':
                     # trans_date = dt.datetime.strptime(none_to_str(handon_res['transaction_on']),'%Y-%m-%d %H:%M:%S.%f%z').strftime('%m/%d/%Y %I:%M:%S %p')
-                    trans_date = dt.datetime.strptime(none_to_str(handon_res['transaction_on'])[:19],'%Y-%m-%d %H:%M:%S').strftime('%m/%d/%Y %I:%M:%S %p')
+                    trans_date = dt.datetime.strptime(none_to_str(handon_res['transaction_on'])[:19],self.datetime_format).strftime(self.datetime_format_time)
                 else:
                     trans_date = ''
 
@@ -212,7 +214,7 @@ class Registration():
                 thank_mess = 'Thank You ! - Spring Convention Registration <p style=" font-size: 14px; margin: 0; ">For  Registering. Please Find Your Registered Spring...</p>'
                 if none_to_str(handon_res['created_on']) != '':
                     #    trans_date = dt.datetime.strptime(none_to_str(handon_res['created_on']),'%Y-%m-%d %H:%M:%S.%f%z').strftime('%m/%d/%Y %I:%M:%S %p')
-                    trans_date = dt.datetime.strptime(none_to_str(handon_res['created_on'])[:19],'%Y-%m-%d %H:%M:%S').strftime('%m/%d/%Y %I:%M:%S %p')
+                    trans_date = dt.datetime.strptime(none_to_str(handon_res['created_on'])[:19],self.datetime_format).strftime(self.datetime_format_time)
                 else:
                     trans_date = ''
                 if none_to_str(handon_res["off_transaction_payment_mode"]):
@@ -231,7 +233,7 @@ class Registration():
             elif form == 3:
                 thank_mess = 'Thank You ! - Fall Convention Registration <p style=" font-size: 14px; margin: 0; ">For  Registering. Please Find Your Registered Fall...</p>'
                 if none_to_str(handon_res['created_on']) != '':
-                   trans_date = dt.datetime.strptime(none_to_str(handon_res['created_on'])[:19],'%Y-%m-%d %H:%M:%S').strftime('%m/%d/%Y %I:%M:%S %p')
+                   trans_date = dt.datetime.strptime(none_to_str(handon_res['created_on'])[:19],self.datetime_format).strftime(self.datetime_format_time)
                 else:
                     trans_date = ''
 
@@ -317,7 +319,7 @@ class Registration():
                                         p = float(row['updated_price'])
                                     sub_total += p
                                     table += '''<tr '''+ display +'''>
-                                                <td colspan="2" style="border-bottom: 1px dashed #e3e5e8;padding:6px 0px;padding-left: 6px;">'''+ none_to_str(row['name']) +' '+none_to_str(row['email'])+'''</td><td style="border-bottom: 1px dashed #e3e5e8;">$'''+ str(p) +'''</td>
+                                                <td colspan="2" style="border-bottom: 1px dashed #e3e5e8;padding:6px 0px;padding-left: 6px;">'''+ none_to_str(row['name']) +' '+none_to_str(row['email'])+'''</td><td style="border-bottom: 1px dashed #e3e5e8;">$'''+ str(p) +'''</td> 
                                             </tr>'''
                                 table += '''<tr>
                                     <td style="border-bottom: 1px dashed #e3e5e8;padding:6px 0px;"></td>
@@ -337,13 +339,13 @@ class Registration():
                                     table += '''<tr>
                                                 <td style="border-bottom: 1px dashed #e3e5e8;padding-left: 6px;">'''+row['name']+''' ( '''+row['ada']+''' )</td>
                                                 <td style="border-bottom: 1px dashed #e3e5e8;"></td>
-                                                <td style="border-bottom: 1px dashed #e3e5e8;">$'''+ str(p) +'''</td>
+                                                <td style="border-bottom: 1px dashed #e3e5e8;">$'''+ str(p) +'''</td>  
                                             </tr>'''
                                  
                                 table += '''<tr>
                                                 <td  style="border-bottom: 1px dashed #e3e5e8;padding:6px 0px;"></td>
                                                 <td style="border-bottom: 1px dashed #e3e5e8;padding:6px 0px;">Total</td>
-                                                <td style="border-bottom: 1px dashed #e3e5e8;padding:6px 0px;">$'''+ str(sub_total) +'''</td>
+                                                <td style="border-bottom: 1px dashed #e3e5e8;padding:6px 0px;">$'''+ str(sub_total) +''' </td>
                                             </tr>'''
             count_workshop = len(workshop_lists);
             if count_workshop>0:

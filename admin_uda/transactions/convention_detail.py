@@ -1,19 +1,19 @@
 import json
 from django.db.models.aggregates import Count
 from django.db.models import Q , FilteredRelation
-from admin_uda.models import *
+from admin_uda.models import Handon_form,Convention_types_prices,Convention_form_workshop,Handon_form_workshop,Handon_workshop,Id_prints,Convention_types
 import datetime as dt
 from django_mysql.models import GroupConcat
 from hashids import Hashids
 
 class convention_details():
-    def none_to_str(s):
+    def none_to_str(self,s):
         if s is None:
             return ''
         else:
             return s
     
-    def view_transaction_details(request,ids):
+    def view_transaction_details(self,request,ids):
         id_method=ids.split('-')
         method=id_method[1]
         if method=='print':
@@ -219,32 +219,32 @@ class convention_details():
                                     sub_total+=p
                                     if method=='print':
                                         pri_cond='<td>'+str(print_count['print'])+'</td>'
-                                        pri_cond1='<td style="font-size: 15px; border-color: #ddd !important;">'+str(print_count['print'])+'</td>'
+                                        pri_cond1='<td style="font-size: 15px; border-color: #ddd !important;">'+str(print_count['print'])+' </td>'
                                     else:
                                         pri_cond=''
                                         pri_cond1=''
                                     #view
                                     reg_type_val_tr+="""<tr class="adj">
-                                                            <td>"""+str(x)+"""</td>
+                                                            <td>"""+str(x)+""" </td>
                                                             """+pri_cond+"""
-                                                            <td>"""+convention_details.none_to_str(sub.name)+"""</td>
-                                                            <td>"""+convention_details.none_to_str(sub.email)+"""</td>
-                                                            <td>"""+convention_details.none_to_str(sub.ada)+"""</td>
-                                                            <td>$"""+str(p)+"""</td>
-                                                        </tr>"""
+                                                            <td>"""+self.none_to_str(sub.name)+"""</td>
+                                                            <td>"""+self.none_to_str(sub.email)+"""</td>
+                                                            <td>"""+self.none_to_str(sub.ada)+"""</td>
+                                                            <td>$"""+str(p)+""" </td>
+                                                         </tr>"""
                                     #print
                                     reg_type_val_trp+="""<tr class="adj">
                                                             <td style='font-size: 15px; border-color: #ddd !important;'>"""+str(x)+"""</td>
                                                             """+pri_cond1+"""
-                                                            <td style='font-size: 15px; border-color: #ddd !important;'>"""+convention_details.none_to_str(sub.name)+"""</td>
-                                                            <td style='font-size: 15px; border-color: #ddd !important;'>"""+convention_details.none_to_str(sub.email)+"""</td>
-                                                            <td style='font-size: 15px; border-color: #ddd !important;'>"""+convention_details.none_to_str(sub.ada)+"""</td>
+                                                            <td style='font-size: 15px; border-color: #ddd !important;'>"""+self.none_to_str(sub.name)+"""</td>
+                                                            <td style='font-size: 15px; border-color: #ddd !important;'>"""+self.none_to_str(sub.email)+"""</td>
+                                                            <td style='font-size: 15px; border-color: #ddd !important;'>"""+self.none_to_str(sub.ada)+"""</td>
                                                             <td style='font-size: 15px; border-color: #ddd !important;'>$"""+str(p)+"""</td>
                                                         </tr>"""
                                     x+=1
                                 #view
-                                reg_type_val_tr+="""<tr style='border: 0;'>
-                                                        <td colspan='"""+colspan+"""' style='border: 0;'></td>
+                                reg_type_val_tr+="""<tr style='border:0;'>
+                                                        <td colspan='"""+colspan+"""' style='border:0;'></td>
                                                         <td>Total</td>
                                                         <td>$"""+str(sub_total)+"""</td>
                                                     </tr>"""
@@ -267,30 +267,30 @@ class convention_details():
                                             p=int(sub.updated_price)
                                         if method=='print':
                                             pri_cond='<td>'+str(print_count['print'])+'</td>'
-                                            pri_cond1='<td style="font-size: 15px; border-color: #ddd !important;">'+str(print_count['print'])+'</td>'
+                                            pri_cond1='<td style="font-size: 15px;border-color: #ddd !important;">'+str(print_count['print'])+'</td> '
                                         else:
                                             pri_cond=''
                                             pri_cond1=''
                                         #view
                                         reg_type_val_tr+="""<tr class="adj">
-                                                            <td>"""+str(x)+"""</td>
+                                                            <td>"""+str(x)+"""  </td>
                                                             """+pri_cond+"""
-                                                            <td>"""+convention_details.none_to_str(sub.name)+"""</td>
-                                                            <td colspan="2">"""+convention_details.none_to_str(sub.email)+"""</td>
-                                                            <td>$"""+str(p)+"""</td>
+                                                            <td>"""+self.none_to_str(sub.name)+"""</td>
+                                                            <td colspan="2">"""+self.none_to_str(sub.email)+"""</td>
+                                                            <td>$"""+str(p)+""" </td> 
                                                         </tr>"""
                                         #print
                                         reg_type_val_trp+="""<tr class="adj">
-                                                            <td style='font-size: 15px; border-color: #ddd !important;'>"""+str(x)+"""</td>
+                                                            <td style='font-size: 15px; border-color: #ddd !important;'>"""+str(x)+"""   </td>
                                                             """+pri_cond1+"""
-                                                            <td style='font-size: 15px; border-color: #ddd !important;'>"""+convention_details.none_to_str(sub.name)+"""</td>
-                                                            <td style='font-size: 15px; border-color: #ddd !important;' colspan="2">"""+convention_details.none_to_str(sub.email)+"""</td>
-                                                            <td style='font-size: 15px; border-color: #ddd !important;'>$"""+str(p)+"""</td>
+                                                            <td style='font-size: 15px; border-color: #ddd !important;'>"""+self.none_to_str(sub.name)+"""</td>
+                                                            <td style='font-size: 15px; border-color: #ddd !important;' colspan="2">"""+self.none_to_str(sub.email)+"""</td>
+                                                            <td style='font-size: 15px; border-color: #ddd !important;'>$"""+str(p)+""" </td>  
                                                         </tr>"""
                                 #view
                                 reg_type_val_tr+="""<tr style='border: 0;'>
-                                                        <td colspan='"""+colspan+"""' style='border: 0;'></td>
-                                                        <td>Total</td>
+                                                         <td colspan='"""+colspan+"""' style='border: 0;'></td>
+                                                        <td> Total</td>
                                                         <td>$"""+str(sub_total)+"""</td>
                                                     </tr>"""
                                 #print
@@ -311,7 +311,7 @@ class convention_details():
                                         sub_total+=p
                                         if method=='print':
                                             pri_cond='<td>'+str(print_count['print'])+'</td>'
-                                            pri_cond1='<td style="font-size: 15px; border-color: #ddd !important;">'+str(print_count['print'])+'</td>'
+                                            pri_cond1='<td style="font-size:15px; border-color: #ddd !important;">'+str(print_count['print'])+'</td>'
                                         else:
                                             pri_cond=''
                                             pri_cond1=''
@@ -319,19 +319,19 @@ class convention_details():
                                         reg_type_val_tr+="""<tr class="adj">
                                                                 <td>"""+str(x)+"""</td>
                                                                 """+pri_cond+"""
-                                                                <td colspan="3">"""+convention_details.none_to_str(sub.name)+""" ("""+convention_details.none_to_str(sub.ada)+""") </td>
+                                                                <td colspan="3">"""+self.none_to_str(sub.name)+""" ("""+self.none_to_str(sub.ada)+""") </td>
                                                                 <td>$"""+str(p)+"""</td>
                                                             </tr>"""
                                         #print
                                         reg_type_val_trp+="""<tr class="adj">
                                                                 <td style='font-size: 15px; border-color: #ddd !important;'>"""+str(x)+"""</td>
                                                                 """+pri_cond1+"""
-                                                                <td colspan="3" style='font-size: 15px; border-color: #ddd !important;'>"""+convention_details.none_to_str(sub.name)+""" ("""+convention_details.none_to_str(sub.ada)+""") </td>
+                                                                <td colspan="3" style='font-size: 15px; border-color: #ddd !important;'>"""+self.none_to_str(sub.name)+""" ("""+self.none_to_str(sub.ada)+""") </td>
                                                                 <td style='font-size: 15px; border-color: #ddd !important;'>$"""+str(p)+"""</td>
                                                             </tr>"""
                                     #view
                                     reg_type_val_tr+="""<tr style='border: 0;'>
-                                                        <td colspan='"""+colspan+"""' style='border: 0;'></td>
+                                                        <td colspan='"""+colspan+"""' style='border:0;'></td>
                                                         <td>Total</td>
                                                         <td>$"""+str(sub_total)+"""</td>
                                                     </tr>"""
@@ -347,7 +347,7 @@ class convention_details():
                             <td style="font-weight:600;border-bottom: 1px solid #eaedf1;">TOTAL
                             </td>
                             <td style="font-weight:600;border-bottom: 1px solid #eaedf1;">$"""+str(data["amount"])+"""
-                            </td>
+                            </td> 
                         </tr>"""
                 #print
                 reg_type_val_trp+="""<tr style='border: 0;'>
@@ -355,7 +355,7 @@ class convention_details():
                             <td style="font-size: 15px;font-weight:600;border-bottom: 1px solid #eaedf1;border-color: #ddd !important;">TOTAL
                             </td>
                             <td style="font-size: 15px;font-weight:600;border-bottom: 1px solid #eaedf1;border-color: #ddd !important;">$"""+str(data["amount"])+"""
-                            </td>
+                            </td>  
                         </tr>"""
                 if data["updated_grand_amount"] is None or data["updated_grand_amount"]=='':
                     pass
@@ -372,8 +372,8 @@ class convention_details():
                             <td style="font-size: 15px;font-weight:600;border-bottom: 1px solid #eaedf1;border-color: #ddd !important;">GRAND TOTAL
                             </td>
                             <td style="font-size: 15px;font-weight:600;border-bottom: 1px solid #eaedf1;border-color: #ddd !important;">$"""+str(data["updated_grand_amount"])+"""
-                            </td>
-                        </tr>"""
+                             </td>
+                         </tr>"""
                     balance = data['amount'] - data['updated_grand_amount']
                     if balance > 0:
                         m="UDA to pay"
@@ -393,10 +393,10 @@ class convention_details():
                             <td style="font-size: 15px;font-weight:600;border-bottom: 1px solid #eaedf1;border-color: #ddd !important;">"""+m+"""
                             </td>
                             <td style="font-size: 15px;font-weight:600;border-bottom: 1px solid #eaedf1;border-color: #ddd !important;">$"""+str(a)+"""
-                            </td>
+                            </td>   
                         </tr>"""
-                reg_type_val_tr+="</tbody></table></td></tr>"
-                reg_type_val_trp+="</tbody></table></td></tr>"
+                reg_type_val_tr+="</tbody> </table> </td> </tr>"
+                reg_type_val_trp+="</tbody>  </table> </td></tr>"
             if workshopsList:
                 reg_type_val_tr+="""
                                     <tr>
@@ -473,7 +473,7 @@ class convention_details():
                                 in_grand+=int(sub.updated_price)
                         total_grand_val+=in_grand
                     reg_type_val_tr+='<tr><td colspan="6" class="for-blue">'+work.name+'($'+ str(work.amount)+')</td></tr>'
-                    reg_type_val_trp+='<tr><td colspan="6" class="for-blue" style="font-size: 15px; border-color: #ddd !important;">'+convention_details.none_to_str(work.name)+'($'+ str(work.amount)+')</td></tr>'
+                    reg_type_val_trp+='<tr><td colspan="6" class="for-blue" style="font-size: 15px; border-color: #ddd !important;">'+self.none_to_str(work.name)+'($'+ str(work.amount)+')</td></tr>'
                     if in_status:
                         x=1
                         sub_total=0
@@ -486,24 +486,24 @@ class convention_details():
                             print_count=Id_prints.objects.filter(con_type=1,ref_id=sub.id).aggregate(print=Count(id))
                             if method=='print':
                                 pri_cond='<td>'+str(print_count['print'])+'</td>'
-                                pri_cond1='<td style="font-size: 15px; border-color: #ddd !important;">'+str(print_count['print'])+'</td>'
+                                pri_cond1='<td style="font-size: 15px; border-color: #ddd !important;">'+str(print_count['print'])+'  </td>'
                             else:
                                 pri_cond=''
                                 pri_cond1=''
                             reg_type_val_tr+="""<tr class="adj">
                                                     <td>"""+str(x)+"""</td>
                                                     """+pri_cond+"""
-                                                    <td>"""+convention_details.none_to_str(sub.name)+"""</td>
-                                                    <td>"""+convention_details.none_to_str(sub.email)+"""</td>
-                                                    <td>"""+convention_details.none_to_str(sub.mobile)+"""</td>
+                                                    <td>"""+self.none_to_str(sub.name)+"""</td>
+                                                    <td>"""+self.none_to_str(sub.email)+"""</td>
+                                                    <td>"""+self.none_to_str(sub.mobile)+"""</td>
                                                     <td>$"""+str(p)+"""</td>
                                                 </tr>"""
                             reg_type_val_trp+="""<tr class="adj">
                                                     <td style='font-size: 15px; border-color: #ddd !important;'>"""+str(x)+"""</td>
                                                     <td style="font-size: 15px; border-color: #ddd !important;">"""+str(print_count['print'])+"""</td>
-                                                    <td style='font-size: 15px; border-color: #ddd !important;'>"""+convention_details.none_to_str(sub.name)+"""</td>
-                                                    <td style='font-size: 15px; border-color: #ddd !important;'>"""+convention_details.none_to_str(sub.email)+"""</td>
-                                                    <td style='font-size: 15px; border-color: #ddd !important;'>"""+convention_details.none_to_str(sub.mobile)+"""</td>
+                                                    <td style='font-size: 15px; border-color: #ddd !important;'>"""+self.none_to_str(sub.name)+"""</td>
+                                                    <td style='font-size: 15px; border-color: #ddd !important;'>"""+self.none_to_str(sub.email)+"""</td>
+                                                    <td style='font-size: 15px; border-color: #ddd !important;'>"""+self.none_to_str(sub.mobile)+"""</td>
                                                     <td style='font-size: 15px; border-color: #ddd !important;'>$"""+str(p)+"""</td>
                                                 </tr>"""
                             x+=1
@@ -517,8 +517,8 @@ class convention_details():
                                                 <td style='font-size: 15px; border-color: #ddd !important;'>Total</td>
                                                 <td style='font-size: 15px; border-color: #ddd !important;'>$"""+str(sub_total)+"""</td>
                                             </tr>"""
-                reg_type_val_tr+="</tbody></table></td></tr>"
-                reg_type_val_trp+="</tbody></table></td></tr>"
+                reg_type_val_tr+="</tbody> </table></td></tr>"
+                reg_type_val_trp+="</tbody></table> </td></tr>"
         else:
             err=1
         return {"input":input,"con_datas":reg_type_val_tr,"con_datas_print":reg_type_val_trp,"err":err,"msg":msg}

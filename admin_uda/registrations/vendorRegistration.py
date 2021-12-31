@@ -5,6 +5,7 @@ from hashids import Hashids
 
 class VendorRegistration():
     date_format = '%m/%d/%Y'
+    date_format_db = '%Y-%m-%d'
     def check_email(self,request):  
         result = 0      
         req_email = request.POST.get('email')
@@ -45,8 +46,8 @@ class VendorRegistration():
         flt_sdate=request.POST.get('fltr_start_date')
         flt_edate=request.POST.get('fltr_end_date')
         if flt_sdate and flt_edate:
-            flt_strdate = dt.datetime.strptime(str(flt_sdate),self.date_format).strftime('%Y-%m-%d')
-            flt_endate = dt.datetime.strptime(str(flt_edate),self.date_format).strftime('%Y-%m-%d')
+            flt_strdate = dt.datetime.strptime(str(flt_sdate),self.date_format).strftime(self.date_format_db)
+            flt_endate = dt.datetime.strptime(str(flt_edate),self.date_format).strftime(self.date_format_db)
             where_cond += " AND DATE(A.created_on) >= '"+str(flt_strdate)+"' AND DATE(A.created_on) <= '"+str(flt_endate)+"'"
 
         sql = "SELECT a.* FROM admin_uda_vendor_registration_form as a "+where_cond + " order by id desc"
@@ -64,7 +65,7 @@ class VendorRegistration():
                                         </div>
                                         ''' + vendor.first_name + ' ' + vendor.last_name +  '''
                                     </div>'''
-            date_sec = dt.datetime.strptime(str(vendor.created_on.date()),'%Y-%m-%d').strftime(self.date_format)
+            date_sec = dt.datetime.strptime(str(vendor.created_on.date()),self.date_format_db).strftime(self.date_format)
             addr_sec = vendor.address+', '+vendor.city+', '+vendor.state
             act_sec = '''<div class="btn-group">
                                         <button type="button" class="btn fs-15 py-0" data-toggle="dropdown">

@@ -1,5 +1,5 @@
 from django.shortcuts import redirect, render
-from admin_uda.models import *
+from admin_uda.models import Convention_types,Convention_archive
 from admin_uda.transactions.spring_transaction import spring_transactions
 from admin_uda.transactions.convention_transaction import convention_transactions
 from admin_uda.transactions.fall_transaction import fall_transactions
@@ -23,8 +23,9 @@ from xhtml2pdf import pisa
 from django.contrib.staticfiles import finders
 from django.conf import settings
 from hashids import Hashids
+import os
 
-
+con_trans_redirect = '/convention_transaction'
 
 @register.filter
 def get_range(value):
@@ -116,7 +117,8 @@ def fall_transaction_operations(request):
 
 @login_required()
 def convention_detail(request,ids):
-    dat=convention_details.view_transaction_details(request,ids)
+    con_det_obj = convention_details()
+    dat=con_det_obj.view_transaction_details(request,ids)
     greeting = {}
     greeting['pageview'] = "Dashboard"
     if dat['input']['form_status'] and dat['input']['form_status']==1:
@@ -129,14 +131,14 @@ def convention_detail(request,ids):
         greeting['title'] = 'Convention Detail'
     greeting['datas'] = dat
     if dat['err']==1:
-        return redirect('/convention_transaction')
+        return redirect(con_trans_redirect)
     return render(request,'convention_detail.html',greeting)
 
 @login_required()
 def convention_detail_idcard(request,ids):
     dat=convention_id_card_details.id_card_details(request,ids)
     if dat['ext']==1:
-        return redirect('/convention_transaction')
+        return redirect(con_trans_redirect)
     greeting = {}
     greeting['pageview'] = "Dashboard"
     greeting['title'] = 'Convention Transaction ID Cards'
@@ -146,7 +148,7 @@ def convention_detail_idcard(request,ids):
 def convention_id_card_print_bulk(request):
     dat=convention_id_card_bulk_details.id_card_details_bulk(request)
     if dat['ext']==1:
-        return redirect('/convention_transaction')
+        return redirect(con_trans_redirect)
     greeting = {}
     greeting['pageview'] = "Dashboard"
     greeting['title'] = 'Convention Transaction ID Cards'
@@ -209,7 +211,7 @@ def transactions_pdf(request,ids):
         greeting['title'] = 'Convention Detail'
     greeting['datas'] = dat
     if dat['err']==1:
-        return redirect('/convention_transaction')
+        return redirect(con_trans_redirect)
     else:
         return get_pdf('mail_attachment.html',greeting)
 
