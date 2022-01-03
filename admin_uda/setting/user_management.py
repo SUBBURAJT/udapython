@@ -1,6 +1,6 @@
 from django.db.models.aggregates import Count
 from django.db.models import Q , FilteredRelation
-from admin_uda.models import Users
+from admin_uda.models import Send_Mail, Users
 from django.utils.html import strip_tags
 
 from django.contrib.auth.hashers import make_password,check_password
@@ -123,7 +123,7 @@ class user_managements():
         res['data']=nd
         return res
 
-    def reset_pass_mail(request):
+    def reset_pass_mail(self,request):
         err=''
         txt_res=''
         email=request.POST.get('email')
@@ -182,7 +182,7 @@ class user_managements():
             err="Please enter a Valid Email Address"
         return {"err":err,"txt_res":txt_res}
 
-    def reset_password_submit(request):
+    def reset_password_submit(self,request):
         res=0
         new_password=request.POST.get('new_password')
         hidden_id=request.POST.get('hidden_id')

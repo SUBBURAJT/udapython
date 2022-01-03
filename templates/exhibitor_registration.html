@@ -76,7 +76,7 @@
                         </a>
                     </div>
                     <div class="col-lg-6 col-md-4 col-6 ps-1 pe-0  d-xl-block d-none">
-                        <a href="#" class="btn btn-light btn-sm btn-icon px-md-3 w-100">
+                        <a href="#" class="btn btn-light btn-sm btn-icon px-md-3 w-100 vendorprint">
                             <i class='fa fa-print me-1'></i> Print QR Codes
                         </a>
                     </div>
@@ -91,7 +91,7 @@
                                 <li><a class="dropdown-item" href="#"><i class='fa fa-envelope me-2'></i> Email QR
                                         Codes</a>
                                 </li>
-                                <li><a class="dropdown-item" href="#"><i class='fa fa-print me-2'></i> Print QR
+                                <li><a class="dropdown-item vendorprint" href="#"><i class='fa fa-print me-2'></i> Print QR
                                         Codes</a>
                                 </li>
                             </ul>
@@ -149,13 +149,16 @@
                     </div>
                 </div>
                 <div class="tableCont  exhTable">
+                    <form target="_blank" action="{% url 'vendor_detail_print' %}" method="post" id="vendor_print">
+                        {% csrf_token %}
+                        <input type="hidden" name="vendor_ids" id="vendor_ids" value="">
                     <table id="exhiTable" class="table table-centered datatable responsive nowrap"
                         data-bs-page-length="6" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
                         <thead class="table-light">
                             <tr>
                                 <th class="no-sort all" data-orderable="false" style="width: 20px;">
                                     <div class="form-check mb-0">
-                                        <input class="form-check-input" type="checkbox" id="formCheck1">
+                                        <input class="form-check-input head_check" type="checkbox" id="formCheck1">
                                     </div>
                                 </th>
                                 <th class="all">Name</th>
@@ -312,6 +315,7 @@
 
                         </tbody>
                     </table>
+                    </form>
                 </div>
             </div>
 
@@ -508,7 +512,32 @@
             console.log(dropdown.attr('style'))
         }
     });
-
+    $(document).on("click",".head_check",function(){
+        if($(this).prop("checked")==true){
+            $(".child_check").prop("checked",true)
+        }
+        else{
+            $(".child_check").prop("checked",false)
+        }
+    })
+    $(document).on("click",".qrcode_single",function(){
+        var ven_id=$(this).attr('data-id')
+        $("#vendor_ids").val(ven_id)
+        $("#vendor_print").submit();
+        $("#vendor_ids").val('')
+    });
+    $(document).on("click",".vendorprint",function(){
+        if($(".child_check").prop("checked")==true){
+            $("#vendor_print").submit(); 
+        }
+        else{
+            Swal.fire(
+                    'Warning!',
+                    'Please select atleast one transactions',
+                    'warning'
+                )
+        }
+    })
 
 
 </script>

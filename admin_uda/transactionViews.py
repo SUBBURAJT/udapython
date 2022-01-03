@@ -26,8 +26,6 @@ from hashids import Hashids
 import os
 
 con_trans_redirect = '/convention_transaction'
-sp_obj = spring_transactions()
-
 
 @register.filter
 def get_range(value):
@@ -40,7 +38,7 @@ def get_str(value):
 def spring_transaction(request):
     module=request.POST.get('module')
     if module is not None and module=="export":
-        return sp_obj.export_transaction()
+        return spring_transactions.export_transaction()
 
     greeting = {}
     con_types=Convention_types.objects.filter(status=1,form_status=2).order_by('id')
@@ -54,13 +52,13 @@ def spring_transaction(request):
 def spring_transaction_operations(request):
     module=request.POST.get('module')
     if module and module=='list':
-        result=sp_obj.list_spring_transactions(request)
+        result=spring_transactions.list_spring_transactions(request)
         return JsonResponse(result, status = 200)
     elif module and module=='delete':
-        result=sp_obj.delete_spring_transactions(request)
+        result=spring_transactions.delete_spring_transactions(request)
         return JsonResponse(result, status = 200)
     elif module and module=='archive':
-        result=sp_obj.archive_spring_transactions(request)
+        result=spring_transactions.archive_spring_transactions(request)
         return JsonResponse(result, status = 200)
 
 @login_required()
@@ -80,14 +78,15 @@ def convention_transaction(request):
 
 def convention_transaction_operations(request):
     module=request.POST.get('module')
+    conobj=convention_transactions()
     if module and module=='list':
-        result=convention_transactions.list_convention_transactions(request)
+        result=conobj.list_convention_transactions(request)
         return JsonResponse(result, status = 200)
     elif module and module=='delete':
-        result=convention_transactions.delete_convention_transactions(request)
+        result=conobj.delete_convention_transactions(request)
         return JsonResponse(result, status = 200)
     elif module and module=='archive':
-        result=convention_transactions.archive_convention_transactions(request)
+        result=conobj.archive_convention_transactions(request)
         return JsonResponse(result, status = 200)
 
 @login_required()
@@ -149,7 +148,8 @@ def convention_detail_idcard(request,ids):
     return render(request,'convention_id_card_print.html',greeting)
 
 def convention_id_card_print_bulk(request):
-    dat=convention_id_card_bulk_details.id_card_details_bulk(request)
+    objbulk=convention_id_card_bulk_details()
+    dat=objbulk.id_card_details_bulk(request)
     if dat['ext']==1:
         return redirect(con_trans_redirect)
     greeting = {}

@@ -1,0 +1,164 @@
+{% load static %}
+{% block content %}
+
+
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>{{title}} | UDA</title>
+	<meta content="Premium Multipurpose Admin & Dashboard Template" name="description" />
+	<meta content="Themesdesign" name="author" />
+	<!-- App favicon -->
+	<link rel="shortcut icon" href="static/images/uda-small.jpg">
+</head>
+<style>
+    @page {
+           size: A4;
+           margin: 1cm;
+       }
+       @font-face {
+           font-family: Pacifico;
+           src: url('static/fonts/pacifico.ttf');
+       }
+       .tablelist tr th td{
+           white-space: nowrap;
+       }
+       .tablelist th {
+           padding: 5px;
+           vertical-align: top;
+           background-color: #e8e8e8;
+       }
+       .tablelist td {
+           padding: 5px;
+           vertical-align: top;
+           -pdf-keep-with-next: false;
+       }
+</style>
+<body>
+    <div id='printableArea' class="d-none">
+        {% for key,value in datas.items %}
+        <div class='printView' style='page-break-after:always'>
+            <table border="0" align="center" cellpadding="0" cellspacing="0"
+                style='margin: 10px auto;width: 100%; min-width: 800px;max-width: 1000px;margin: 0 auto;background: #fff;'>
+                <tbody>
+                    <tr>
+                        <td class='text-start' style='width: 50%;padding-bottom: 15px; padding-top: 15px;'>
+                            <img src="static/images/uda-logo-blue.png" style='height: 75px;max-width: 350px;' alt="Logo">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan='2'>
+                            <div style='margin: 0 -15px;'>
+                                <table border='0'
+                                    style='border-collapse: initial;border-spacing: 15px;margin-top: 15px;width:100%;'>
+                                    <tbody>
+                                        <tr>
+                                            <td
+                                                style='border: 1px solid #ddd;border-radius: 5px; padding: 20px 25px; min-height: 300px; width: 100%;    vertical-align: top;'>
+                                                <div>
+    
+                                                    <h4 style="font-size: 20px;color: #000;margin-bottom: 0px;margin-top: 0px;padding: 5px;">
+                                                        <strong>Exhibitor Details</strong>
+                                                    </h4>
+                                                    <p style="margin-bottom: 0px;margin-top: 0px;padding: 5px;font-size: 17px"><strong
+                                                            style='color: #000'>Company Name
+                                                            :</strong> {{value.details.company_name}}</p>
+                                                    <p style="margin-bottom: 0px;margin-top: 0px;padding: 5px;font-size: 17px"><strong
+                                                            style='color: #000'>Name :</strong>
+                                                            {{value.details.first_name}} {{value.details.last_name}}</p>
+                                                    <p style="margin-bottom: 0px;margin-top: 0px;padding: 5px;font-size: 17px"><strong
+                                                            style='color: #000'>Phone :</strong>
+                                                            {{value.details.phone}}</p>
+                                                    <p style="margin-bottom: 0px;margin-top: 0px;padding: 5px;font-size: 17px"><strong
+                                                            style='color: #000'>E-Mail:</strong>
+                                                            {{value.details.email}}</p>
+                                                    <p style="margin-bottom: 0px;margin-top: 0px;padding: 5px;font-size: 17px"><strong
+                                                            style='color: #000'>Address :</strong>
+                                                            {{value.details.address}} , {{value.details.city}}, {{value.details.state}}. </p>
+                                                    <p style="margin-bottom: 0px;margin-top: 0px;padding: 5px;font-size: 17px"><strong
+                                                            style='color: #000'>Zip Code
+                                                            :</strong> {{value.details.zipcode}}</p>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </td>
+                    </tr>
+                    {% if value.staffs %}
+                    <tr style="padding: 20px;">
+                        <td colspan="2">
+                            <h4 class='mb-0 text-center py-1'
+                                style='font-size: 23px;color: #000;margin-top: 0px;margin-bottom:0px;padding: 0px;'>
+                                <strong>UDA - Exhibitor Staff Details</strong>
+                            </h4>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan='2'>
+                            <table style="width: 100%;border-bottom: 0;border-left: 0;margin-top: 0px;border: 0.5px solid #ababab;padding: 0px;"
+                                class="table-bordered table tablelist">
+                                <thead>
+                                    <tr>
+                                        <th class='bg-color text-uppercase'
+                                            style='font-size: 17px; color: #000; border-color: #ddd !important;'>
+                                            <strong>Name</strong>
+                                        </th>
+                                        <th class='bg-color text-uppercase'
+                                            style='font-size: 17px; color: #000; border-color: #ddd !important;'>
+                                            <strong>Email</strong>
+                                        </th>
+                                        <th class='bg-color text-uppercase'
+                                            style='font-size: 17px; color: #000; border-color: #ddd !important;'>
+                                            <strong>Phone</strong>
+                                        </th>
+                                        <th class='bg-color text-uppercase'
+                                            style='font-size: 17px; color: #000; border-color: #ddd !important;'><strong>QR
+                                                code</strong></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for staff_details in value.staffs%}
+                                    <tr>
+                                        <td
+                                            style='font-size: 17px; color: #555;border-color: #ddd !important;vertical-align: middle;'>
+                                            {{staff_details.name}}</td>
+                                        <td
+                                            style='font-size: 17px; color: #555;border-color: #ddd !important;vertical-align: middle;'>
+                                            {{staff_details.email}}</td>
+                                        <td
+                                            style='font-size: 17px; color: #555;border-color: #ddd !important;vertical-align: middle;'>
+                                            {{staff_details.phone}}</td>
+                                        <td
+                                            style='font-size: 17px; color: #555;border-color: #ddd !important;vertical-align: middle;'>
+                                            {% if staff_details.qr_code_png is not none %}
+                                            <img src="uploads/QRCode/temp/{{staff_details.qr_code_png}}" style='height: 115px' alt="Logo">
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </td>
+                    </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+        {% endfor %}
+    </div>
+</body>
+</html>
+<!-- </div>
+
+        </div>
+    </div>
+</div> -->
+<!-- end row -->
+
+{% endblock content %}
+

@@ -239,7 +239,7 @@ def convention_edit(request,param1):
 @login_required() 
 def vendor_detail_print(request):
     if request.method=='POST':
-        result=VendorRegistration.vendor_details_print(request)
+        result=vendor_obj.vendor_details_print(request)
     else:
         result=''
     greeting = {}
@@ -291,7 +291,7 @@ def render_to_pdf(template_src, context_dict={}):
 def vendor_pdf(request):
     greeting={}
     greeting['title'] = 'Exhibitor Registration Detail'
-    result=VendorRegistration.vendor_details_print(request)
+    result=vendor_obj.vendor_details_print(request)
     greeting['datas'] = result
     return render_to_pdf('vendor_detail_pdf.html',greeting)
     

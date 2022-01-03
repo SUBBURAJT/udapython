@@ -162,8 +162,7 @@
     $(document).ready(function () {
         function onScanSuccess(decodedText, decodedResult) {
             // Handle on success condition with the decoded text or result.
-            console.log(`Scan result: ${decodedText}`, decodedResult);
-            urlqr="http://127.0.0.1:8000/qr_search_code/vmKp837y3a/hfw-vmKp837y3a/"
+            //console.log(`Scan result: ${decodedText}`, decodedResult);
             $.ajax({
                     headers: {'X-CSRFToken': '{{ csrf_token }}'},
                     url :decodedText, 
