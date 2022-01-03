@@ -24,7 +24,9 @@ from django.contrib.staticfiles import finders
 from django.conf import settings
 from hashids import Hashids
 import os
-
+conobj=convention_transactions()
+spobj=spring_transactions()
+fallobj=fall_transactions()
 con_trans_redirect = '/convention_transaction'
 
 @register.filter
@@ -38,7 +40,7 @@ def get_str(value):
 def spring_transaction(request):
     module=request.POST.get('module')
     if module is not None and module=="export":
-        return spring_transactions.export_transaction()
+        return spobj.export_transaction()
 
     greeting = {}
     con_types=Convention_types.objects.filter(status=1,form_status=2).order_by('id')
@@ -52,20 +54,20 @@ def spring_transaction(request):
 def spring_transaction_operations(request):
     module=request.POST.get('module')
     if module and module=='list':
-        result=spring_transactions.list_spring_transactions(request)
+        result=spobj.list_spring_transactions(request)
         return JsonResponse(result, status = 200)
     elif module and module=='delete':
-        result=spring_transactions.delete_spring_transactions(request)
+        result=spobj.delete_spring_transactions(request)
         return JsonResponse(result, status = 200)
     elif module and module=='archive':
-        result=spring_transactions.archive_spring_transactions(request)
+        result=spobj.archive_spring_transactions(request)
         return JsonResponse(result, status = 200)
 
 @login_required()
 def convention_transaction(request):
     module=request.POST.get('module')
     if module is not None and module=="export":
-        return convention_transactions.export_transaction()
+        return conobj.export_transaction()
         
     greeting = {}
     con_types=Convention_types.objects.filter(status=1,form_status=1).order_by('id')
@@ -78,7 +80,6 @@ def convention_transaction(request):
 
 def convention_transaction_operations(request):
     module=request.POST.get('module')
-    conobj=convention_transactions()
     if module and module=='list':
         result=conobj.list_convention_transactions(request)
         return JsonResponse(result, status = 200)
@@ -93,7 +94,7 @@ def convention_transaction_operations(request):
 def fall_transaction(request):
     module=request.POST.get('module')
     if module is not None and module=="export":
-        return fall_transactions.export_transaction()
+        return fallobj.export_transaction()
         
     greeting = {}
     con_types=Convention_types.objects.filter(status=1,form_status=3).order_by('id')
@@ -107,13 +108,13 @@ def fall_transaction(request):
 def fall_transaction_operations(request):
     module=request.POST.get('module')
     if module and module=='list':
-        result=fall_transactions.list_fall_transactions(request)
+        result=fallobj.list_fall_transactions(request)
         return JsonResponse(result, status = 200)
     elif module and module=='delete':
-        result=fall_transactions.delete_fall_transactions(request)
+        result=fallobj.delete_fall_transactions(request)
         return JsonResponse(result, status = 200)
     elif module and module=='archive':
-        result=fall_transactions.archive_fall_transactions(request)
+        result=fallobj.archive_fall_transactions(request)
         return JsonResponse(result, status = 200)
 
 @login_required()

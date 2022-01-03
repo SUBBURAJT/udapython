@@ -27,6 +27,8 @@ reg_succ_msg = "Registered Successfully"
 update_succ_msg = "Updated Successfully"
 reg_err_msg = "Someting went to wrong! Please Try Again"
 vendor_obj = VendorRegistration()
+con_obj = ConventionRegistration()
+sp_obj = SpringRegistration()
 
 @register.filter
 def get_range(value):
@@ -96,9 +98,9 @@ def spring_registration(request):
     greeting['title'] = 'Spring Registration' 
 
     today=dt.date.today()
-    greeting['convention'] = SpringRegistration.get_convention(today)
+    greeting['convention'] = sp_obj.get_convention(today)
     if request.is_ajax and request.method=='POST':
-        spr_form=SpringRegistration.saveRegistration(request)
+        spr_form=sp_obj.saveRegistration(request)
         if spr_form == 1:
             error = 0
             msg=reg_succ_msg
@@ -114,7 +116,7 @@ def convention_registration(request):
     greeting = {}
     greeting['pageview'] = "Dashboard"
     greeting['title'] = 'Convention Registration'
-    con_obj = ConventionRegistration()
+    
 
     # get convention type
     today = dt.date.today() 
@@ -214,18 +216,18 @@ def convention_edit(request,param1):
     decoded_id = hashids.decode(param1) 
     if decoded_id:
         hand_id = decoded_id[0]
-        handon_details = ConventionRegistration.get_form(hand_id)
+        handon_details = con_obj.get_form(hand_id)
         greeting['handon_details'] = handon_details
         if len(handon_details)==0:
             return redirect('convention_transaction')
 
     today = dt.date.today() 
-    greeting['convention'] = ConventionRegistration.get_convention(today)
-    greeting['workshops'] = ConventionRegistration.get_worshop()
-    greeting['workshops_cnt'] = len(ConventionRegistration.get_worshop())  
+    greeting['convention'] = con_obj.get_convention(today)
+    greeting['workshops'] = con_obj.get_worshop()
+    greeting['workshops_cnt'] = len(con_obj.get_worshop())  
 
     if request.is_ajax and request.method=='POST':
-        save_form = ConventionRegistration.update_form(request,hand_id)
+        save_form = con_obj.update_form(request,hand_id)
         if save_form == 1:
             error = 0
             msg=update_succ_msg
