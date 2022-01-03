@@ -26,8 +26,6 @@ from hashids import Hashids
 import os
 
 con_trans_redirect = '/convention_transaction'
-sp_obj = spring_transactions()
-
 
 @register.filter
 def get_range(value):
@@ -40,7 +38,7 @@ def get_str(value):
 def spring_transaction(request):
     module=request.POST.get('module')
     if module is not None and module=="export":
-        return sp_obj.export_transaction()
+        return spring_transactions.export_transaction()
 
     greeting = {}
     con_types=Convention_types.objects.filter(status=1,form_status=2).order_by('id')
@@ -54,13 +52,13 @@ def spring_transaction(request):
 def spring_transaction_operations(request):
     module=request.POST.get('module')
     if module and module=='list':
-        result=sp_obj.list_spring_transactions(request)
+        result=spring_transactions.list_spring_transactions(request)
         return JsonResponse(result, status = 200)
     elif module and module=='delete':
-        result=sp_obj.delete_spring_transactions(request)
+        result=spring_transactions.delete_spring_transactions(request)
         return JsonResponse(result, status = 200)
     elif module and module=='archive':
-        result=sp_obj.archive_spring_transactions(request)
+        result=spring_transactions.archive_spring_transactions(request)
         return JsonResponse(result, status = 200)
 
 @login_required()

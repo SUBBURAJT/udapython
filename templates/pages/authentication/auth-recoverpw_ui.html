@@ -48,34 +48,20 @@
                                                 <div class="alert alert-success mb-4" role="alert">
                                                     Enter your Email and instructions will be sent to you!
                                                 </div>
-                                                <div class="alert alert-success mb-4" role="alert" id="succ_msg" style="display: none;">
-                                                    Message has been sent successfully!
-                                                </div>
-                                                {% if messages %}
-                                                {% for message in messages %}
-                                                    <div class="alert {{ message.tags }} mb-4" id="link_exp" role="alert">
+                                                <form action="" method="POST" enctype="multipart/form-data">
+                                                    {% csrf_token %}
+                                                    {% for message in messages %}
+                                                    <div class="alert {{ message.tags }} mb-4" role="alert">
                                                         <strong>{{ message }}</strong>
                                                     </div>
-                                                {% endfor %}
-                                                {% endif %}
-                                                <form action="" id="reset_pass" method="POST" enctype="multipart/form-data">
-                                                    {% csrf_token %}
+                                                    {% endfor %}       
                                                     <div class="auth-form-group-custom mb-4">
                                                         <i class="ri-mail-line auti-custom-input-icon"></i>
-                                                        <div id="div_id_email" class="form-group">
-                                                            <label for="user_email" class=" requiredField">
-                                                                Email<span class="asteriskField">*</span>
-                                                            </label>
-                                                            <div class="">
-                                                                <input type="text" name="email" placeholder="Enter your email" id="user_email" class="form-control emailinput form-control" maxlength="50">
-                                                                <span id="hint_id_email" class="form-text" style="color: #ff3d60;""></span>
-                                                                <input type="hidden" name="module" value="send_mail">
-                                                            </div>
-                                                        </div>
+                                                        {{form.email|as_crispy_field}}
                                                     </div>
 
                                                     <div class="mt-4 text-center">
-                                                        <button class="btn btn-primary w-md waves-effect waves-light" type="submit" id="reset_send">Reset</button>
+                                                        <button class="btn btn-primary w-md waves-effect waves-light" type="submit">Reset</button>
                                                     </div>
                                                 </form>
                                             </div>
@@ -112,56 +98,3 @@
 
     </body>
 </html>
-<script>
-    $("#user_email").change(function(){
-        if($(this).val()==''){
-            $("#hint_id_email").prop("display","block");
-            $("#hint_id_email").html("Email is Required");
-        }
-        else{
-            $("#hint_id_email").prop("display","none");
-            $("#hint_id_email").html("");
-        }
-    });
-    $(document).ready(function() {
-        setTimeout(function() {
-            $("#link_exp").css("display", 'none');
-        }, 2000);
-    });
-    $("#reset_pass").submit(function(e){
-        e.preventDefault();
-        e.stopPropagation();
-        var email=$("#user_email").val()
-        var datas = new FormData(this);
-        if(email!=''){
-            $("#reset_send").prop("disabled",true)
-            $.ajax({
-                url: "{% url 'reset_pass' %}",
-                type: "POST",
-                data: datas,
-                dataType: 'json',
-                contentType: false,
-                cache: false,
-                processData: false,
-                success: function(data) {
-                    $("#reset_send").prop("disabled",false)
-                    if(data['err']==''){
-                        $("#succ_msg").css("display","block");
-                        setTimeout(function() {
-                            $("#succ_msg").css("display", 'none');
-                        }, 2000);
-                    }
-                    else{
-                        $("#hint_id_email").prop("display","block");
-                        $("#hint_id_email").html(data['err']);
-                    }
-                },
-                error: function() {}
-            }); 
-        }
-        else{
-            $("#hint_id_email").prop("display","block");
-            $("#hint_id_email").html("Email is Required");
-        }
-    });
-</script>

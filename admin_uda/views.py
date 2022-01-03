@@ -13,7 +13,7 @@ from django.conf import settings
 from django.core import serializers
 
 from uda.settings import DEFAULT_FROM_EMAIL
-from .models import Send_Sms,Send_Mail,Users
+from .models import *
 from django.contrib import messages
 import datetime
 import csv
@@ -233,13 +233,13 @@ def message_center_operations(request):
     if module and module=='list':
         result=obmessage.list_message_center(request)
         return JsonResponse(result, status = 200)
-    elif module and module=='typeofmem':
+    if module and module=='typeofmem':
         result=obmessage.type_of_members(request)
         return JsonResponse({"option":result}, status = 200)
-    elif module and module=='memnames':
+    if module and module=='memnames':
         result=obmessage.member_names(request)
         return JsonResponse({"option":result}, status = 200)
-    elif module and module=='add_message':
+    if module and module=='add_message':
         err=''
         msg=''
         result=obmessage.add_messages(request)
@@ -251,7 +251,7 @@ def message_center_operations(request):
     elif module and module=='delete':
         result=obmessage.delete_message(request)
         return JsonResponse(result, status = 200)
-    elif module and module=='view_msg':
+    if module and module=='view_msg':
         result=obmessage.view_msgs(request)
         return JsonResponse(result, status = 200)
 

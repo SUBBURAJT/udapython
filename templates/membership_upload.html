@@ -291,12 +291,12 @@
                                     return array.filter(x => x !== '')
                                 };
                                 var newdata=removeNull(datas)
-                                console.log(newdata)
                                 var tabele_datas='<div class="table-responsive">'
                                 tabele_datas+='<table class="table table-centered datatable responsive nowrap" data-bs-page-length="5" style="border-collapse: collapse; border-spacing: 0; width: 100%;">'
                                     for(let count=0;count<newdata.length;count++){
                                         if(datas[count]!=''){
-                                                const cell_data=newdata[count].split(',')
+                                            const cell_data=newdata[count].split(',')
+                                            
                                                 arr = cell_data.filter(function(item) {
                                                 return item !== "\n";
                                                 }).map(function(item) {
@@ -304,16 +304,34 @@
                                                 });
                                                 const allEmpty = arr => arr.every(e => e == "")
                                             if(allEmpty(arr)!=true){
-                                                tabele_datas+='<tr>'
-                                                    for (var index=0;index<cell_data.length;index++){
-                                                        if(count==0){
-                                                            tabele_datas+='<th>'+cell_data[index]+'</th>'
+                                                if(cell_data.length==21){
+                                                    tabele_datas+='<tr>'
+                                                        for (var index=0;index<21;index++){
+                                                            if(count==0){
+                                                                tabele_datas+='<th>'+cell_data[index]+'</th>'
+                                                            }
+                                                            else{
+                                                                if(cell_data[index]!=undefined){
+                                                                    dt=cell_data[index].replace(/\\n/g, '').replace (/"/g,'')
+                                                                }
+                                                                else{
+                                                                    dt=''
+                                                                }
+                                                                tabele_datas+='<td>'+dt+'</td>'
+                                                            }
                                                         }
-                                                        else{
-                                                            tabele_datas+='<td>'+cell_data[index].replace(/\\n/g, '').replace (/"/g,'')+'</td>'
-                                                        }
-                                                    }
-                                                tabele_datas+='</tr>'
+                                                    tabele_datas+='</tr>'
+                                                }
+                                                else{
+                                                    swal.fire({
+                                                        title: 'Error',
+                                                        text: 'Please Upload a Correct row and columns',
+                                                        icon: 'error',
+                                                        confirmButtonColor: '#3085d6',
+                                                        confirmButtonText: 'Ok'
+                                                    });
+                                                    return false;
+                                                }
                                             }
                                         }
                                     }
