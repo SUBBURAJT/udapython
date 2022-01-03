@@ -13,6 +13,7 @@ urlpatterns = [
     path('recover-password',authViews.RecoverPasswordView.as_view(),name='auth-recoverpw'),# Auth-Recover-Password
     path('logout',authViews.logout,name ='auth-logout'),# Logout
     path('lock-screen',authViews.LockScreenView.as_view(),name='auth-lock-screen'),# Auth-Lock-Screen
+    path('reset-password/<str:rands>/<str:email>',authViews.ResetPassword.as_view(),name='auth-resetpw'),# Auth-Recover-Password
 
     #UI pages 
     path('', views.dashboard,name='dashboard'),
@@ -81,4 +82,7 @@ urlpatterns = [
     path('convention_edit/<str:param1>/', registrationViews.convention_edit,name="convention_edit"),
     path('qr_search/', views.qr_search,name="qr_search"),
     path('qr_search_code/<str:ids>/<str:types>/', views.qrcode_search,name="qr_search_code"),
+    path('reset_pass_mail/', views.reset_pass,name="reset_pass"),
+    path('vendor_detail_print/', registrationViews.vendor_detail_print,name="vendor_detail_print"),
+    path('vendor_detail_pdf/', registrationViews.vendor_pdf,name="vendor_detail_pdf"),
 ]

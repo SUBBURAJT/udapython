@@ -3,6 +3,7 @@ import datetime as dt
 from django.db.models import Q
 from hashids import Hashids
 
+
 class VendorRegistration():
     date_format = '%m/%d/%Y'
     date_format_db = '%Y-%m-%d'
@@ -79,7 +80,7 @@ class VendorRegistration():
                                             <li><a href="/vendor_edit/'''+ vendor_id +'''" class="text-dark"><span
                                                         class='avatar avatar-xs brround bg-green-transparent'><i
                                                             class=' fas fa-pencil-alt'></i></span> Edit</a></li>
-                                            <li><a class="text-dark"><span
+                                            <li><a class="text-dark qrcode_single" data-id="'''+ vendor_id +'''"><span
                                                         class='avatar avatar-xs brround bg-brown-transparent'><i
                                                             class='fa fa-print'></i></span> Print QR Code</a></li>
                                             <li><a class="text-dark"><span
@@ -92,7 +93,7 @@ class VendorRegistration():
                                                             class='fa fa-trash'></i></span> Delete</a></li>
                                         </ul>
                                     </div>'''
-            nested_data.append('<div class="form-check mb-0"><input class="form-check-input" type="checkbox" id="formCheck2"></div>')
+            nested_data.append('<div class="form-check mb-0"><input class="form-check-input child_check" type="checkbox" id="formCheck2" name="vendor_ids" value="'+vendor_id+'"></div>')
             nested_data.append(name_sec)
             nested_data.append(date_sec)
             nested_data.append(vendor.company_name)
@@ -131,3 +132,23 @@ class VendorRegistration():
         else:
             result=0
         return result
+
+    def vendor_details_print(request):
+        get_ids=request.POST.getlist('vendor_ids')
+        get_method=request.POST.get('method')
+        vendor_ids=[i for i in get_ids if i]
+        datas={}
+        for data in vendor_ids:
+            if get_method=='view_pdf':
+                data_id=data
+            else:
+                hashids = Hashids(salt='UDAHEALTHDENTALSALT',min_length=10)
+                hashid = hashids.decode(data)
+                data_id=hashid[0] 
+            row=Vendor_registration_form.objects.filter(id=data_id).values()[0]
+            staffs=Vendor_employees.objects.filter(vendor_id=data_id).values().order_by('id')
+            index=len(datas)
+            datas[index]={}
+            datas[index]['details']=row
+            datas[index]['staffs']=staffs
+        return datas

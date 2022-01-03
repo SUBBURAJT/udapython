@@ -16,6 +16,9 @@ from django.contrib import messages
 from django.contrib.auth.hashers import make_password,check_password
 from .models import Users
 
+from admin_uda.views import reset_pass
+
+
 
 # Login
 class LoginView(View):
@@ -73,7 +76,32 @@ class RecoverPasswordView(View):
         if 'username' in request.session:
             return redirect('dashboard')
         else:
-            return render(request, self.template_name, {'form': RecoverPasswordForm})
+            greeting = {}
+            greeting['pageview'] = ""
+            greeting['title'] = 'Forgot Password'
+            greeting['form'] = RecoverPasswordForm
+            return render(request, self.template_name, greeting)
+
+# Recover Password
+class ResetPassword(View):
+    template_name = 'pages/authentication/auth-resetpassword.html'
+    def get(self, request, *args, **kwargs):
+        if 'username' in request.session:
+            return redirect('dashboard')
+        else:
+            get_rands=self.kwargs['rands']
+            get_email=self.kwargs['email']
+            row=Users.objects.filter(email=get_email,reset_pass=get_rands,status=1).exists()
+            if row:
+                rows=Users.objects.filter(email=get_email,reset_pass=get_rands,status=1).values('id')[0]
+                greeting = {}
+                greeting['pageview'] = ""
+                greeting['title'] = 'Forgot Password'
+                greeting['hid_id'] = rows['id']
+                return render(request, self.template_name,greeting)
+            else:
+                messages.warning(request, 'Link was expiry')
+                return redirect('auth-recoverpw')
 
 # Lock-Screen
 class LockScreenView(LoginView,View):

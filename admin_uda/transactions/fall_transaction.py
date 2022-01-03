@@ -1,12 +1,12 @@
 from django.db.models.aggregates import Count
 from django.http import HttpResponse
 from django.db.models import Q , FilteredRelation
-from admin_uda.models import *
+from admin_uda.models import Handon_form
 import datetime as dt
 import csv 
 from hashids import Hashids
 class fall_transactions():
-    def list_fall_transactions(request):
+    def list_fall_transactions(self,request):
         hav=''
         condt='A.status!=2 AND A.form=1 AND A.form_status=3'
         #filters
@@ -298,7 +298,7 @@ class fall_transactions():
         res['data']=nd
         return res
 
-    def get_ip(request):
+    def get_ip(self,request):
         x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
         if x_forwarded_for:
             ip = x_forwarded_for.split(',')[0]
@@ -306,13 +306,13 @@ class fall_transactions():
             ip = request.META.get('REMOTE_ADDR')
         return ip
 
-    def delete_fall_transactions(request):
+    def delete_fall_transactions(self,request):
         ids=request.POST.get('id')
         form=Handon_form.objects.get(id=ids)
         form.status=2
         form.deleted_by = 0
         form.deleted_on = dt.datetime.now()
-        form.deleted_ip = fall_transactions.get_ip(request)
+        form.deleted_ip = self.get_ip(request)
         form.save()
         if form.id:
             res=1
@@ -321,14 +321,14 @@ class fall_transactions():
 
         return {"res":res}
 
-    def archive_fall_transactions(request):
+    def archive_fall_transactions(self,request):
         ids=request.POST.get('id')
         arch=request.POST.get('arch')
         form=Handon_form.objects.get(id=ids)
         form.archive_id=arch
         form.updated_by = 0
         form.updated_on = dt.datetime.now()
-        form.updated_ip = fall_transactions.get_ip(request)
+        form.updated_ip = self.get_ip(request)
         form.save()
         if form.id:
             res=1
@@ -336,7 +336,7 @@ class fall_transactions():
             res=0
 
         return {"res":res}
-    def export_transaction():
+    def export_transaction(self):
         res=HttpResponse(content_type='text/csv')
         res['Content-Disposition']='attachment; filename="fall_transaction.csv"'
         writer=csv.writer(res)

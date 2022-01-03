@@ -13,7 +13,7 @@ from django.conf import settings
 from django.core import serializers
 
 from uda.settings import DEFAULT_FROM_EMAIL
-from .models import *
+from .models import Send_Sms,Send_Mail,Users
 from django.contrib import messages
 import datetime
 import csv
@@ -131,27 +131,26 @@ def message_center_ui(request):
 @login_required()
 def membership_upload(request):
     greeting = {}
-    datas=membership.list_membership()
+    obmem=membership()
+    datas=obmem.list_membership()
     greeting['pageview'] = "Dashboard"
     greeting['title'] = 'Membership Upload'
     greeting['data']=datas
     if request.is_ajax and request.method=='POST':
-        mem=membership.add_membership(request.FILES['file'])
+        mem=obmem.add_membership(request.FILES['file'])
         msg=''
         error=''
         if mem['err']:
             error=mem['err']
-
         if mem['Added_id']:
             t_r=str(mem['Added_id'])
             msg+='Total New records : '+ t_r + ' added successfully'+'<br>'
-
         if mem['exists_id']:
             if(len(mem['exists_id'])>0):
                 msg+='Already exists values are updated'+'<br>'
-
+        if mem['Added_id']==0 and len(mem['exists_id'])==0 and mem['err']=='':
+            error='Please Upload a Correct row and columns'
         return JsonResponse({"valid":True,"err":error,"msg":msg,"al":mem['exists_id']}, status = 200)
-    
     return render(request,'membership_upload.html',greeting)
 
 @login_required()
@@ -229,30 +228,31 @@ def convention_workshop_form(request):
 
 @login_required()
 def message_center_operations(request):
+    obmessage=message_centers()
     module=request.POST.get('module')
     if module and module=='list':
-        result=message_centers.list_message_center(request)
+        result=obmessage.list_message_center(request)
         return JsonResponse(result, status = 200)
-    if module and module=='typeofmem':
-        result=message_centers.type_of_members(request)
+    elif module and module=='typeofmem':
+        result=obmessage.type_of_members(request)
         return JsonResponse({"option":result}, status = 200)
-    if module and module=='memnames':
-        result=message_centers.member_names(request)
+    elif module and module=='memnames':
+        result=obmessage.member_names(request)
         return JsonResponse({"option":result}, status = 200)
-    if module and module=='add_message':
+    elif module and module=='add_message':
         err=''
         msg=''
-        result=message_centers.add_messages(request)
+        result=obmessage.add_messages(request)
         if result['error']:
             err=result['error']
         if result['msg']:
             msg=result['msg']
         return JsonResponse({"valid":True,"err":err,"msg":msg}, status = 200)
     elif module and module=='delete':
-        result=message_centers.delete_message(request)
+        result=obmessage.delete_message(request)
         return JsonResponse(result, status = 200)
-    if module and module=='view_msg':
-        result=message_centers.view_msgs(request)
+    elif module and module=='view_msg':
+        result=obmessage.view_msgs(request)
         return JsonResponse(result, status = 200)
 
     
@@ -509,7 +509,8 @@ def edit_profile(request):
 @login_required()
 def qr_search(request):
     if request.is_ajax and request.method=='POST':
-        result=qr_search_list.list_registered_name(request)
+        objqrsearch=qr_search_list()
+        result=objqrsearch.list_registered_name(request)
         return JsonResponse(result, status = 200)
     greeting = {}
     greeting['pageview'] = "Settings"
@@ -518,5 +519,20 @@ def qr_search(request):
 
 def qrcode_search(request,ids,types):
     if request.is_ajax and request.method=='GET':
-        result=qr_search_list.list_registered_name_qr(request,ids,types)
+        objqrsearchcode=qr_search_list()
+        result=objqrsearchcode.list_registered_name_qr(request,ids,types)
         return JsonResponse(result, status = 200)
+
+def reset_pass(request):
+    module=request.POST.get('module')
+    if module and module=='send_mail':
+        result=user_managements.reset_pass_mail(request)
+        return JsonResponse(result, status = 200)
+    if module and module=='reset_password':
+        result=user_managements.reset_password_submit(request)
+        if result['res']:
+            messages.success(request, "Your password has been reset successfully!")
+            return redirect('auth-login')
+        else:
+            messages.error(request, "Password reset failed!")
+            return redirect('auth-login')

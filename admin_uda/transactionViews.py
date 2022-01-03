@@ -26,6 +26,8 @@ from hashids import Hashids
 import os
 
 con_trans_redirect = '/convention_transaction'
+sp_obj = spring_transactions()
+
 
 @register.filter
 def get_range(value):
@@ -38,7 +40,7 @@ def get_str(value):
 def spring_transaction(request):
     module=request.POST.get('module')
     if module is not None and module=="export":
-        return spring_transactions.export_transaction()
+        return sp_obj.export_transaction()
 
     greeting = {}
     con_types=Convention_types.objects.filter(status=1,form_status=2).order_by('id')
@@ -52,13 +54,13 @@ def spring_transaction(request):
 def spring_transaction_operations(request):
     module=request.POST.get('module')
     if module and module=='list':
-        result=spring_transactions.list_spring_transactions(request)
+        result=sp_obj.list_spring_transactions(request)
         return JsonResponse(result, status = 200)
     elif module and module=='delete':
-        result=spring_transactions.delete_spring_transactions(request)
+        result=sp_obj.delete_spring_transactions(request)
         return JsonResponse(result, status = 200)
     elif module and module=='archive':
-        result=spring_transactions.archive_spring_transactions(request)
+        result=sp_obj.archive_spring_transactions(request)
         return JsonResponse(result, status = 200)
 
 @login_required()
@@ -136,7 +138,8 @@ def convention_detail(request,ids):
 
 @login_required()
 def convention_detail_idcard(request,ids):
-    dat=convention_id_card_details.id_card_details(request,ids)
+    objconid=convention_id_card_details()
+    dat=objconid.id_card_details(request,ids)
     if dat['ext']==1:
         return redirect(con_trans_redirect)
     greeting = {}
@@ -167,22 +170,22 @@ def link_callback(uri, rel):
                     result = list(os.path.realpath(path) for path in result)
                     path=result[0]
             else:
-                    sUrl = settings.STATIC_URL        # Typically /static/
-                    sRoot = settings.STATIC_ROOT      # Typically /home/userX/project_static/
-                    mUrl = settings.MEDIA_URL         # Typically /media/
-                    mRoot = settings.MEDIA_ROOT       # Typically /home/userX/project_static/media/
+                    surl = settings.STATIC_URL        # Typically /static/
+                    sroot = settings.STATIC_ROOT      # Typically /home/userX/project_static/
+                    murl = settings.MEDIA_URL         # Typically /media/
+                    mroot = settings.MEDIA_ROOT       # Typically /home/userX/project_static/media/
 
-                    if uri.startswith(mUrl):
-                            path = os.path.join(mRoot, uri.replace(mUrl, ""))
-                    elif uri.startswith(sUrl):
-                            path = os.path.join(sRoot, uri.replace(sUrl, ""))
+                    if uri.startswith(murl):
+                            path = os.path.join(mroot, uri.replace(murl, ""))
+                    elif uri.startswith(surl):
+                            path = os.path.join(sroot, uri.replace(surl, ""))
                     else:
                             return uri
 
             # make sure that file exists
             if not os.path.isfile(path):
                     raise Exception(
-                            'media URI must start with %s or %s' % (sUrl, mUrl)
+                            'media URI must start with %s or %s' % (surl, murl)
                     )
             return path
 def get_pdf(template_src, context_dict={}):
@@ -197,8 +200,9 @@ def get_pdf(template_src, context_dict={}):
 def transactions_pdf(request,ids):
     hashids = Hashids(salt='UDAHEALTHDENTALSALT',min_length=10)
     hashid = hashids.decode(ids) 
-    Tid=hashid[0]
-    dat=convention_details_pdf.pdf_transaction_details(Tid)
+    tid=hashid[0]
+    objconpdf=convention_details_pdf()
+    dat=objconpdf.pdf_transaction_details(tid)
     greeting = {}
     greeting['pageview'] = "Dashboard"
     if dat['input']['form_status'] and dat['input']['form_status']==1:
