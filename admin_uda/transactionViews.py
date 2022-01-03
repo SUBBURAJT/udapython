@@ -78,14 +78,15 @@ def convention_transaction(request):
 
 def convention_transaction_operations(request):
     module=request.POST.get('module')
+    conobj=convention_transactions()
     if module and module=='list':
-        result=convention_transactions.list_convention_transactions(request)
+        result=conobj.list_convention_transactions(request)
         return JsonResponse(result, status = 200)
     elif module and module=='delete':
-        result=convention_transactions.delete_convention_transactions(request)
+        result=conobj.delete_convention_transactions(request)
         return JsonResponse(result, status = 200)
     elif module and module=='archive':
-        result=convention_transactions.archive_convention_transactions(request)
+        result=conobj.archive_convention_transactions(request)
         return JsonResponse(result, status = 200)
 
 @login_required()
@@ -147,7 +148,8 @@ def convention_detail_idcard(request,ids):
     return render(request,'convention_id_card_print.html',greeting)
 
 def convention_id_card_print_bulk(request):
-    dat=convention_id_card_bulk_details.id_card_details_bulk(request)
+    objbulk=convention_id_card_bulk_details()
+    dat=objbulk.id_card_details_bulk(request)
     if dat['ext']==1:
         return redirect(con_trans_redirect)
     greeting = {}

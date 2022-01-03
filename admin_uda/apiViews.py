@@ -2,7 +2,7 @@
 from django.http import JsonResponse
 from django.contrib import auth
 from django.contrib.auth.hashers import check_password
-from .models import *
+from .models import Users
 from hashids import Hashids
 import random
 

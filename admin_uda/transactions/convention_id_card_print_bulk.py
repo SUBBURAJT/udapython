@@ -1,12 +1,8 @@
-import json
-from django.db.models.aggregates import Count
-from django.db.models import Q , FilteredRelation
 from admin_uda.models import *
 import datetime as dt
-from django_mysql.models import GroupConcat
 
-class convention_id_card_bulk_details():
-    def transformNameAndTitle(record):
+class convention_id_card_bulk_details:
+    def transform_name_title(self,record):
         res={}
         name=record['name'].strip().lower()
         title=record['title'].strip().upper()
@@ -29,59 +25,57 @@ class convention_id_card_bulk_details():
             res['name']=name
             res['title']=title
         return res
-    def id_card_details_bulk(request):
+    def id_card_details_bulk(self,request):
         ext=0
-        result=''
         result_print=''
         conventionidss=request.POST.getlist('name_tag_print')
-        inWorkShopArr = []
-        inConventionArr = []
-        coventionList=[]
-        workshopsList=[]
+        in_workshop_arr = []
+        in_convention_arr = []
+        covention_list=[]
+        workshops_list=[]
         data={}
         if conventionidss:
             check_data=Handon_form.objects.filter(form=1,id__in=conventionidss).exclude(status=2).exists()
             if check_data:
                 check_datas=Handon_form.objects.filter(form=1,id__in=conventionidss).exclude(status=2)
-                strCon=Convention_form_workshop.objects.filter(is_deleted=1,hand_id__in=conventionidss).values('work_id')
-                if strCon:
-                    for ids in strCon:
-                        inConventionArr.append(ids['work_id'])
-                strWor=Handon_form_workshop.objects.filter(is_deleted=1,hand_id__in=conventionidss).values('work_id')
-                if strWor:
-                    for ids in strWor:
-                        inWorkShopArr.append(ids['work_id'])
-                if inConventionArr:
-                    coventionList=Convention_types.objects.filter(status=1,id__in=inConventionArr).order_by('id')
-                if inWorkShopArr:
-                    workshopsList=Handon_workshop.objects.filter(status=1,id__in=inWorkShopArr).order_by('id')
-                if coventionList:
-                    for conven in coventionList:
-                        if conven.id in inConventionArr:
+                str_con=Convention_form_workshop.objects.filter(is_deleted=1,hand_id__in=conventionidss).values('work_id')
+                if str_con:
+                    for ids in str_con:
+                        in_convention_arr.append(ids['work_id'])
+                str_wor=Handon_form_workshop.objects.filter(is_deleted=1,hand_id__in=conventionidss).values('work_id')
+                if str_wor:
+                    for ids in str_wor:
+                        in_workshop_arr.append(ids['work_id'])
+                if in_convention_arr:
+                    covention_list=Convention_types.objects.filter(status=1,id__in=in_convention_arr).order_by('id')
+                if in_workshop_arr:
+                    workshops_list=Handon_workshop.objects.filter(status=1,id__in=in_workshop_arr).order_by('id')
+                if covention_list:
+                    for conven in covention_list:
+                        if conven.id in in_convention_arr:
                             subrows=Convention_form_workshop.objects.filter(is_deleted=1,hand_id__in=conventionidss,work_id=conven.id)
                             for sub in subrows:
                                 if sub.name!='':
                                     index=len(data)
                                     data[index]={}
                                     data[index]['id']=sub.hand_id
-                                    record=convention_id_card_bulk_details.transformNameAndTitle({"name":sub.name,'title':conven.name.replace("NAME", "")})
+                                    record=self.transform_name_title({"name":sub.name,'title':conven.name.replace("NAME", "")})
                                     data[index]['name']=record['name']
                                     data[index]['title']=record['title']
                                     add_count=Id_prints(con_type=2,ref_id=sub.id,printing_date_time=dt.datetime.now(),parent_id=sub.hand_id)
                                     add_count.save()
-                if workshopsList:
-                    for work in workshopsList:
+                if workshops_list:
+                    for work in workshops_list:
                         in_status=0
                         subrows=Handon_form_workshop.objects.filter(is_deleted=1,hand_id__in=conventionidss,work_id=work.id)
                         if subrows:
                             in_status=1
-                            in_qty=len(subrows)
                         if in_status:
                             for sub in subrows:
                                 index=len(data)
                                 data[index]={}
                                 data[index]['id']=sub.hand_id
-                                record=convention_id_card_bulk_details.transformNameAndTitle({"name":sub.name,'title':work.name})
+                                record=self.transform_name_title({"name":sub.name,'title':work.name})
                                 data[index]['name']=record['name']
                                 data[index]['title']=record['title']
                                 add_count=Id_prints(con_type=1,ref_id=sub.id,printing_date_time=dt.datetime.now(),parent_id=sub.hand_id)

@@ -4,7 +4,7 @@ from django.db.models import Q
 from hashids import Hashids
 
 
-class VendorRegistration():
+class VendorRegistration:
     date_format = '%m/%d/%Y'
     date_format_db = '%Y-%m-%d'
     def check_email(self,request):  
@@ -133,7 +133,7 @@ class VendorRegistration():
             result=0
         return result
 
-    def vendor_details_print(request):
+    def vendor_details_print(self,request):
         get_ids=request.POST.getlist('vendor_ids')
         get_method=request.POST.get('method')
         vendor_ids=[i for i in get_ids if i]
