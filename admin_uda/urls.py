@@ -5,6 +5,7 @@ from admin_uda import views
 from admin_uda import registrationViews
 from admin_uda import transactionViews
 from admin_uda import authViews
+from admin_uda import apiViews
 
 urlpatterns = [
 
@@ -85,4 +86,7 @@ urlpatterns = [
     path('reset_pass_mail/', views.reset_pass,name="reset_pass"),
     path('vendor_detail_print/', registrationViews.vendor_detail_print,name="vendor_detail_print"),
     path('vendor_detail_pdf/', registrationViews.vendor_pdf,name="vendor_detail_pdf"),
+
+    #API
+    path('api',apiViews.login_check,name='api')
 ]

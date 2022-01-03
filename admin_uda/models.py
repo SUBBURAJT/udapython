@@ -67,6 +67,7 @@ class Users(models.Model):
     auth_user_id=models.IntegerField(default=0)
     role = models.CharField(max_length=20,null=True)
     status = models.SmallIntegerField(default=1)
+    api_random_key = models.CharField(max_length=250,null=True)
     created_by = models.IntegerField(null=True)
     created_at = models.DateTimeField(editable=True,null=True)
     created_ip = models.CharField(max_length=50,null=True)
