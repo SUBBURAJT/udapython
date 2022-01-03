@@ -1,13 +1,16 @@
 from django.db.models.aggregates import Count
 from django.db.models import Q , FilteredRelation
-from admin_uda.models import *
+from admin_uda.models import Handon_form
 import datetime as dt
 from django.http import HttpResponse
 import csv
 from hashids import Hashids
 
-class spring_transactions():
-    def list_spring_transactions(request):
+class spring_transactions:
+    date_format = '%m-%d-%Y'
+    date_format_input = '%m/%d/%Y'
+    date_format_db = '%Y-%m-%d'
+    def list_spring_transactions(self,request):
         hav=''
         condt='A.status!=2 AND A.form=1 AND A.form_status=2'
         #filters
@@ -20,11 +23,10 @@ class spring_transactions():
             condt+= " AND A.archive_id=0 "
 
         if flt_sdate and flt_edate:
-            ed_split=flt_sdate.split('/')
-            flt_start_date=dt.date(int(ed_split[2]),int(ed_split[0]),int(ed_split[1]))
-            ed_split_end=flt_edate.split('/')
-            flt_end_date=dt.date(int(ed_split_end[2]),int(ed_split_end[0]),int(ed_split_end[1]))
-            condt+=" AND DATE(A.created_on) >= '"+str(flt_start_date)+"' AND DATE(A.created_on) <= '"+str(flt_end_date)+"'"
+            flt1_strdate1 = dt.datetime.strptime(str(flt_sdate),self.date_format_input).strftime(self.date_format_db)
+            flt1_endate1 = dt.datetime.strptime(str(flt_edate),self.date_format_input).strftime(self.date_format_db)
+            condt+=" AND DATE(A.created_on) >= '"+str(flt1_strdate1)+"' AND DATE(A.created_on) <= '"+str(flt1_endate1)+"'"
+            
 
         singlenamesearch=request.POST.get('singlenamesearch')
         if singlenamesearch and singlenamesearch!='all':
@@ -124,11 +126,9 @@ class spring_transactions():
         ad_start_date=request.POST.get('ad_start_date')
         ad_end_date=request.POST.get('ad_end_date')
         if ad_start_date and ad_end_date:
-            ed_split=ad_start_date.split('/')
-            flt_start_date=dt.date(int(ed_split[2]),int(ed_split[0]),int(ed_split[1]))
-            ed_split_end=ad_end_date.split('/')
-            flt_end_date=dt.date(int(ed_split_end[2]),int(ed_split_end[0]),int(ed_split_end[1]))
-            condt+=" AND DATE(A.created_on) >= '"+str(flt_start_date)+"' AND DATE(A.created_on) <= '"+str(flt_end_date)+"'"
+            flt_strdate = dt.datetime.strptime(str(ad_start_date),self.date_format_input).strftime(self.date_format_db)
+            flt_endate = dt.datetime.strptime(str(ad_end_date),self.date_format_input).strftime(self.date_format_db)
+            condt+=" AND DATE(A.created_on) >= '"+str(flt_strdate)+"' AND DATE(A.created_on) <= '"+str(flt_endate)+"'"
 
         tr_online=request.POST.get('adv_on')
         tr_offline=request.POST.get('adv_off')
@@ -168,7 +168,7 @@ class spring_transactions():
         nd=[]
         res={}
         for datas in data_new:
-            nestedData=[]
+            nested_data=[]
             hashids = Hashids(salt='UDAHEALTHDENTALSALT',min_length=10)
             hashid = hashids.encode(datas.Id) 
             off_on_status=datas.off_transaction_status
@@ -197,9 +197,7 @@ class spring_transactions():
             transaction_status=datas.transaction_status
             tran_os=datas.os
             tran_browser=datas.browser
-            ed_split=str(sp_date).split('-')
-            t_date=dt.datetime(int(ed_split[0]),int(ed_split[1]),int(ed_split[2]))
-            t_date_f="<span class="+clname+">"+t_date.strftime("%m-%d-%Y")+"</span>"
+            t_date_f = "<span class="+clname+">"+dt.datetime.strptime(str(sp_date),self.date_format_db).strftime(self.date_format)+"</span>"
             ct_names=''
             hw_names=''
             if select_ct1!='':
@@ -281,14 +279,14 @@ class spring_transactions():
                                                 class='fa fa-trash'></i></span> Delete</a></li>
                             </ul>
                         </div>"""
-            nestedData.append(t_date_f)
-            nestedData.append(name_data)
-            nestedData.append(practice_info)
-            nestedData.append(transactions)
-            nestedData.append(transaction_stattuses)
-            nestedData.append(browswer_log)
-            nestedData.append(actions)
-            nd.append(nestedData)
+            nested_data.append(t_date_f)
+            nested_data.append(name_data)
+            nested_data.append(practice_info)
+            nested_data.append(transactions)
+            nested_data.append(transaction_stattuses)
+            nested_data.append(browswer_log)
+            nested_data.append(actions)
+            nd.append(nested_data)
 
         
         res['draw']=request.POST.get('draw')
@@ -297,7 +295,7 @@ class spring_transactions():
         res['data']=nd
         return res
 
-    def get_ip(request):
+    def get_ip(self,request):
         x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
         if x_forwarded_for:
             ip = x_forwarded_for.split(',')[0]
@@ -305,13 +303,13 @@ class spring_transactions():
             ip = request.META.get('REMOTE_ADDR')
         return ip
 
-    def delete_spring_transactions(request):
+    def delete_spring_transactions(self,request):
         ids=request.POST.get('id')
         form=Handon_form.objects.get(id=ids)
         form.status=2
         form.deleted_by = request.session['user_id']
         form.deleted_on = dt.datetime.now()
-        form.deleted_ip = spring_transactions.get_ip(request)
+        form.deleted_ip = self.get_ip(request)
         form.save()
         if form.id:
             res=1
@@ -320,14 +318,14 @@ class spring_transactions():
 
         return {"res":res}
 
-    def archive_spring_transactions(request):
+    def archive_spring_transactions(self,request):
         ids=request.POST.get('id')
         arch=request.POST.get('arch')
         form=Handon_form.objects.get(id=ids)
         form.archive_id=arch
         form.updated_by = request.session['user_id']
         form.updated_on = dt.datetime.now()
-        form.updated_ip = spring_transactions.get_ip(request)
+        form.updated_ip = self.get_ip(request)
         form.save()
         if form.id:
             res=1
@@ -337,7 +335,7 @@ class spring_transactions():
         return {"res":res}
 
 
-    def export_transaction():
+    def export_transaction(self):
         res=HttpResponse(content_type='text/csv')
         res['Content-Disposition']='attachment; filename="spring_transaction.csv"'
         writer=csv.writer(res)
@@ -361,7 +359,6 @@ class spring_transactions():
             else:
                 off_transaction_id=datas.transaction_ref
 
-            
             transaction_status=datas.transaction_status
             if transaction_status is None:
                 transaction_status='Pending'
@@ -373,12 +370,7 @@ class spring_transactions():
             os_bro=tran_browser
             if tran_os is not None:
                 os_bro=tran_browser+' ('+tran_os+')'
-
-            ed_split=str(sp_date).split('-')
-            t_date=dt.datetime(int(ed_split[0]),int(ed_split[1]),int(ed_split[2]))
-            t_date_f=t_date.strftime("%m-%d-%Y")
-            tr_da=str(tran_cdate).split('-')
-            tran_date=dt.datetime(int(tr_da[0]),int(tr_da[1]),int(tr_da[2]))
-            tran_date_f=tran_date.strftime("%m-%d-%Y")
+            t_date_f=dt.datetime.strptime(str(sp_date),self.date_format_db).strftime(self.date_format)
+            tran_date_f=dt.datetime.strptime(str(tran_cdate),self.date_format_db).strftime(self.date_format)
             writer.writerow([t_date_f,name+' '+last_name,practice_name,email,phone,off_transaction_id,tran_date_f,payment_mode,payment_details,memo,amount,transaction_status,os_bro])
         return res

@@ -5,7 +5,10 @@ from admin_uda.models import Handon_form
 import datetime as dt
 import csv 
 from hashids import Hashids
-class convention_transactions():
+class convention_transactions:
+    date_format = '%m-%d-%Y'
+    date_format_input = '%m/%d/%Y'
+    date_format_db = '%Y-%m-%d'
     def list_convention_transactions(self,request):
         hav=''
         condt='A.status!=2 AND A.form=1 AND A.form_status IN (1,3)'
@@ -19,11 +22,9 @@ class convention_transactions():
             condt+= " AND A.archive_id=0 "
 
         if flt_sdate and flt_edate:
-            ed_split=flt_sdate.split('/')
-            fltr_start_date=dt.date(int(ed_split[2]),int(ed_split[0]),int(ed_split[1]))
-            ed_split_end=flt_edate.split('/')
-            fltr_end_date=dt.date(int(ed_split_end[2]),int(ed_split_end[0]),int(ed_split_end[1]))
-            condt+=" AND DATE(A.created_on) >= '"+str(fltr_start_date)+"' AND DATE(A.created_on) <= '"+str(fltr_end_date)+"'"
+            flt1_strdate = dt.datetime.strptime(str(flt_sdate),self.date_format_input).strftime(self.date_format_db)
+            flt1_endate = dt.datetime.strptime(str(flt_edate),self.date_format_input).strftime(self.date_format_db)
+            condt+=" AND DATE(A.created_on) >= '"+str(flt1_strdate)+"' AND DATE(A.created_on) <= '"+str(flt1_endate)+"'"
 
         singlenamesearch=request.POST.get('singlenamesearch')
         if singlenamesearch and singlenamesearch!='all':
@@ -129,11 +130,9 @@ class convention_transactions():
         start_date=request.POST.get('start_date')
         end_date=request.POST.get('end_date')
         if start_date and end_date:
-            ed_split=start_date.split('/')
-            start_date=dt.date(int(ed_split[2]),int(ed_split[0]),int(ed_split[1]))
-            ed_split_end=end_date.split('/')
-            end_date=dt.date(int(ed_split_end[2]),int(ed_split_end[0]),int(ed_split_end[1]))
-            condt+=" AND DATE(A.created_on) >= '"+str(start_date)+"' AND DATE(A.created_on) <= '"+str(end_date)+"'"
+            flt_strdate = dt.datetime.strptime(str(start_date),self.date_format_input).strftime(self.date_format_db)
+            flt_endate = dt.datetime.strptime(str(end_date),self.date_format_input).strftime(self.date_format_db)
+            condt+=" AND DATE(A.created_on) >= '"+str(flt_strdate)+"' AND DATE(A.created_on) <= '"+str(flt_endate)+"'"
 
         tr_online=request.POST.get('adv_on')
         tr_offline=request.POST.get('adv_off')
@@ -175,7 +174,7 @@ class convention_transactions():
         res={}
        
         for datas in data_new:
-            nestedData=[]
+            nested_data=[]
             off_on_status=datas.off_transaction_status
             if off_on_status==2:
                 clname="offstatus"
@@ -203,9 +202,7 @@ class convention_transactions():
             transaction_status=datas.transaction_status
             tran_os=datas.os
             tran_browser=datas.browser
-            ed_split=str(sp_date).split('-')
-            t_date=dt.datetime(int(ed_split[0]),int(ed_split[1]),int(ed_split[2]))
-            t_date_f="<span class="+clname+">"+t_date.strftime("%m-%d-%Y")+"</span>"
+            t_date_f = "<span class="+clname+">"+dt.datetime.strptime(str(sp_date),self.date_format_db).strftime(self.date_format)+"</span>"
             ct_names=''
             hw_names=''
             if select_ct1!='':
@@ -315,15 +312,15 @@ class convention_transactions():
                                 </ul>
                             </div>"""
                 check_box=""
-            nestedData.append(check_box)
-            nestedData.append(t_date_f)
-            nestedData.append(name_data)
-            nestedData.append(practice_info)
-            nestedData.append(transactions)
-            nestedData.append(transaction_stattuses)
-            nestedData.append(browswer_log)
-            nestedData.append(actions)
-            nd.append(nestedData)
+            nested_data.append(check_box)
+            nested_data.append(t_date_f)
+            nested_data.append(name_data)
+            nested_data.append(practice_info)
+            nested_data.append(transactions)
+            nested_data.append(transaction_stattuses)
+            nested_data.append(browswer_log)
+            nested_data.append(actions)
+            nd.append(nested_data)
 
         res['draw']=request.POST.get('draw')
         res['recordsTotal']=tot_count
@@ -375,7 +372,7 @@ class convention_transactions():
         writer=csv.writer(res)
         writer.writerow(['Date','Name','Practice Name','Email','Phone','Transaction ID','Transaction Created Date','Payment Mode','Payment Details','Memo','Amount','Status','Browser Log'])
         data=Handon_form.objects.raw("select A.id as Id,A.name,A.created_on,A.last_name,A.practice_name,A.amount,A.email,A.phone,A.browser,A.os,A.transaction_status,A.off_transaction_id,A.transaction_ref,A.archive_id,A.off_transaction_status,A.status,A.created_by,A.off_transaction_created_date,A.off_transaction_payment_mode,A.off_transaction_payment_details,off_transaction_memo,B.name as registered_name,C.id,COUNT(C.id) as printcount from admin_uda_handon_form As A LEFT JOIN admin_uda_users as B ON B.id = A.created_by LEFT JOIN admin_uda_id_prints as C ON C.parent_id = A.id where A.status!=2 AND A.form=1 AND A.form_status IN (1,3) GROUP By A.id",None)
-        payment_modes=["Cash","Cheque/DD","POS","Venmo","Others"]
+        payment_modes=["","Cash","Cheque/DD","POS","Venmo","Others"]
         for datas in data:
             sp_date=datas.created_on.date()
             name=datas.name
@@ -384,7 +381,9 @@ class convention_transactions():
             email=datas.email
             phone=datas.phone
             created_date = datas.off_transaction_created_date.date()
-            payment_mode=payment_modes[int(datas.off_transaction_payment_mode)]
+            payment_mode=''
+            if datas.off_transaction_payment_mode:
+                payment_mode=payment_modes[int(datas.off_transaction_payment_mode)]
             payment_details = datas.off_transaction_payment_details
             off_transaction_memo = datas.off_transaction_memo
             amount='$'+str(datas.amount)
@@ -404,12 +403,7 @@ class convention_transactions():
             os_bro=tran_browser
             if tran_os is not None:
                 os_bro=tran_browser+' ('+tran_os+')'
-
-            ed_split=str(sp_date).split('-')
-            t_date=dt.datetime(int(ed_split[0]),int(ed_split[1]),int(ed_split[2]))
-            t_date_f=t_date.strftime("%m-%d-%Y")
-            tr_da=str(created_date).split('-')
-            tran_date=dt.datetime(int(tr_da[0]),int(tr_da[1]),int(tr_da[2]))
-            tran_date_f=tran_date.strftime("%m-%d-%Y")
+            t_date_f=dt.datetime.strptime(str(sp_date),self.date_format_db).strftime(self.date_format)
+            tran_date_f=dt.datetime.strptime(str(created_date),self.date_format_db).strftime(self.date_format)
             writer.writerow([t_date_f,name+' '+last_name,practice_name,email,phone,off_transaction_id,tran_date_f,payment_mode,payment_details,off_transaction_memo,amount,transaction_status,os_bro])
         return res

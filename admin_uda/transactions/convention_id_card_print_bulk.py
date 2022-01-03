@@ -1,4 +1,4 @@
-from admin_uda.models import *
+from admin_uda.models import Handon_form,Convention_form_workshop,Handon_form_workshop,Convention_types,Handon_workshop,Id_prints
 import datetime as dt
 
 class convention_id_card_bulk_details:
