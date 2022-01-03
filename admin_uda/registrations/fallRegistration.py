@@ -87,7 +87,7 @@ class FallRegistration():
         a = int(dt.datetime.now().timestamp())
         no_wrkshop = 0
         for cv in convention_list:
-            if cv['input'] and len(cv['input'])>0:
+            if len(cv['input'])>0:
                 for val in cv['input']:
                     if val['name'] != '':
                         price = cv['price']
