@@ -58,7 +58,6 @@ class user_managements():
     def add_user_management(self,request):
         err=""
         msg = ""
-        err_cnt = 0
         req_email = request.POST.get('email')
         req_id = request.POST.get('data_id')
         req_name = request.POST.get('name')
