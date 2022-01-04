@@ -100,10 +100,12 @@ class ConventionRegistration():
             no_wrkshop = 0
             if len(convention_list)>0:
                 no_wrkshop = 1
-                self.save_convention(last_insert_id,convention_list)
+                for cv in convention_list:
+                    self.save_convention(last_insert_id,cv)
             if len(workshops_list)>0:
                 no_wrkshop = 1
-                self.save_workshop(last_insert_id,workshops_list)
+                for wh in workshops_list:
+                    self.save_workshop(last_insert_id,wh)
                 
             if no_wrkshop == 0:
                 # delete
@@ -114,63 +116,67 @@ class ConventionRegistration():
                 result = self.mail_pdf_func(last_insert_id)  
         return result
     
-    def save_convention(self,hand_id,convention_list):
+    def save_convention(self,hand_id,cv):
         a = int(dt.datetime.now().timestamp())
         no_wrkshop = 0
-        for cv in convention_list:
-            if len(cv['input'])>0:
-                for val in cv['input']:
-                    if val['name'] != '':
-                        price = cv['price']
-                        if 'hdn_cv_ws_id' in val:
-                            work_shop_form = Convention_form_workshop.objects.get(id=val['hdn_cv_ws_id'])
-                            work_shop_form.sno = a
-                            work_shop_form.hand_id = hand_id
-                            work_shop_form.work_id = cv['id']
-                            work_shop_form.price = price
-                            work_shop_form.name = val['name']
-                        else:
-                            work_shop_form = Convention_form_workshop(
-                                sno = a,
-                                hand_id = hand_id,
-                                work_id = cv['id'],
-                                price = price,
-                                name = val['name'],
-                            )
-                        work_shop_form.ada = ''    
-                        if 'ada' in val:
-                            work_shop_form.ada = val['ada'] 
-                        work_shop_form.save()
-                        last_insert_wid = work_shop_form.id
-                        no_wrkshop += last_insert_wid
+        
+        if len(cv['input'])>0:
+            for val in cv['input']:
+                if val['name'] != '':
+                    price = cv['price']
+                    if 'hdn_cv_ws_id' in val:
+                        work_shop_form = Convention_form_workshop.objects.get(id=val['hdn_cv_ws_id'])
+                        work_shop_form.sno = a
+                        work_shop_form.hand_id = hand_id
+                        work_shop_form.work_id = cv['id']
+                        work_shop_form.price = price
+                        work_shop_form.name = val['name']
+                    else:
+                        work_shop_form = Convention_form_workshop(
+                            sno = a,
+                            hand_id = hand_id,
+                            work_id = cv['id'],
+                            price = price,
+                            name = val['name'],
+                        )
+                    work_shop_form.ada = self.check_key_val('ada',val) 
+                    work_shop_form.save()
+                    last_insert_wid = work_shop_form.id
+                    no_wrkshop += last_insert_wid
         return no_wrkshop
 
-    def save_workshop(self,hand_id,workshops_list):
+    def check_key_val(self,key,list):
+        value = ''
+        if key in list:
+            value = list[key]
+        return value
+
+    def save_workshop(self,hand_id,wh):
         a = int(dt.datetime.now().timestamp())
         no_wrkshop = 0
-        for wh in workshops_list:
-            if len(wh['input'])>0:
-                for val in wh['input']:
-                    if val['wh_name'] != '':
-                        price = wh['price']
-                        if 'hdn_ws_id' in val:
-                            work_shop_form = Handon_form_workshop.objects.get(id=val['hdn_ws_id'])
-                            work_shop_form.sno = a
-                            work_shop_form.hand_id = Handon_form.objects.get(id = hand_id)
-                            work_shop_form.work_id = Handon_workshop.objects.get(id = wh['id'])
-                            work_shop_form.amount = price
-                            work_shop_form.name = val['wh_name']
-                        else:
-                            work_shop_form = Handon_form_workshop(
-                                sno = a,
-                                hand_id = Handon_form.objects.get(id = hand_id),
-                                work_id = Handon_workshop.objects.get(id = wh['id']),
-                                amount = price,
-                                name = val['wh_name']
-                            )
-                        work_shop_form.save()
-                        last_insert_wid = work_shop_form.id
-                        no_wrkshop += last_insert_wid
+        
+        if len(wh['input'])>0:
+            for val in wh['input']:
+                if val['wh_name'] != '':
+                    price = wh['price']
+                    if 'hdn_ws_id' in val:
+                        work_shop_form = Handon_form_workshop.objects.get(id=val['hdn_ws_id'])
+                        work_shop_form.sno = a
+                        work_shop_form.hand_id = Handon_form.objects.get(id = hand_id)
+                        work_shop_form.work_id = Handon_workshop.objects.get(id = wh['id'])
+                        work_shop_form.amount = price
+                        work_shop_form.name = val['wh_name']
+                    else:
+                        work_shop_form = Handon_form_workshop(
+                            sno = a,
+                            hand_id = Handon_form.objects.get(id = hand_id),
+                            work_id = Handon_workshop.objects.get(id = wh['id']),
+                            amount = price,
+                            name = val['wh_name']
+                        )
+                    work_shop_form.save()
+                    last_insert_wid = work_shop_form.id
+                    no_wrkshop += last_insert_wid
         return no_wrkshop
 
     def mail_pdf_func(self,last_insert_id):
