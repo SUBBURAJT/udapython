@@ -25,6 +25,23 @@ class convention_id_card_bulk_details:
             res['name']=name
             res['title']=title
         return res
+
+    def get_convention_datas(self,conventionidss,in_convention_arr,covention_list):
+        data={}
+        for conven in covention_list:
+            if conven.id in in_convention_arr:
+                subrows=Convention_form_workshop.objects.filter(is_deleted=1,hand_id__in=conventionidss,work_id=conven.id)
+                for sub in subrows:
+                    if sub.name!='':
+                        index=len(data)
+                        data[index]={}
+                        data[index]['id']=sub.hand_id
+                        record=self.transform_name_title({"name":sub.name,'title':conven.name.replace("NAME", "")})
+                        data[index]['name']=record['name']
+                        data[index]['title']=record['title']
+                        add_count=Id_prints(con_type=2,ref_id=sub.id,printing_date_time=dt.datetime.now(),parent_id=sub.hand_id)
+                        add_count.save()
+        return data
     def get_conventions(self,conventionidss):
         data={}
         in_convention_arr = []
@@ -36,19 +53,7 @@ class convention_id_card_bulk_details:
         if in_convention_arr:
             covention_list=Convention_types.objects.filter(status=1,id__in=in_convention_arr).order_by('id')
         if covention_list:
-            for conven in covention_list:
-                if conven.id in in_convention_arr:
-                    subrows=Convention_form_workshop.objects.filter(is_deleted=1,hand_id__in=conventionidss,work_id=conven.id)
-                    for sub in subrows:
-                        if sub.name!='':
-                            index=len(data)
-                            data[index]={}
-                            data[index]['id']=sub.hand_id
-                            record=self.transform_name_title({"name":sub.name,'title':conven.name.replace("NAME", "")})
-                            data[index]['name']=record['name']
-                            data[index]['title']=record['title']
-                            add_count=Id_prints(con_type=2,ref_id=sub.id,printing_date_time=dt.datetime.now(),parent_id=sub.hand_id)
-                            add_count.save()
+            data=self.get_convention_datas(conventionidss,in_convention_arr,covention_list)
         return data
     def get_workshops(self,conventionidss,ext):
         data={}
@@ -61,21 +66,17 @@ class convention_id_card_bulk_details:
         if in_workshop_arr:
             workshops_list=Handon_workshop.objects.filter(status=1,id__in=in_workshop_arr).order_by('id')
         if workshops_list:
-                    for work in workshops_list:
-                        in_status=0
-                        subrows=Handon_form_workshop.objects.filter(is_deleted=1,hand_id__in=conventionidss,work_id=work.id)
-                        if subrows:
-                            in_status=1
-                        if in_status:
-                            for sub in subrows:
-                                index=ext
-                                data[index]={}
-                                data[index]['id']=sub.hand_id
-                                record=self.transform_name_title({"name":sub.name,'title':work.name})
-                                data[index]['name']=record['name']
-                                data[index]['title']=record['title']
-                                add_count=Id_prints(con_type=1,ref_id=sub.id,printing_date_time=dt.datetime.now(),parent_id=sub.hand_id)
-                                add_count.save()
+            for work in workshops_list:
+                subrows=Handon_form_workshop.objects.filter(is_deleted=1,hand_id__in=conventionidss,work_id=work.id)
+                for sub in subrows:
+                    index=ext
+                    data[index]={}
+                    data[index]['id']=sub.hand_id
+                    record=self.transform_name_title({"name":sub.name,'title':work.name})
+                    data[index]['name']=record['name']
+                    data[index]['title']=record['title']
+                    add_count=Id_prints(con_type=1,ref_id=sub.id,printing_date_time=dt.datetime.now(),parent_id=sub.hand_id)
+                    add_count.save()
         return data
 
     def id_card_details_bulk(self,request):
