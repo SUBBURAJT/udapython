@@ -19,6 +19,42 @@ class user_managements():
             ip = request.META.get('REMOTE_ADDR')
         return ip
 
+    def user_update(self,request):
+        err=""
+        msg = ""
+        err_cnt = 0
+        req_email = request.POST.get('email')
+        req_id = request.POST.get('data_id')
+        req_name = request.POST.get('name')
+        req_mobile = request.POST.get('mobile')
+        req_password = request.POST.get('password')
+        user_id=request.session['user_id']
+        if Users.objects.filter(~Q(id=req_id), email=req_email,status=1).exists():
+            err_cnt = 1
+            err = 'Email Already Exists'
+        if err_cnt == 0:
+            user = Users.objects.get(id=req_id)
+            user.name = req_name
+            user.email = req_email
+            user.mobile = req_mobile
+            auth_id=user.auth_user_id 
+            if req_password!='':
+                user.password   = make_password(request.POST.get('password'))                
+            user.modified_at = datetime.datetime.now()
+            user.modified_ip = self.get_ip(request)
+            user.modified_by = user_id  
+            user.save()
+            #Udate auth_user table
+            auth_user = User.objects.get(id=auth_id)
+            auth_user.username=req_email
+            auth_user.email=req_email
+            if req_password!='':
+                auth_user.password   = user.password
+            auth_user.save()  
+            msg =  "User updated Successfully" 
+            err=''
+        return {"msg":msg,"err":err}  
+
     def add_user_management(self,request):
         err=""
         msg = ""
@@ -28,54 +64,26 @@ class user_managements():
         req_name = request.POST.get('name')
         req_mobile = request.POST.get('mobile')
         req_password = request.POST.get('password')
-        id=request.session['user_id']
+        user_id=request.session['user_id']
         
         if req_id:
-            if (req_email != '' and req_name !='' and req_mobile!='' ):
-                user = Users.objects.get(id=req_id)
-                user.name = req_name
-                user.email = req_email
-                user.mobile = req_mobile
-                auth_id=user.auth_user_id 
-                
-                if req_password!='':
-                    user.password   = make_password(request.POST.get('password'))                
-                # user.role       = "User"
-                user.modified_at = datetime.datetime.now()
-                user.modified_ip = self.get_ip(request)
-                user.modified_by = id
-                if Users.objects.filter(~Q(id=req_id), email=req_email,status=1).exists():
-                    err_cnt = 1
-                    err = 'Email Already Exists'
-                if err_cnt == 0:  
-                    user.save()
-                    #Udate auth_user table
-                    auth_user = User.objects.get(id=auth_id)
-                    auth_user.username=req_email
-                    auth_user.email=req_email
-                    if req_password!='':
-                        auth_user.password   = user.password
-                    auth_user.save()  
-
-                    msg =  "User updated Successfully"                    
-            else:
-                err = "User Added Failed! Missing reqired fields"
-        
+            err = "User Added Failed! Missing required fields"
+            if (req_email != '' and req_name !='' and req_mobile!=''):
+                result=self.user_update(request) 
+                msg=result['msg']                  
+                err=result['err'] 
         elif (req_email != '' and req_name !='' and req_mobile!='' and req_password!='' ):
                 user = Users(
                     name = req_name,
                     email = req_email,
                     mobile = req_mobile,
-                   
                 )
                 user.password   = make_password(request.POST.get('password'))                
                 user.role       = "User"
                 user.created_at = datetime.datetime.now()
                 user.created_ip = self.get_ip(request)
-                user.created_by = id
-
+                user.created_by = user_id
                 if Users.objects.filter(email=req_email,status=1).exists():
-                    err_cnt = 1
                     err = 'Email Already Exists'
                 else:
                     #Save To auth_user table 
@@ -107,17 +115,17 @@ class user_managements():
                     </div>"""
             email = datas.email
             mobile = datas.mobile
-            nestedData=[]
-            nestedData.append(name)
-            nestedData.append(email)
-            nestedData.append(mobile)
+            nested_data=[]
+            nested_data.append(name)
+            nested_data.append(email)
+            nested_data.append(mobile)
             actions="""
            
             <a href="javascript:void(0);" data-id="""+str(datas.id)+"""  class="me-3 text-primary edit_user_management edit_user_act" data-bs-container="#tooltip-container1" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit"><i class="mdi mdi-pencil font-size-18"></i></a>
 
             <a href="#"  data-id="""+str(datas.id)+"""  class="text-danger tabDelete"  data-bs-container="#tooltip-container1"""+str(j)+"""" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete"><i class="mdi mdi-trash-can font-size-18"></i></a>"""
-            nestedData.append(actions)
-            nd.append(nestedData)
+            nested_data.append(actions)
+            nd.append(nested_data)
             j+=1
 
         res['data']=nd
