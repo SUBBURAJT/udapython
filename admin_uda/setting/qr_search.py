@@ -3,6 +3,9 @@ from admin_uda.models import Handon_form_workshop,Convention_form_workshop,Vendo
 from hashids import Hashids
 
 class qr_search_list:
+    workshop_td="<td style='padding: 10px;'>Workshop</td>"
+    convention_td="<td style='padding: 10px;'>Convention</td>"
+    exhibitor_td="<td style='padding: 10px;'>Exhibitor</td>"
     def list_registered_name(self,request):
         if request.POST.get('keyword'):
             records=''
@@ -20,7 +23,7 @@ class qr_search_list:
                 group['usertype']='Workshop'
                 group['usertype_id']=1
                 resultval.append(group)
-                records+="<tr><td style='padding: 10px;'>Workshop</td><td style='padding: 10px;'>"+group_names.work_id.name+"</td></tr>"
+                records+="<tr>"+self.workshop_td+"<td style='padding: 10px;'>"+group_names.work_id.name+"</td></tr>"
                 status_res=1
             # FOR convention workshop
             get_all_users_con=Convention_form_workshop.objects.raw("SELECT A.*,B.id as bid,C.id as cid,C.name AS workshop_name FROM admin_uda_convention_form_workshop AS A JOIN admin_uda_handon_form AS B ON A.hand_id=B.id AND B.archive_id=0 AND B.status=1 LEFT JOIN admin_uda_convention_types AS C ON C.id=A.work_id AND C.status=1 WHERE A.name LIKE '%"+name+ "%' GROUP BY A.id",None)
@@ -32,7 +35,7 @@ class qr_search_list:
                 groupcon['usertype']='Convention'
                 groupcon['usertype_id']=2
                 resultval.append(groupcon)
-                records+="<tr><td style='padding: 10px;'>Convention</td><td style='padding: 10px;'>"+groupnames_con.workshop_name+"</td></tr>"
+                records+="<tr>"+self.convention_td+"<td style='padding: 10px;'>"+groupnames_con.workshop_name+"</td></tr>"
                 status_res=1
             # For Exhibitor Staffs
             get_all_users_exh=Vendor_employees.objects.raw("SELECT ve.id, vrf.company_name, vrf.id AS vid FROM admin_uda_vendor_employees AS ve LEFT JOIN admin_uda_vendor_registration_form AS vrf ON vrf.id=ve.vendor_id WHERE ve.name LIKE '%"+name+ "%' GROUP BY ve.id",None)
@@ -44,7 +47,7 @@ class qr_search_list:
                 group_exh['usertype']='Exhibitor'
                 group_exh['usertype_id']=3
                 resultval.append(group_exh)
-                records+="<tr><td style='padding: 10px;'>Exhibitor</td><td style='padding: 10px;'>"+groupnames_exh.company_name+"</td></tr>"
+                records+="<tr>"+self.exhibitor_td+"<td style='padding: 10px;'>"+groupnames_exh.company_name+"</td></tr>"
                 status_res=1
         return {"res":status_res,"records":records}
 
@@ -70,7 +73,7 @@ class qr_search_list:
                     groupcon['usertype']='Convention'
                     groupcon['usertype_id']=2
                     resultval.append(groupcon)
-                    records+="<tr><td style='padding: 10px;'>Convention</td><td style='padding: 10px;'>"+groupnames_con.workshop_name+"</td></tr>"
+                    records+="<tr>"+self.convention_td+"<td style='padding: 10px;'>"+groupnames_con.workshop_name+"</td></tr>"
                     status_res=1
             if cfw_hfw[0]=='hfw':
                 work_id=cfw_hfw[1]
@@ -85,7 +88,7 @@ class qr_search_list:
                     group['usertype']='Workshop'
                     group['usertype_id']=1
                     resultval.append(group)
-                    records+="<tr><td style='padding: 10px;'>Workshop</td><td style='padding: 10px;'>"+groupnames.work_id.name+"</td></tr>"
+                    records+="<tr>"+self.workshop_td+"<td style='padding: 10px;'>"+groupnames.work_id.name+"</td></tr>"
                     status_res=1
         return {"res":status_res,"records":records}
 
