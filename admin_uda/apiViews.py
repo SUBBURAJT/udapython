@@ -1,4 +1,3 @@
-#auth views
 from django.http import JsonResponse
 from django.contrib import auth
 from django.contrib.auth.hashers import check_password
@@ -13,10 +12,16 @@ def login_check(request):
     global authkey
     res={}
     if request.is_ajax and request.method=='POST':
+        res['status'] ='error'
+        res['msg'] ='API verification failed'
         if request.POST.get('authenticationkey') == authkey:
             username = request.POST.get('username')
             password = request.POST.get('password')
+            res['status'] ='error'
+            res['msg'] ='Some field is empty'
             if(username != '' and password != ''):
+                res['status'] ='error'
+                res['msg'] ='Invalid Credentials'
                 if Users.objects.filter(status=1,email=username).exists():
                     data = Users.objects.values().get(status=1,email=username)
                     password_check=check_password(password,data['password'])
@@ -32,23 +37,7 @@ def login_check(request):
                         res['status'] ='success'
                         res['msg'] ='Successfully login'
                         res['data'] =data_values
-                        return JsonResponse(res,safe=False)
-                    else:
-                        res['status'] ='error'
-                        res['msg'] ='Invalid Credentials'
-                        return JsonResponse(res,safe=False)
-                else:
-                    res['status'] ='error'
-                    res['msg'] ='Invalid Credentials'
-                    return JsonResponse(res,safe=False)
-            else:
-                res['status'] ='error'
-                res['msg'] ='Some field is empty'
-                return JsonResponse(res,safe=False)
-        else:
-            res['status'] ='error'
-            res['msg'] ='API verification failed'
-            return JsonResponse(res,safe=False)
+        return JsonResponse(res,safe=False)
     else:
         res['status'] ='error'
         res['msg'] ='Invalid type'
