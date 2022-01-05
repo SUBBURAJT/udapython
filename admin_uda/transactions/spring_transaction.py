@@ -11,27 +11,17 @@ class spring_transactions():
     date_format_input = '%m/%d/%Y'
     date_format_db = '%Y-%m-%d'
 
-    def condition_query_fn(self,request):
+    def condition_query_fn(self,request,condt):
         result = {}
-        condt='A.status!=2 AND A.form=1 AND A.form_status=2'
+        
         #filters
         flt_sdate=request.POST.get('flt_start_date')
-        flt_edate=request.POST.get('flt_end_date')
-        flt_archive=request.POST.get('archive')
-        if flt_archive:
-            condt+=" AND A.archive_id="+flt_archive
-        else:
-            condt+= " AND A.archive_id=0 "
+        flt_edate=request.POST.get('flt_end_date')        
 
         if flt_sdate and flt_edate:
             flt1_strdate1 = dt.datetime.strptime(str(flt_sdate),self.date_format_input).strftime(self.date_format_db)
             flt1_endate1 = dt.datetime.strptime(str(flt_edate),self.date_format_input).strftime(self.date_format_db)
-            condt+=" AND DATE(A.created_on) >= '"+str(flt1_strdate1)+"' AND DATE(A.created_on) <= '"+str(flt1_endate1)+"'"
-
-        singlenamesearch=request.POST.get('singlenamesearch')
-        if singlenamesearch and singlenamesearch!='all':
-            condt+=" AND ( A.name LIKE '"+singlenamesearch+"%' OR A.last_name LIKE '"+singlenamesearch+"%' OR A.practice_name LIKE '"+singlenamesearch+"%' OR A.email LIKE '"+singlenamesearch+"%' OR A.phone LIKE '"+singlenamesearch+"%' OR A.transaction_ref LIKE '"+singlenamesearch+"%' "
-            condt+=")"
+            condt+=" AND DATE(A.created_on) >= '"+str(flt1_strdate1)+"' AND DATE(A.created_on) <= '"+str(flt1_endate1)+"'"        
 
         group_where_hw1=''
         group_where_hw_q1=''
@@ -101,6 +91,7 @@ class spring_transactions():
 
     def advance_search(self,request,condt):
         result = {}
+
         #advance search filters
         ad_first_name=request.POST.get('ad_first_name')
         if ad_first_name!='':
@@ -178,8 +169,16 @@ class spring_transactions():
         return trans_que
 
     def list_spring_transactions(self,request):
+        condt='A.status!=2 AND A.form=1 AND A.form_status=2'
+        flt_archive=request.POST.get('archive')
+        condt+=" AND A.archive_id="+flt_archive if flt_archive else " AND A.archive_id=0 "        
+            
+        singlenamesearch=request.POST.get('singlenamesearch')
+        if singlenamesearch and singlenamesearch!='all':
+            condt+=" AND ( A.name LIKE '"+singlenamesearch+"%' OR A.last_name LIKE '"+singlenamesearch+"%' OR A.practice_name LIKE '"+singlenamesearch+"%' OR A.email LIKE '"+singlenamesearch+"%' OR A.phone LIKE '"+singlenamesearch+"%' OR A.transaction_ref LIKE '"+singlenamesearch+"%' "
+            condt+=")"
 
-        condition_query_fn_res = self.condition_query_fn(request)
+        condition_query_fn_res = self.condition_query_fn(request,condt)
         select_ct1 = condition_query_fn_res['select_ct1']
         select_hw1 = condition_query_fn_res['select_hw1']
         condt = condition_query_fn_res['condt']
