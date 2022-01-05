@@ -87,32 +87,33 @@ class convention_transactions():
 
         return result
 
+    def dynamic_filter(self,key,value):
+        result = ''
+        if value!='':
+            result = " AND ( "+key+" LIKE '"+value+"%' ) "
+
+        return result
+
     def advance_search(self,request,condt):
         result = {}
         #advance search filters
         f_name=request.POST.get('f_name')
-        if f_name!='':
-            condt+=" AND ( A.name LIKE '"+f_name+"%' ) "
+        condt+= self.dynamic_filter('A.name',f_name)
 
         l_name=request.POST.get('l_name')
-        if l_name!='':
-            condt+=" AND ( A.last_name LIKE '"+l_name+"%' ) "
-
+        condt+= self.dynamic_filter('A.last_name',l_name)
+        
         p_name=request.POST.get('p_name')
-        if p_name!='':
-            condt+=" AND ( A.practice_name LIKE '"+p_name+"%' ) "
+        condt+= self.dynamic_filter('A.practice_name',p_name)
 
         phone=request.POST.get('phone')
-        if phone!='':
-            condt+=" AND ( A.phone LIKE '"+phone+"%' ) "
+        condt+= self.dynamic_filter('A.phone',phone)
 
         email=request.POST.get('email')
-        if email!='':
-            condt+=" AND ( A.email LIKE '"+email+"%' ) "
+        condt+= self.dynamic_filter('A.email',email)
 
         trans_no=request.POST.get('trans_no')
-        if trans_no!='':
-            condt+=" AND ( A.transaction_ref LIKE '"+trans_no+"%' ) "
+        condt+= self.dynamic_filter('A.transaction_ref',trans_no)
 
         price_start=request.POST.get('price_start')
         if price_start!='':
@@ -162,12 +163,10 @@ class convention_transactions():
                 trans_que+=" OR ct_ids1>0 "
         return trans_que
 
-    def list_convention_transactions(self,request):
+    def mail_filter(self,request,condt):
+        result = {}
         flt_archive=request.POST.get('archive')
-        condt='A.status!=2 AND A.form=1 AND A.form_status IN (1,3)'
-
         condt+=" AND A.archive_id="+flt_archive if flt_archive else " AND A.archive_id=0 "
-
         singlenamesearch=request.POST.get('singlenamesearch')
         if singlenamesearch and singlenamesearch!='all':
             condt+=" AND ( A.name LIKE '"+singlenamesearch+"%' OR A.last_name LIKE '"+singlenamesearch+"%' OR A.practice_name LIKE '"+singlenamesearch+"%' OR A.email LIKE '"+singlenamesearch+"%' OR A.phone LIKE '"+singlenamesearch+"%' OR A.transaction_ref LIKE '"+singlenamesearch+"%' "
@@ -178,8 +177,16 @@ class convention_transactions():
                 else:
                     condt+=" OR A.transaction_status LIKE '"+singlenamesearch+"%' "
             """
-
             condt+=")"
+        result['condt'] = condt
+        return result
+
+
+    def list_convention_transactions(self,request):
+        condt='A.status!=2 AND A.form=1 AND A.form_status IN (1,3)'
+        mail_filter_res = self.mail_filter(request,condt)
+        condt = mail_filter_res['condt']
+
 
         condition_query_fn_res = self.condition_query_fn(request,condt)
         select_ct1 = condition_query_fn_res['select_ct1']
