@@ -83,24 +83,38 @@ class convention_id_card_details():
             img_src="/static/images/head-logo-black.png"
         return {"con":con,"con_date":con_date,"img_src":img_src}
 
+    def data_formats(self,data):
+        it=[]
+        if len(data)==1:
+            lastel=data
+            cnt=1
+            sin=0
+        elif len(data)%2==0:
+            lastel=''
+            cnt=2
+            it = iter(data)
+            sin=''
+        else:
+            cnt=3
+            sin=len(data)-1
+            lastel=data[list(data)[-1]]
+            data.pop(list(data)[-1])      
+            it = iter(data)
+        return {"it":it,"cnt":cnt,"sin":sin,"lastel":lastel,"data":data}
+
+
     def get_all_datas(self,data,formstatus):
         result=''
         result_print=''
         if data:
-            it=[]
-            if len(data)==1:
-                lastel=data
-                cnt=1
-                sin=0
-            elif len(data)%2==0:
-                cnt=2
-                it = iter(data)
-            else:
-                cnt=3
-                sin=len(data)-1
-                lastel=data[list(data)[-1]]
-                data.pop(list(data)[-1])      
-                it = iter(data)
+            fordata=self.data_formats(data)
+            lastel=fordata['data']
+            cnt=fordata['cnt']
+            sin=fordata['sin']
+            it=fordata['it']
+            lastel=fordata['lastel']
+            data=fordata['data']
+            
             res_de=self.get_defaultvalues_formstatus(formstatus)
             con=res_de['con']
             con_date=res_de['con_date']
