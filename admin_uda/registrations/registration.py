@@ -1,5 +1,5 @@
 from django.http.response import JsonResponse
-from admin_uda.models import Handon_form,Convention_form_workshop,Handon_form_workshop,Convention_types,Handon_workshop,Convention_types_prices,Convention_types_prices
+from admin_uda.models import Handon_form,Convention_form_workshop,Handon_form_workshop,Convention_types,Handon_workshop,Convention_types_prices,Convention_types_prices,default_functions
 import datetime as dt
 from django_mysql.models import GroupConcat
 import json
@@ -17,6 +17,7 @@ from django.core.files import File
 from PIL import ImageDraw,Image
 from hashids import Hashids
 
+default_obj = default_functions()
 class Registration():
     datetime_format = "%Y-%m-%d %H:%M:%S"
     datetime_format_time = "%m/%d/%Y %I:%M:%S %p"
@@ -32,39 +33,25 @@ class Registration():
                 result = list(os.path.realpath(path) for path in result)
                 path=result[0]
         else:
-                sUrl = settings.STATIC_URL        # Typically /static/
-                sRoot = settings.STATIC_ROOT      # Typically /home/userX/project_static/
-                mUrl = settings.MEDIA_URL         # Typically /media/
-                mRoot = settings.MEDIA_ROOT       # Typically /home/userX/project_static/media/
+                surl = settings.STATIC_URL        # Typically /static/
+                sroot = settings.STATIC_ROOT      # Typically /home/userX/project_static/
+                murl = settings.MEDIA_URL         # Typically /media/
+                mroot = settings.MEDIA_ROOT       # Typically /home/userX/project_static/media/
 
-                if uri.startswith(mUrl):
-                        path = os.path.join(mRoot, uri.replace(mUrl, ""))
-                elif uri.startswith(sUrl):
-                        path = os.path.join(sRoot, uri.replace(sUrl, ""))
+                if uri.startswith(murl):
+                        path = os.path.join(mroot, uri.replace(murl, ""))
+                elif uri.startswith(surl):
+                        path = os.path.join(sroot, uri.replace(surl, ""))
                 else:
                         return uri
 
         # make sure that file exists
         if not os.path.isfile(path):
                 raise Exception(
-                        'media URI must start with %s or %s' % (sUrl, mUrl)
+                        'media URI must start with %s or %s' % (surl, murl)
                 )
         return path
-    def get_payment_method(self,method):
-        payment = {
-            '1':"Cash",
-            '2':"Cheque/DD",
-            '3':"POS",
-            '4':"Venmo",
-            '5':"Others"
-        }
-        result = ''
-        try:
-            result = payment[method]
-        except Exception as e:    
-            result = ''
-
-        return result
+    
     def mail_qr_convention(self,rt,hashid,convention_ws):
         con_list = []
         for cv in convention_ws:
@@ -184,46 +171,20 @@ class Registration():
 
         return result
 
-    def mail_template(self,form,hand_id):
+    def get_dynamic_thead(self,form,handon_res,grand_price):
         result = {}
-        body = ''
-        
         none_to_str=lambda a:str(a) if str(a) != 'None' else ''
-        handon_res = (Handon_form.objects.values().filter(id=hand_id,status=1)[:1])[0]
-        convention_ws = Convention_form_workshop.objects.filter(is_deleted=1,hand_id=hand_id).aggregate(con_ws_ids = GroupConcat('work_id'))
-        handon_ws = Handon_form_workshop.objects.filter(is_deleted=1,hand_id=hand_id).aggregate(hands_ws_ids = GroupConcat('work_id'))
-        if convention_ws:
-            mail_temp_con_res = self.mail_temp_con(convention_ws)
-            con_list = mail_temp_con_res['con_list']
-            convention_lists = mail_temp_con_res['convention_lists']
-        if handon_ws:
-            mail_temp_ws_res = self.mail_temp_ws(handon_ws)
-            workshop_lists = mail_temp_ws_res['workshop_lists']
-            
-        today_dt = dt.date.today() 
-        if handon_res['created_on']:
-            today_dt = handon_res['created_on'].date()
-
-        getPrice = Convention_types_prices.objects.values().filter(form_status=form,start_date__lte=today_dt,end_date__gte=today_dt).order_by('id')[:1]
-
-        if getPrice== '':
-            return 'The deadline for all pre-registration is Expired'
-
-        prices_list = json.loads(getPrice[0]['bulk_price'])
-        if handon_res['updated_grand_amount']:
-            grand_price = none_to_str(handon_res['updated_grand_amount'])
-        else:
-            grand_price = none_to_str(handon_res['amount'])
-        
-        action = 1
+        trans_date = ''
+        pay_mode = ''
+        thank_mess = ''
+        transaction_section = ''
+        tbl_head = ''
 
         if form == 1:
             thank_mess = 'Thank You ! <p style=" font-size: 14px; margin: 0; ">For  Registering. Please Find Your Registered Conventions...</p>'
             if none_to_str(handon_res['transaction_on']) != '':
                 # trans_date = dt.datetime.strptime(none_to_str(handon_res['transaction_on']),'%Y-%m-%d %H:%M:%S.%f%z').strftime('%m/%d/%Y %I:%M:%S %p')
                 trans_date = dt.datetime.strptime(none_to_str(handon_res['transaction_on'])[:19],self.datetime_format).strftime(self.datetime_format_time)
-            else:
-                trans_date = ''
 
             transaction_section = '''<h4 style="padding-left: 20px; font-size: 20px;margin-bottom: 0;  margin-top: 0"><strong>Transaction Details</strong></h4>
             <p style="margin-bottom: 5px;padding-left: 20px;"><strong>Transaction ID :</strong> '''+ none_to_str(handon_res["transaction_id"])+ ''' </p>
@@ -239,12 +200,10 @@ class Registration():
             if none_to_str(handon_res['created_on']) != '':
                 #    trans_date = dt.datetime.strptime(none_to_str(handon_res['created_on']),'%Y-%m-%d %H:%M:%S.%f%z').strftime('%m/%d/%Y %I:%M:%S %p')
                 trans_date = dt.datetime.strptime(none_to_str(handon_res['created_on'])[:19],self.datetime_format).strftime(self.datetime_format_time)
-            else:
-                trans_date = ''
+
             if none_to_str(handon_res["off_transaction_payment_mode"]):
-                pay_mode = self.get_payment_method(none_to_str(handon_res["off_transaction_payment_mode"]))
-            else:
-                pay_mode = ''
+                pay_mode = default_obj.get_payment_method(none_to_str(handon_res["off_transaction_payment_mode"]))
+                
             transaction_section = '''<h4 style="padding-left: 20px; font-size: 20px"><strong>Transaction Details</strong></h4>
             <p style="margin-bottom: 5px;padding-left: 20px;"><strong>Transaction ID :</strong> '''+ none_to_str(handon_res["off_transaction_id"]) + ''' </p>
             <p style="margin-bottom: 5px;padding-left: 20px;"><strong>Transaction Date :</strong> '''+ trans_date +'''</p>
@@ -258,13 +217,9 @@ class Registration():
             thank_mess = 'Thank You ! - Fall Convention Registration <p style=" font-size: 14px; margin: 0; ">For  Registering. Please Find Your Registered Fall...</p>'
             if none_to_str(handon_res['created_on']) != '':
                 trans_date = dt.datetime.strptime(none_to_str(handon_res['created_on'])[:19],self.datetime_format).strftime(self.datetime_format_time)
-            else:
-                trans_date = ''
 
             if none_to_str(handon_res["off_transaction_payment_mode"]):
-                pay_mode = self.get_payment_method(none_to_str(handon_res["off_transaction_payment_mode"]))
-            else:
-                pay_mode = ''
+                pay_mode = default_obj.get_payment_method(none_to_str(handon_res["off_transaction_payment_mode"]))
 
             transaction_section = '''<h4 style="padding-left: 20px; font-size: 20px"><strong>Transaction Details</strong></h4>
             <p style="margin-bottom: 5px;padding-left: 20px;"><strong>Transaction ID :</strong> '''+ none_to_str(handon_res["off_transaction_id"]) + ''' </p>
@@ -275,13 +230,16 @@ class Registration():
             <p style="margin-bottom: 5px;padding-left: 20px;"><strong>Memo :</strong> '''+ none_to_str(handon_res["off_transaction_memo"]) +'''  </p>
             <p style="margin-bottom: 5px;padding-left: 20px;"><strong>&nbsp;</strong></p>'''
             tbl_head = 'UDA - Fall Registration'
-        else:
-            thank_mess = ''
-            transaction_section = ''
-            tbl_head = ''
-            
 
-        table = ""
+        result['thank_mess'] = thank_mess
+        result['transaction_section'] = transaction_section
+        result['tbl_head'] = tbl_head
+        return result
+
+    def get_dynamic_content_action(self,action,tbl_head,convention_lists,con_list,hand_id,prices_list):
+        result = {}
+        table = ''
+        none_to_str=lambda a:str(a) if str(a) != 'None' else ''
         if action == 1:
             total_grand_val = 0
             count_convention = len(convention_lists)
@@ -371,7 +329,55 @@ class Registration():
                                             <td style="border-bottom: 1px dashed #e3e5e8;padding:6px 0px;">Total</td>
                                             <td style="border-bottom: 1px dashed #e3e5e8;padding:6px 0px;">$'''+ str(sub_total) +''' </td>
                                         </tr>'''
-        count_workshop = len(workshop_lists);
+        
+        result['table'] = table
+        result['total_grand_val'] = total_grand_val
+        return result
+
+
+    def mail_template(self,form,hand_id):
+        result = {}
+        body = ''
+        
+        none_to_str=lambda a:str(a) if str(a) != 'None' else ''
+        handon_res = (Handon_form.objects.values().filter(id=hand_id,status=1)[:1])[0]
+        convention_ws = Convention_form_workshop.objects.filter(is_deleted=1,hand_id=hand_id).aggregate(con_ws_ids = GroupConcat('work_id'))
+        handon_ws = Handon_form_workshop.objects.filter(is_deleted=1,hand_id=hand_id).aggregate(hands_ws_ids = GroupConcat('work_id'))
+        if convention_ws:
+            mail_temp_con_res = self.mail_temp_con(convention_ws)
+            con_list = mail_temp_con_res['con_list']
+            convention_lists = mail_temp_con_res['convention_lists']
+        if handon_ws:
+            mail_temp_ws_res = self.mail_temp_ws(handon_ws)
+            workshop_lists = mail_temp_ws_res['workshop_lists']
+            
+        today_dt = dt.date.today() 
+        if handon_res['created_on']:
+            today_dt = handon_res['created_on'].date()
+
+        getPrice = Convention_types_prices.objects.values().filter(form_status=form,start_date__lte=today_dt,end_date__gte=today_dt).order_by('id')[:1]
+
+        if getPrice== '':
+            return 'The deadline for all pre-registration is Expired'
+
+        prices_list = json.loads(getPrice[0]['bulk_price'])
+
+        grand_price = none_to_str(handon_res['amount'])
+        if handon_res['updated_grand_amount']:
+            grand_price = none_to_str(handon_res['updated_grand_amount'])
+
+        action = 1
+
+        get_dynamic_thead_res = self.get_dynamic_thead(self,form,handon_res,grand_price)
+        thank_mess = get_dynamic_thead_res['thank_mess']
+        transaction_section = get_dynamic_thead_res['transaction_section']
+        tbl_head = get_dynamic_thead_res['tbl_head']   
+
+        table = ""
+        get_dy_con_act_res = self.get_dynamic_content_action(action,tbl_head,convention_lists,con_list,hand_id,prices_list)
+        table += get_dy_con_act_res['table']
+        total_grand_val = get_dy_con_act_res['total_grand_val']
+        count_workshop = len(workshop_lists)
         if count_workshop>0:
             table += '''<tr>
                             <th colspan="12">

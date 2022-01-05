@@ -54,6 +54,29 @@ class Send_Mail():
             is_sent=str(e)
         return is_sent
 
+class default_functions():
+    def get_payment_method(self,method):
+        payment = {
+            '1':"Cash",
+            '2':"Cheque/DD",
+            '3':"POS",
+            '4':"Venmo",
+            '5':"Others"
+        }
+        result = ''
+        try:
+            result = payment[method]
+        except Exception as e:    
+            result = ''
+        return result 
+
+    def check_key_val(self,key,list):
+        value = ''
+        if key in list:
+            value = list[key]
+        return value
+
+        
 # Create your models here.
 class Users(models.Model):
     name = models.CharField(max_length=200,null=True,db_index=True)

@@ -13,7 +13,7 @@ from django.conf import settings
 from django.core import serializers
 
 from uda.settings import DEFAULT_FROM_EMAIL
-from .models import Send_Sms,Send_Mail,Users
+from .models import Send_Sms,Send_Mail,Users,default_functions
 from django.contrib import messages
 import datetime
 import csv
@@ -37,6 +37,7 @@ from django.utils.html import strip_tags
 from django.contrib.staticfiles import finders
 
 succ_message = "Registered Successfully"
+default_obj = default_functions()
 
 def link_callback(uri, rel):
             """
@@ -230,29 +231,30 @@ def convention_workshop_form(request):
 def message_center_operations(request):
     obmessage=message_centers()
     module=request.POST.get('module')
-    if module and module=='list':
+    if module=='list':
         result=obmessage.list_message_center(request)
         return JsonResponse(result, status = 200)
-    elif module and module=='typeofmem':
+    elif module=='typeofmem':
         result=obmessage.type_of_members(request)
         return JsonResponse({"option":result}, status = 200)
-    elif module and module=='memnames':
+    elif module=='memnames':
         result=obmessage.member_names(request)
         return JsonResponse({"option":result}, status = 200)
-    elif module and module=='add_message':
+    elif module=='add_message':
         err=''
         msg=''
         result=obmessage.add_messages(request)
-        if result['error']:
-            err=result['error']
-        if result['msg']:
-            msg=result['msg']
+        err = default_obj.check_key_val('error',result)
+        msg = default_obj.check_key_val('msg',result)
         return JsonResponse({"valid":True,"err":err,"msg":msg}, status = 200)
-    elif module and module=='delete':
+    elif module=='delete':
         result=obmessage.delete_message(request)
         return JsonResponse(result, status = 200)
-    elif module and module=='view_msg':
+    elif module=='view_msg':
         result=obmessage.view_msgs(request)
+        return JsonResponse(result, status = 200)
+    else:
+        result=[]
         return JsonResponse(result, status = 200)
 
     
@@ -398,7 +400,6 @@ def user_management(request):
 @login_required()
 def delete_user_management(request,id):
      id_session=request.session['user_id']
-     print(id_session)
      if request.is_ajax and request.method=='POST':
         error=''
         user = Users.objects.get(id=id)
@@ -442,8 +443,11 @@ def edit_profile(request):
     # print(data.auth_user_id)
 
     if(request.method == "POST"):
+        objuser=user_managements()
         c = False
         file_action = False
+        err_msg = ''
+        succ_msg = ''
         name = request.POST.get('name')
         email = request.POST.get('email')
         oldPassword = request.POST.get('old_pass')
@@ -451,37 +455,28 @@ def edit_profile(request):
 
         data     = Users.objects.values().get(id=id)
         password_check = check_password(oldPassword,data['password'])
-        
+        image = data['profile_img']
+
         if len(request.FILES) != 0:
             image = request.FILES['changepro']
             file_action = True
-        else:
-           image = data['profile_img']
 
         if(email!=""):
-            if Users.objects.filter(~Q(id=id),email=email).exists():
-                messages.error(request, 'Email already exist')
-            elif(oldPassword=='' and newPassword != ""):
-                messages.error(request, 'Old password required to update your new password')
-            elif(oldPassword!="" and newPassword==''):
-                messages.error(request, 'New password required to update')
-            elif(oldPassword != "" and newPassword != "" ):
-                if(password_check==True):
-                    c = True 
-                else:
-                    messages.error(request, "Invalid Old password ") 
-            else:
-                Users.objects.filter(id=id).update(
-                    name=name,
-                    email=email,
-                    profile_img = image,
-                  
-                )
-                if(file_action):
-                    messages.success(request, "File & General details updated successfully")
-                else:
-                    messages.success(request, "General details updated successfully")
-
+            params={
+                'email' : email,
+                'oldPassword' : oldPassword,
+                'newPassword' : newPassword,
+                'name' : name,
+                'image' : image,
+                'file_action' : file_action,
+                'password_check' : password_check
+            }
+            validation_res = objuser.edit_pro_validation(params)
+            err_msg = default_obj.check_key_val('errmsg',validation_res)
+            succ_msg = default_obj.check_key_val('succmsg',validation_res)
+            messages.error(request, err_msg)
+            messages.success(request, succ_msg)
+            c = validation_res['c']
 
         if(c):
             Users.objects.filter(id=id).update(
@@ -525,11 +520,12 @@ def qrcode_search(request,ids,types):
 
 def reset_pass(request):
     module=request.POST.get('module')
+    objuser=user_managements()
     if module and module=='send_mail':
-        result=user_managements.reset_pass_mail(request)
+        result=objuser.reset_pass_mail(request)
         return JsonResponse(result, status = 200)
     if module and module=='reset_password':
-        result=user_managements.reset_password_submit(request)
+        result=objuser.reset_password_submit(request)
         if result['res']:
             messages.success(request, "Your password has been reset successfully!")
             return redirect('auth-login')

@@ -1,4 +1,4 @@
-from admin_uda.models import Convention_types,Convention_types_prices,Handon_workshop,Handon_form,Convention_form_workshop,Handon_form_workshop,Send_Mail
+from admin_uda.models import Convention_types,Convention_types_prices,Handon_workshop,Handon_form,Convention_form_workshop,Handon_form_workshop,Send_Mail,default_functions
 from django.db.models import Count
 import json
 import datetime as dt
@@ -6,6 +6,9 @@ from admin_uda.registrations.registration import Registration
 from django_mysql.models import GroupConcat
 from django.conf import settings
 import os
+
+default_obj = default_functions()
+
 
 class ConventionRegistration():
     rt_qrcode = "/uploads/mail_qrcode/"
@@ -139,17 +142,13 @@ class ConventionRegistration():
                             price = price,
                             name = val['name'],
                         )
-                    work_shop_form.ada = self.check_key_val('ada',val) 
+                    work_shop_form.ada = default_obj.check_key_val('ada',val) 
                     work_shop_form.save()
                     last_insert_wid = work_shop_form.id
                     no_wrkshop += last_insert_wid
         return no_wrkshop
 
-    def check_key_val(self,key,list):
-        value = ''
-        if key in list:
-            value = list[key]
-        return value
+    
 
     def save_workshop(self,hand_id,wh):
         a = int(dt.datetime.now().timestamp())
