@@ -315,8 +315,7 @@ class convention_details_pdf:
             table+='</tbody></table></td></tr>'
         return {"table":table}
     
-    def get_workshops(self,hidden_hand_id):
-        table=''
+    def get_workshops_data(self,hidden_hand_id):
         li_wrk_shop=Handon_form_workshop.objects.filter(is_deleted=1,hand_id=hidden_hand_id).aggregate(hand_works=GroupConcat('work_id'))
         workshops_list=[]
         in_workshop_arr=[]
@@ -324,6 +323,45 @@ class convention_details_pdf:
             in_workshop_arr=li_wrk_shop['hand_works'].split(',')
         if in_workshop_arr:
             workshops_list=Handon_workshop.objects.filter(status=1,id__in=in_workshop_arr).order_by('id')
+        return {"workshops_list":workshops_list}
+        
+    def get_workshop_table_datas(self,subrows):
+        table=""
+        x=1
+        sub_total=0
+        for sub in subrows:
+            if sub.updated_price is None or sub.updated_price=='':
+                p=int(sub.amount)
+            else:
+                p=int(sub.updated_price)
+            sub_total+=p
+            table+="""<tr class="adj" style="border: 0.5px #ddd;">
+                    <td
+                        style='font-family: Nunito, sans-serif;font-size: 15px;padding: 5px; border: 1px solid #ddd !important;'>
+                        """+str(x)+"""</td>
+                    <td
+                        style='font-family: Nunito, sans-serif;font-size: 15px;padding: 5px; border: 1px solid #ddd !important;'>
+                        """+self.none_to_str(sub.name)+"""
+                    </td>
+                    <td
+                        style='font-family: Nunito, sans-serif;font-size: 15px;padding: 5px; border: 1px solid #ddd !important;width: 200px;'>
+                        """+self.none_to_str(sub.email)+"""
+                    </td>
+                    <td
+                        style='font-family: Nunito, sans-serif;font-size: 15px;padding: 5px; border: 1px solid #ddd !important;'>
+                        """+self.none_to_str(sub.mobile)+"""
+                    </td>
+                    <td
+                        style='font-family: Nunito, sans-serif;font-size: 15px;padding: 5px; border: 1px solid #ddd !important;'>
+                        $"""+str(p)+"""</td>
+                </tr>"""
+            x+=1
+        return {"table":table,"sub_total":sub_total}
+
+    def get_workshops(self,hidden_hand_id):
+        table=''
+        workshops_data=self.get_workshops_data(hidden_hand_id)
+        workshops_list=workshops_data['workshops_list']
         if workshops_list:     
             table+="""<tr>
                         <td colspan="2">
@@ -371,35 +409,9 @@ class convention_details_pdf:
                                             """+self.none_to_str(work.name)+'($'+ str(work.amount)+""")</td>
                                     </tr>""" 
                 if subrows:
-                    x=1
-                    sub_total=0
-                    for sub in subrows:
-                        if sub.updated_price is None or sub.updated_price=='':
-                            p=int(sub.amount)
-                        else:
-                            p=int(sub.updated_price)
-                        sub_total+=p
-                        table+="""<tr class="adj" style="border: 0.5px #ddd;">
-                                <td
-                                    style='font-family: Nunito, sans-serif;font-size: 15px;padding: 5px; border: 1px solid #ddd !important;'>
-                                    """+str(x)+"""</td>
-                                <td
-                                    style='font-family: Nunito, sans-serif;font-size: 15px;padding: 5px; border: 1px solid #ddd !important;'>
-                                    """+self.none_to_str(sub.name)+"""
-                                </td>
-                                <td
-                                    style='font-family: Nunito, sans-serif;font-size: 15px;padding: 5px; border: 1px solid #ddd !important;width: 200px;'>
-                                    """+self.none_to_str(sub.email)+"""
-                                </td>
-                                <td
-                                    style='font-family: Nunito, sans-serif;font-size: 15px;padding: 5px; border: 1px solid #ddd !important;'>
-                                    """+self.none_to_str(sub.mobile)+"""
-                                </td>
-                                <td
-                                    style='font-family: Nunito, sans-serif;font-size: 15px;padding: 5px; border: 1px solid #ddd !important;'>
-                                    $"""+str(p)+"""</td>
-                            </tr>"""
-                        x+=1
+                    workshop_table_datas=self.get_workshop_table_datas(subrows)
+                    table+=workshop_table_datas['table']
+                    sub_total=workshop_table_datas['sub_total']
                     table+="""<tr style="border: 0.5px #ddd">
                                         <td style='font-family: Nunito, sans-serif;font-size: 15px;padding: 5px; border: 1px solid #ddd !important;'
                                             colspan="3">
