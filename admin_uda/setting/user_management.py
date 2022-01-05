@@ -10,7 +10,32 @@ import re
 from hashids import Hashids
 import random
 class user_managements():
- 
+    def edit_pro_validation(self,params):
+        result={}
+        if Users.objects.filter(~Q(id=id),email=params['email']).exists():
+            result['errmsg'] = 'Email already exist'
+        elif(params['oldPassword']=='' and params['newPassword'] != ""):
+            result['errmsg'] = 'Old password required to update your new password'
+        elif(params['oldPassword']!="" and params['newPassword']==''):
+            result['errmsg'] = 'New password required to update'
+        elif(params['oldPassword'] != "" and params['newPassword'] != "" ):
+            if(params['password_check']==True):
+                result['c'] = True 
+            else:
+                result['errmsg'] = "Invalid Old password "
+        else:
+            Users.objects.filter(id=id).update(
+                name=params['name'],
+                email=params['email'],
+                profile_img = params['image'],
+                
+            )
+            if(params['file_action']):
+                result['succmsg'] = "File & General details updated successfully"
+            else:
+                result['succmsg'] = "General details updated successfully"
+        return result
+
     def get_ip(self,request):
         x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
         if x_forwarded_for:

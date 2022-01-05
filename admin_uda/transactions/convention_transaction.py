@@ -5,12 +5,13 @@ from admin_uda.models import Handon_form
 import datetime as dt
 import csv 
 from hashids import Hashids
-class convention_transactions:
+class convention_transactions():
     date_format = '%m-%d-%Y'
     date_format_input = '%m/%d/%Y'
     date_format_db = '%Y-%m-%d'
-    def list_convention_transactions(self,request):
-        hav=''
+
+    def condition_query_fn(self,request):
+        result = {}
         condt='A.status!=2 AND A.form=1 AND A.form_status IN (1,3)'
         #filters
         flt_sdate=request.POST.get('fltr_start_date')
@@ -39,6 +40,12 @@ class convention_transactions:
 
             condt+=")"
 
+        group_where_hw1=''
+        group_where_hw_q1=''
+        group_where_ct1=''
+        group_where_ct_q1=''
+        select_hw1=''
+        select_ct1=''
         keywordsearch=request.POST.get('keyword')
         if keywordsearch:
             condt+=" AND ( A.name LIKE '"+keywordsearch+"%' OR A.last_name LIKE '"+keywordsearch+"%' OR A.practice_name LIKE '"+keywordsearch+"%' OR A.email LIKE '"+keywordsearch+"%' OR A.phone LIKE '"+keywordsearch+"%' OR A.transaction_ref LIKE '"+keywordsearch+"%' "
@@ -47,9 +54,23 @@ class convention_transactions:
                     condt+=" OR (A.transaction_status IS NULL)"
                 else:
                     condt+=" OR A.transaction_status LIKE '"+keywordsearch+"%' "
-
             condt+=")"
+            group_where_hw1+=" name LIKE '"+keywordsearch+"%'"
+            group_where_ct1+=" name LIKE '"+keywordsearch+"%'"
+            if group_where_hw1!='':
+                group_where_hw_q1+=" AND "+group_where_hw1
+                select_hw1+=",(SELECT GROUP_CONCAT(name) FROM admin_uda_handon_form_workshop WHERE hand_id_id=A.id "+group_where_hw_q1+") AS hw_names,(SELECT COUNT(work_id_id) FROM admin_uda_handon_form_workshop WHERE hand_id_id=A.id "+group_where_hw_q1+") AS hw_ids1"
+            if group_where_ct1!='':
+                group_where_ct_q1+=" AND "+group_where_ct1
+                select_ct1+=",(SELECT GROUP_CONCAT(name) FROM admin_uda_convention_form_workshop WHERE hand_id=A.id "+group_where_ct_q1+") AS ct_names,(SELECT COUNT(work_id) FROM admin_uda_convention_form_workshop WHERE hand_id=A.id "+group_where_ct_q1+") AS ct_ids1"
 
+        result['select_ct1'] = select_ct1
+        result['select_hw1'] = select_hw1
+        result['condt'] = condt
+        return result
+
+    def condition_query_funtion(self,request,condt):
+        result = {}
         reg_cat=request.POST.get('ad_reg_cat_hid')
         group_where_hw=''
         group_where_hw_q=''
@@ -72,28 +93,20 @@ class convention_transactions:
                 group_where_hw_q+=" AND (work_id_id IN ("+group_where_hw.lstrip(",")+"))"
                 select_hw+=",(SELECT COUNT(work_id_id) FROM admin_uda_handon_form_workshop WHERE hand_id_id=A.id "+group_where_hw_q+") AS ct_ids"
 
-        group_where_hw1=''
-        group_where_hw_q1=''
-        group_where_ct1=''
-        group_where_ct_q1=''
-        select_hw1=''
-        select_ct1=''
-        if keywordsearch:
-            group_where_hw1+=" name LIKE '"+keywordsearch+"%'"
-            group_where_ct1+=" name LIKE '"+keywordsearch+"%'"
-            if group_where_hw1!='':
-                group_where_hw_q1+=" AND "+group_where_hw1
-                select_hw1+=",(SELECT GROUP_CONCAT(name) FROM admin_uda_handon_form_workshop WHERE hand_id_id=A.id "+group_where_hw_q1+") AS hw_names,(SELECT COUNT(work_id_id) FROM admin_uda_handon_form_workshop WHERE hand_id_id=A.id "+group_where_hw_q1+") AS hw_ids1"
-            if group_where_ct1!='':
-                group_where_ct_q1+=" AND "+group_where_ct1
-                select_ct1+=",(SELECT GROUP_CONCAT(name) FROM admin_uda_convention_form_workshop WHERE hand_id=A.id "+group_where_ct_q1+") AS ct_names,(SELECT COUNT(work_id) FROM admin_uda_convention_form_workshop WHERE hand_id=A.id "+group_where_ct_q1+") AS ct_ids1"
-
         flt_status=request.POST.get('flt_status')
         if flt_status == "1":
             condt+=" AND ( A.off_transaction_status = '"+flt_status+"' )"
         elif flt_status == "2":
            condt+=" AND ( A.off_transaction_status = '"+flt_status+"' )"
 
+        result['select_ct'] = select_ct
+        result['select_hw'] = select_hw
+        result['condt'] = condt
+
+        return result
+
+    def advance_search(self,request,condt):
+        result = {}
         #advance search filters
         f_name=request.POST.get('f_name')
         if f_name!='':
@@ -142,32 +155,43 @@ class convention_transactions:
             condt+=" AND ( A.off_transaction_status = "+tr_online+" ) "
         elif tr_offline == '2':
             condt+=" AND ( A.off_transaction_status = "+tr_offline+" ) "
-        
 
+        result['condt'] = condt
+        return result
+
+    def query_builder(self,select_ct,select_ct1,select_hw,select_hw1,condt):
         trans_que="select A.id as Id,A.name,A.created_on,A.last_name,A.practice_name,A.off_transaction_id,A.amount,A.email,A.phone,A.browser,A.os,A.transaction_status,A.transaction_ref,A.archive_id,A.off_transaction_status,A.status,A.updated_grand_amount,A.created_by,B.name as registered_name,C.id,COUNT(C.id) as printcount "+select_ct+select_hw+select_ct1+select_hw1+" from admin_uda_handon_form As A LEFT JOIN admin_uda_users as B ON B.id = A.created_by LEFT JOIN admin_uda_id_prints as C ON C.parent_id = A.id where "+condt+" GROUP By A.id"
-
-
         if select_hw!='':
             trans_que+=" HAVING hw_ids>0 "
         if select_ct!='':
             if select_hw!='':
                 trans_que+=" AND ct_ids>0 "
             else:
-                trans_que+=" HAVING ct_ids>0 "
-
-        
+                trans_que+=" HAVING ct_ids>0 "        
         if select_hw1!='':
             if trans_que.find('HAVING')==-1:
                 trans_que+=" HAVING hw_ids1>0 "
             else:
-                trans_que+=" OR hw_ids1>0 "
-        
+                trans_que+=" OR hw_ids1>0 "        
         if select_ct1!='':
             if trans_que.find('HAVING')==-1:
                 trans_que+=" HAVING ct_ids1>0 "
             else:
                 trans_que+=" OR ct_ids1>0 "
+        return trans_que
 
+    def list_convention_transactions(self,request):
+        condition_query_fn_res = self.condition_query_fn(request)
+        select_ct1 = condition_query_fn_res['select_ct1']
+        select_hw1 = condition_query_fn_res['select_hw1']
+        condt = condition_query_fn_res['condt']
+        condition_query_funtion_res = self.condition_query_funtion(request,condt)
+        select_ct = condition_query_funtion_res['select_ct']
+        select_hw = condition_query_funtion_res['select_hw']
+        condt = condition_query_funtion_res['condt']
+        advance_search_res = self.advance_search(request,condt)
+        condt = advance_search_res['condt']        
+        trans_que = self.query_builder(select_ct,select_ct1,select_hw,select_hw1,condt)
         data_new=Handon_form.objects.raw(trans_que,None)
         tot_count=len(list(data_new))
         nd=[]
