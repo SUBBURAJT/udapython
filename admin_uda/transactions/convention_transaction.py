@@ -10,35 +10,17 @@ class convention_transactions():
     date_format_input = '%m/%d/%Y'
     date_format_db = '%Y-%m-%d'
 
-    def condition_query_fn(self,request):
+    def condition_query_fn(self,request,condt):
         result = {}
-        condt='A.status!=2 AND A.form=1 AND A.form_status IN (1,3)'
+        
         #filters
         flt_sdate=request.POST.get('fltr_start_date')
         flt_edate=request.POST.get('fltr_end_date')
-        flt_archive=request.POST.get('archive')
-        if flt_archive:
-            condt+=" AND A.archive_id="+flt_archive
-        else:
-            condt+= " AND A.archive_id=0 "
-
+            
         if flt_sdate and flt_edate:
             flt1_strdate = dt.datetime.strptime(str(flt_sdate),self.date_format_input).strftime(self.date_format_db)
             flt1_endate = dt.datetime.strptime(str(flt_edate),self.date_format_input).strftime(self.date_format_db)
             condt+=" AND DATE(A.created_on) >= '"+str(flt1_strdate)+"' AND DATE(A.created_on) <= '"+str(flt1_endate)+"'"
-
-        singlenamesearch=request.POST.get('singlenamesearch')
-        if singlenamesearch and singlenamesearch!='all':
-            condt+=" AND ( A.name LIKE '"+singlenamesearch+"%' OR A.last_name LIKE '"+singlenamesearch+"%' OR A.practice_name LIKE '"+singlenamesearch+"%' OR A.email LIKE '"+singlenamesearch+"%' OR A.phone LIKE '"+singlenamesearch+"%' OR A.transaction_ref LIKE '"+singlenamesearch+"%' "
-            """
-            if singlenamesearch=='Success' or singlenamesearch=='Failure' or singlenamesearch=='Pending':
-                if singlenamesearch=='Pending':
-                    condt+=" OR (A.transaction_status IS NULL)"
-                else:
-                    condt+=" OR A.transaction_status LIKE '"+singlenamesearch+"%' "
-            """
-
-            condt+=")"
 
         group_where_hw1=''
         group_where_hw_q1=''
@@ -181,7 +163,25 @@ class convention_transactions():
         return trans_que
 
     def list_convention_transactions(self,request):
-        condition_query_fn_res = self.condition_query_fn(request)
+        flt_archive=request.POST.get('archive')
+        condt='A.status!=2 AND A.form=1 AND A.form_status IN (1,3)'
+
+        condt+=" AND A.archive_id="+flt_archive if flt_archive else " AND A.archive_id=0 "
+
+        singlenamesearch=request.POST.get('singlenamesearch')
+        if singlenamesearch and singlenamesearch!='all':
+            condt+=" AND ( A.name LIKE '"+singlenamesearch+"%' OR A.last_name LIKE '"+singlenamesearch+"%' OR A.practice_name LIKE '"+singlenamesearch+"%' OR A.email LIKE '"+singlenamesearch+"%' OR A.phone LIKE '"+singlenamesearch+"%' OR A.transaction_ref LIKE '"+singlenamesearch+"%' "
+            """
+            if singlenamesearch=='Success' or singlenamesearch=='Failure' or singlenamesearch=='Pending':
+                if singlenamesearch=='Pending':
+                    condt+=" OR (A.transaction_status IS NULL)"
+                else:
+                    condt+=" OR A.transaction_status LIKE '"+singlenamesearch+"%' "
+            """
+
+            condt+=")"
+
+        condition_query_fn_res = self.condition_query_fn(request,condt)
         select_ct1 = condition_query_fn_res['select_ct1']
         select_hw1 = condition_query_fn_res['select_hw1']
         condt = condition_query_fn_res['condt']
