@@ -9,7 +9,6 @@ class convention_details_pdf:
             return ''
         else:
             return s
-
     # set condition for differentiate fall or spring or convention price
     def get_prices(self,form_status,amount,updated_grand_amount):
         today=dt.date.today()
@@ -315,6 +314,106 @@ class convention_details_pdf:
                         </tr>"""
             table+='</tbody></table></td></tr>'
         return {"table":table}
+    
+    def get_workshops(self,hidden_hand_id):
+        table=''
+        li_wrk_shop=Handon_form_workshop.objects.filter(is_deleted=1,hand_id=hidden_hand_id).aggregate(hand_works=GroupConcat('work_id'))
+        workshops_list=[]
+        in_workshop_arr=[]
+        if li_wrk_shop['hand_works'] is not None:
+            in_workshop_arr=li_wrk_shop['hand_works'].split(',')
+        if in_workshop_arr:
+            workshops_list=Handon_workshop.objects.filter(status=1,id__in=in_workshop_arr).order_by('id')
+        if workshops_list:     
+            table+="""<tr>
+                        <td colspan="2">
+                            <h4 class='mb-0 text-center py-1'
+                                style='font-size: 22px;color: #000;margin-top: 0px;margin-bottom:0px;padding: 0px;'>
+                                <strong>UDA - Hands on workshop Registration</strong>
+                            </h4>
+                        </td>
+                    </tr>
+            <tr>
+            <td colspan='2'>
+                <table style="width: 100%;border-bottom: 0;border-left: 0;margin-top: 0px;border: 0.5px solid #ababab"
+                    class="table-bordered table tablelist">
+                    <thead>
+                        <tr style="border: 0.5px #ddd;">
+                            <th class='bg-color text-uppercase'
+                                style='font-family: Nunito, sans-serif;font-size: 15px;margin-bottom: 0px;margin-top: 0px;padding: 5px; color: #000; border: 1px solid #ddd !important;background: #7164d530 !important;color: #454545;'>
+                                <strong>SL
+                                    NO</strong>
+                            </th>
+                            <th class='bg-color text-uppercase'
+                                style='font-family: Nunito, sans-serif;font-size: 15px;margin-bottom: 0px;margin-top: 0px;padding: 5px; color: #000; border: 1px solid #ddd !important;background: #7164d530 !important;color: #454545;'>
+                                <strong>NAME</strong>
+                            </th>
+                            <th class='bg-color text-uppercase'
+                                style='font-family: Nunito, sans-serif;font-size: 15px;margin-bottom: 0px;margin-top: 0px;padding: 5px; color: #000; border: 1px solid #ddd !important;background: #7164d530 !important;color: #454545;'>
+                                <strong>EMAIL</strong>
+                            </th>
+                            <th class='bg-color text-uppercase'
+                                style='font-family: Nunito, sans-serif;font-size: 15px;margin-bottom: 0px;margin-top: 0px;padding: 5px; color: #000; border: 1px solid #ddd !important;background: #7164d530 !important;color: #454545;'>
+                                <strong>MOBILE</strong>
+                            </th>
+                            <th class='bg-color text-uppercase'
+                                style='font-family: Nunito, sans-serif;font-size: 15px;margin-bottom: 0px;margin-top: 0px;padding: 5px; color: #000; border: 1px solid #ddd !important;background: #7164d530 !important;color: #454545;'>
+                                <strong>Fee</strong>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="pnt">"""
+            for work in workshops_list:
+                subrows=Handon_form_workshop.objects.filter(is_deleted=1,hand_id=hidden_hand_id,work_id=work.id)
+                table+="""<tr style="border: 0.5px #ddd;">
+                                        <td colspan="5" class="for-blue"
+                                            style='font-family: Nunito, sans-serif;font-size: 15px;padding: 5px; border: 1px solid #ddd !important;'>
+                                            """+self.none_to_str(work.name)+'($'+ str(work.amount)+""")</td>
+                                    </tr>""" 
+                if subrows:
+                    x=1
+                    sub_total=0
+                    for sub in subrows:
+                        if sub.updated_price is None or sub.updated_price=='':
+                            p=int(sub.amount)
+                        else:
+                            p=int(sub.updated_price)
+                        sub_total+=p
+                        table+="""<tr class="adj" style="border: 0.5px #ddd;">
+                                <td
+                                    style='font-family: Nunito, sans-serif;font-size: 15px;padding: 5px; border: 1px solid #ddd !important;'>
+                                    """+str(x)+"""</td>
+                                <td
+                                    style='font-family: Nunito, sans-serif;font-size: 15px;padding: 5px; border: 1px solid #ddd !important;'>
+                                    """+self.none_to_str(sub.name)+"""
+                                </td>
+                                <td
+                                    style='font-family: Nunito, sans-serif;font-size: 15px;padding: 5px; border: 1px solid #ddd !important;width: 200px;'>
+                                    """+self.none_to_str(sub.email)+"""
+                                </td>
+                                <td
+                                    style='font-family: Nunito, sans-serif;font-size: 15px;padding: 5px; border: 1px solid #ddd !important;'>
+                                    """+self.none_to_str(sub.mobile)+"""
+                                </td>
+                                <td
+                                    style='font-family: Nunito, sans-serif;font-size: 15px;padding: 5px; border: 1px solid #ddd !important;'>
+                                    $"""+str(p)+"""</td>
+                            </tr>"""
+                        x+=1
+                    table+="""<tr style="border: 0.5px #ddd">
+                                        <td style='font-family: Nunito, sans-serif;font-size: 15px;padding: 5px; border: 1px solid #ddd !important;'
+                                            colspan="3">
+                                        </td>
+                                        <td
+                                            style='font-family: Nunito, sans-serif;font-size: 15px;padding: 5px; border: 1px solid #ddd !important;'>
+                                            Total</td>
+                                        <td
+                                            style='font-family: Nunito, sans-serif;font-size: 15px;padding: 5px; border: 1px solid #ddd !important;'>
+                                            $"""+str(sub_total)+"""</td>
+                                    </tr>"""
+            table+='</tbody></table></td></tr>'
+        return {"table":table}
+    
         
     def pdf_transaction_details(self,hand_id):
         input={}
@@ -323,7 +422,6 @@ class convention_details_pdf:
         msg=''
         tid=hand_id
         hidden_hand_id = 0
-        total_grand_val=0
         data={}
         check_data=Handon_form.objects.filter(form=1,id=tid).exclude(status=2).exists()
         if check_data:
@@ -331,13 +429,6 @@ class convention_details_pdf:
             data=list(Handon_form.objects.filter(form=1,id=tid).exclude(status=2).values())[0]
             input['form_status']=data['form_status']
             hidden_hand_id = data["id"]
-            li_wrk_shop=Handon_form_workshop.objects.filter(is_deleted=1,hand_id=hidden_hand_id).aggregate(hand_works=GroupConcat('work_id'))
-            in_workshop_arr=[]
-            if li_wrk_shop['hand_works'] is not None:
-                in_workshop_arr=li_wrk_shop['hand_works'].split(',')
-            workshops_list=[]
-            if in_workshop_arr:
-                workshops_list=Handon_workshop.objects.filter(status=1,id__in=in_workshop_arr).order_by('id')
             
             # set condition for differentiate fall or spring or convention price
             prices_res=self.get_prices(data['form_status'],data["amount"],data["updated_grand_amount"])
@@ -367,104 +458,8 @@ class convention_details_pdf:
 
             # convention list
             get_conven_table=self.get_conventions(hidden_hand_id,data,arr_price)
-
             table+=get_conven_table["table"]
-            if workshops_list:     
-                table+="""<tr>
-                            <td colspan="2">
-                                <h4 class='mb-0 text-center py-1'
-                                    style='font-size: 22px;color: #000;margin-top: 0px;margin-bottom:0px;padding: 0px;'>
-                                    <strong>UDA - Hands on workshop Registration</strong>
-                                </h4>
-                            </td>
-                        </tr>
-                <tr>
-                <td colspan='2'>
-                    <table style="width: 100%;border-bottom: 0;border-left: 0;margin-top: 0px;border: 0.5px solid #ababab"
-                        class="table-bordered table tablelist">
-                        <thead>
-                            <tr style="border: 0.5px #ddd;">
-                                <th class='bg-color text-uppercase'
-                                    style='font-family: Nunito, sans-serif;font-size: 15px;margin-bottom: 0px;margin-top: 0px;padding: 5px; color: #000; border: 1px solid #ddd !important;background: #7164d530 !important;color: #454545;'>
-                                    <strong>SL
-                                        NO</strong>
-                                </th>
-                                <th class='bg-color text-uppercase'
-                                    style='font-family: Nunito, sans-serif;font-size: 15px;margin-bottom: 0px;margin-top: 0px;padding: 5px; color: #000; border: 1px solid #ddd !important;background: #7164d530 !important;color: #454545;'>
-                                    <strong>NAME</strong>
-                                </th>
-                                <th class='bg-color text-uppercase'
-                                    style='font-family: Nunito, sans-serif;font-size: 15px;margin-bottom: 0px;margin-top: 0px;padding: 5px; color: #000; border: 1px solid #ddd !important;background: #7164d530 !important;color: #454545;'>
-                                    <strong>EMAIL</strong>
-                                </th>
-                                <th class='bg-color text-uppercase'
-                                    style='font-family: Nunito, sans-serif;font-size: 15px;margin-bottom: 0px;margin-top: 0px;padding: 5px; color: #000; border: 1px solid #ddd !important;background: #7164d530 !important;color: #454545;'>
-                                    <strong>MOBILE</strong>
-                                </th>
-                                <th class='bg-color text-uppercase'
-                                    style='font-family: Nunito, sans-serif;font-size: 15px;margin-bottom: 0px;margin-top: 0px;padding: 5px; color: #000; border: 1px solid #ddd !important;background: #7164d530 !important;color: #454545;'>
-                                    <strong>Fee</strong>
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody class="pnt">"""
-                for work in workshops_list:
-                    in_status=0
-                    in_grand=0
-                    subrows=Handon_form_workshop.objects.filter(is_deleted=1,hand_id=hidden_hand_id,work_id=work.id)
-                    if subrows:
-                        in_status=1
-                        for sub in subrows:
-                            if sub.updated_price is None or sub.updated_price=='':
-                                in_grand+=int(sub.amount)
-                            else:
-                                in_grand+=int(sub.updated_price)
-                        total_grand_val+=in_grand
-                    table+="""<tr style="border: 0.5px #ddd;">
-                                            <td colspan="5" class="for-blue"
-                                                style='font-family: Nunito, sans-serif;font-size: 15px;padding: 5px; border: 1px solid #ddd !important;'>
-                                                """+self.none_to_str(work.name)+'($'+ str(work.amount)+""")</td>
-                                        </tr>""" 
-                    if in_status:
-                        x=1
-                        sub_total=0
-                        for sub in subrows:
-                            if sub.updated_price is None or sub.updated_price=='':
-                                p=int(sub.amount)
-                            else:
-                                p=int(sub.updated_price)
-                            sub_total+=p
-                            table+="""<tr class="adj" style="border: 0.5px #ddd;">
-                                    <td
-                                        style='font-family: Nunito, sans-serif;font-size: 15px;padding: 5px; border: 1px solid #ddd !important;'>
-                                        """+str(x)+"""</td>
-                                    <td
-                                        style='font-family: Nunito, sans-serif;font-size: 15px;padding: 5px; border: 1px solid #ddd !important;'>
-                                        """+self.none_to_str(sub.name)+"""
-                                    </td>
-                                    <td
-                                        style='font-family: Nunito, sans-serif;font-size: 15px;padding: 5px; border: 1px solid #ddd !important;width: 200px;'>
-                                        """+self.none_to_str(sub.email)+"""
-                                    </td>
-                                    <td
-                                        style='font-family: Nunito, sans-serif;font-size: 15px;padding: 5px; border: 1px solid #ddd !important;'>
-                                        """+self.none_to_str(sub.mobile)+"""
-                                    </td>
-                                    <td
-                                        style='font-family: Nunito, sans-serif;font-size: 15px;padding: 5px; border: 1px solid #ddd !important;'>
-                                        $"""+str(p)+"""</td>
-                                </tr>"""
-                            x+=1
-                        table+="""<tr style="border: 0.5px #ddd">
-                                            <td style='font-family: Nunito, sans-serif;font-size: 15px;padding: 5px; border: 1px solid #ddd !important;'
-                                                colspan="3">
-                                            </td>
-                                            <td
-                                                style='font-family: Nunito, sans-serif;font-size: 15px;padding: 5px; border: 1px solid #ddd !important;'>
-                                                Total</td>
-                                            <td
-                                                style='font-family: Nunito, sans-serif;font-size: 15px;padding: 5px; border: 1px solid #ddd !important;'>
-                                                $"""+str(sub_total)+"""</td>
-                                        </tr>"""
-                table+='</tbody></table></td></tr>'
+            # Workshop list
+            get_work_table=self.get_workshops(hidden_hand_id)
+            table+=get_work_table["table"]
         return {"input":input,"con_datas":table,"err":err,"msg":msg,"all_data":data}
