@@ -553,29 +553,29 @@ class convention_details():
         print_de=self.print_defaults(method)
         hashids = Hashids(salt='UDAHEALTHDENTALSALT',min_length=10)
         hashid = hashids.decode(id_method[0]) 
-        Tid=hashid[0]
-        input = {}
+        tid=hashid[0]
+        input_data = {}
         hidden_hand_id = 0
         err=1
         msg=''
         reg_type_val_tr=''
         reg_type_val_trp=''
-        check_data=Handon_form.objects.filter(form=1,id=Tid).exclude(status=2).exists()
+        check_data=Handon_form.objects.filter(form=1,id=tid).exclude(status=2).exists()
         if check_data:
             err=0
-            data=list(Handon_form.objects.filter(form=1,id=Tid).exclude(status=2).values())[0]
-            input['name']=data["name"]
-            input['lname']=data["last_name"]
-            input['phone']=data["phone"]
-            input['email']=data["email"]
-            input['address']=data["address"]
-            input['state']=data["state"]
-            input['city']=data["city"]
-            input['zipcode']=data["zipcode"]
-            input['form_status']=data['form_status']
-            input['practice_name']=data['practice_name']
-            input['off_transaction_status']=data['off_transaction_status']
-            input['methods']=method
+            data=list(Handon_form.objects.filter(form=1,id=tid).exclude(status=2).values())[0]
+            input_data['name']=data["name"]
+            input_data['lname']=data["last_name"]
+            input_data['phone']=data["phone"]
+            input_data['email']=data["email"]
+            input_data['address']=data["address"]
+            input_data['state']=data["state"]
+            input_data['city']=data["city"]
+            input_data['zipcode']=data["zipcode"]
+            input_data['form_status']=data['form_status']
+            input_data['practice_name']=data['practice_name']
+            input_data['off_transaction_status']=data['off_transaction_status']
+            input_data['methods']=method
             add=''
             if data['address'] is not None:
                 add+=data['address']
@@ -583,22 +583,22 @@ class convention_details():
                 add+=", "+data['city']
             if data['state'] is not None:
                 add+=", "+data['state']+"."
-            input['full_address']=add
+            input_data['full_address']=add
 
             #Transactions Info
             transactions_info=self.transaction_detail(data)
-            input['transaction_on']=transactions_info['transaction_on']
-            input['transaction_id']=transactions_info['transaction_id']
-            input['transaction_date']=transactions_info['transaction_date']
-            input['transaction_ref']=transactions_info["transaction_ref"]
-            input['transaction_status']=transactions_info["transaction_status"]
-            input['off_transaction_payment_mode']=transactions_info["off_transaction_payment_mode"]
-            input['off_transaction_memo']=transactions_info["off_transaction_memo"]
-            input['off_transaction_payment_details']=transactions_info["off_transaction_payment_details"]
+            input_data['transaction_on']=transactions_info['transaction_on']
+            input_data['transaction_id']=transactions_info['transaction_id']
+            input_data['transaction_date']=transactions_info['transaction_date']
+            input_data['transaction_ref']=transactions_info["transaction_ref"]
+            input_data['transaction_status']=transactions_info["transaction_status"]
+            input_data['off_transaction_payment_mode']=transactions_info["off_transaction_payment_mode"]
+            input_data['off_transaction_memo']=transactions_info["off_transaction_memo"]
+            input_data['off_transaction_payment_details']=transactions_info["off_transaction_payment_details"]
 
             # set condition for differentiate fall or spring or convention price
             prices_res=self.get_prices(data['form_status'],data["amount"],data["updated_grand_amount"])
-            input['grand_price']=prices_res['grand_price']
+            input_data['grand_price']=prices_res['grand_price']
             msg=prices_res['msg']
             arr_price=prices_res['arr_price']
 
@@ -606,12 +606,12 @@ class convention_details():
             
             #Conventions
             conven_records=self.get_conventions(hidden_hand_id,data,arr_price,print_de)
-            input['contab2']=conven_records['contab2']
+            input_data['contab2']=conven_records['contab2']
             reg_type_val_tr+=conven_records['reg_type_val_tr']
             reg_type_val_trp+=conven_records['reg_type_val_trp']
             #Workshops
             work_records=self.workshop_table_datas(hidden_hand_id,print_de)
-            input['contab1']=work_records['contab1']
+            input_data['contab1']=work_records['contab1']
             reg_type_val_tr+=work_records['reg_type_val_tr']
             reg_type_val_trp+=work_records['reg_type_val_trp']
-        return {"input":input,"con_datas":reg_type_val_tr,"con_datas_print":reg_type_val_trp,"err":err,"msg":msg}
+        return {"input":input_data,"con_datas":reg_type_val_tr,"con_datas_print":reg_type_val_trp,"err":err,"msg":msg}
