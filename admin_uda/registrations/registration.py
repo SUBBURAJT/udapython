@@ -333,6 +333,10 @@ class Registration():
         result['total_grand_val'] = total_grand_val
         return result
 
+
+
+
+
     def amount_calculation_fn(self,handon_res):
         result = {}
         none_to_str=lambda a:str(a) if str(a) != 'None' else ''
@@ -469,8 +473,6 @@ class Registration():
             table += mail_workshop_res['table']
             total_grand_val = mail_workshop_res['total_grand_val']
 
-            
-        
 
         amount_res = self.amount_calculation_fn(handon_res)
         updated_grand_amount_sec = amount_res['updated_grand_amount_sec']
