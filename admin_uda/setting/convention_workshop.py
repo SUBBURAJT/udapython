@@ -1,30 +1,30 @@
 from django.db.models.aggregates import Count
-from django.db.models import Q , FilteredRelation
+from django.db.models import Q 
 from admin_uda.models import Handon_workshop,Handon_form_workshop
 import datetime as dt
 
 class convention_workshops():
+    date_format_db = '%Y-%m-%d'
+    date_format_input = '%m/%d/%Y'
     def save_convention_workshop(self,request):
         last_id=''
         msg=''
         event_date_get=request.POST.get('event_date')
-        # ed_split=event_date_get.split('/')
-        # event_date=dt.date(int(ed_split[2]),int(ed_split[1]),int(ed_split[0]))
-        event_date=dt.datetime.strptime(event_date_get, '%m/%d/%Y').strftime('%Y-%m-%d')
-        timeSlot=request.POST.get('timeSlot')
+        event_date=dt.datetime.strptime(event_date_get, self.date_format_input).strftime(self.date_format_db)
+        timeslot=request.POST.get('timeSlot')
         speaker_name=request.POST.get('speaker_name')
         name=request.POST.get('name')
         qty=request.POST.get('qty')
         total_hours=request.POST.get('total_hours')
         amount=request.POST.get('amount')
         edit_rec_id=request.POST.get('edit_rec_id')
-        dup=Handon_workshop.objects.filter(event_date=event_date,timeslot=timeSlot,name=name.lower()).filter(~Q(id=edit_rec_id)).exclude(status=2).count()
+        dup=Handon_workshop.objects.filter(event_date=event_date,timeslot=timeslot,name=name.lower()).filter(~Q(id=edit_rec_id)).exclude(status=2).count()
         error=''
         if dup == 0:
             if int(edit_rec_id)==0 or edit_rec_id=='':
                 form=Handon_workshop()
                 form.event_date=event_date
-                form.timeslot=timeSlot
+                form.timeslot=timeslot
                 form.speaker_name=speaker_name
                 form.name=name
                 form.qty=qty
@@ -37,7 +37,7 @@ class convention_workshops():
             else:
                 form=Handon_workshop.objects.get(id=edit_rec_id)
                 form.event_date=event_date
-                form.timeslot=timeSlot
+                form.timeslot=timeslot
                 form.speaker_name=speaker_name
                 form.name=name
                 form.qty=qty
@@ -56,9 +56,7 @@ class convention_workshops():
         flt_date=request.POST.get('flt_date')
         flt_event_date=''
         if flt_date:
-            ed_split=flt_date.split('/')
-            flt_event_date=dt.date(int(ed_split[2]),int(ed_split[1]),int(ed_split[0]))
-
+            flt_event_date=dt.datetime.strptime(flt_date, self.date_format_input).strftime(self.date_format_db)
 
         flt_timeslot=request.POST.get('flt_timeslot')
         tot_count=Handon_workshop.objects.exclude(status=2)
@@ -74,8 +72,9 @@ class convention_workshops():
         tot_count=tot_count.count()
         nd=[]
         res={}
+        j=0
         for datas in qry:
-            nestedData=[]
+            nested_data=[]
             slot=''
             if datas.timeslot==1:
                 slot=" AM"
@@ -88,8 +87,6 @@ class convention_workshops():
             else:
                 lock="lock"
                 mod="active"
-
-            # res_count=Handon_form_workshop.objects.filter(work_id=datas.id).values('hand_id').annotate(tot=Count('hand_id'),hand_ids=FilteredRelation('hand_id',condition=Q(hand_id__archive_id=True,hand_id__status=True))).filter(hand_id__archive_id=0,hand_id__status=1).values('tot')
             res_count=Handon_form_workshop.objects.filter(work_id=datas.id,hand_id__archive_id=0,hand_id__status=1).values('hand_id').annotate(tot=Count('hand_id')).values('tot')
             reg=0
             if res_count:
@@ -105,34 +102,32 @@ class convention_workshops():
                                  <p class="mb-0 fs-14">"""+datas.speaker_name.capitalize()+"""</p>
                             </div>
                     </div>"""
-            nestedData.append(spe_name)
-            nestedData.append(datas.name)
+            nested_data.append(spe_name)
+            nested_data.append(datas.name)
             event_date_get=datas.event_date
-            ed_split=str(event_date_get).split('-')
-            event_date=dt.date(int(ed_split[0]),int(ed_split[1]),int(ed_split[2]))
-            event_date_f=event_date.strftime("%m, %A, %Y")+slot
-            nestedData.append(event_date_f)
+            event_date=dt.datetime.strptime(str(event_date_get), self.date_format_db).strftime("%m, %A, %Y")
+            event_date_f=event_date+slot
+            nested_data.append(event_date_f)
             dqty=str(reg) +" / "+ str(datas.qty) +"<br>Bal: "+ str(avail) +" Available" 
-            nestedData.append(datas.amount)
-            nestedData.append(dqty)
+            nested_data.append(datas.amount)
+            nested_data.append(dqty)
             actions="""<div class='d-flex align-items-center'>
                             <a href="javascript:void(0);" data-id='"""+str(datas.id)+"""' data-attr='"""+mod+"""' class="me-3 text-warning tblBLock"
-                                data-bs-container="#tooltip-container3" data-bs-toggle="tooltip"
+                                data-bs-container="#tooltip-container"""+str(j)+""""" data-bs-toggle="tooltip"
                                 data-bs-placement="top" title="Block Temporarily"><i
                                     class="mdi mdi-"""+lock+""" font-size-18"></i></a>
                             <a href="javascript:void(0);" data-id='"""+str(datas.id)+"""' class="me-3 text-primary tabEdit"
-                                data-bs-container="#tooltip-container3" data-bs-toggle="tooltip"
+                                data-bs-container="#tooltip-container"""+str(j)+""""" data-bs-toggle="tooltip"
                                 data-bs-placement="top" title="Edit"><i
                                     class="mdi mdi-pencil font-size-18"></i></a>
                             <a href="javascript:void(0);" data-id='"""+str(datas.id)+"""' class="text-danger tabDelete"
-                                data-bs-container="#tooltip-container3" data-bs-toggle="tooltip"
+                                data-bs-container="#tooltip-container"""+str(j)+""""" data-bs-toggle="tooltip"
                                 data-bs-placement="top" title="Delete"><i
                                     class="mdi mdi-trash-can font-size-18"></i></a>
                         </div>"""
-            nestedData.append(actions)
-            nd.append(nestedData)
-
-        
+            nested_data.append(actions)
+            nd.append(nested_data)
+            j+=1
         res['draw']=request.POST.get('draw')
         res['recordsTotal']=tot_count
         res['recordsFiltered']=tot_count

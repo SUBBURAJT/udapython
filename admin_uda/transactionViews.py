@@ -28,8 +28,6 @@ conobj=convention_transactions()
 spobj=spring_transactions()
 fallobj=fall_transactions()
 con_trans_redirect = '/convention_transaction'
-sp_obj = spring_transactions()
-
 
 @register.filter
 def get_range(value):
@@ -162,6 +160,7 @@ def convention_id_card_print_bulk(request):
     return render(request,'convention_id_card_print_bulk.html',greeting)
 
 def link_callback(uri, rel):
+    try:
             """
             Convert HTML URIs to absolute system paths so xhtml2pdf can access those
             resources
@@ -187,10 +186,12 @@ def link_callback(uri, rel):
 
             # make sure that file exists
             if not os.path.isfile(path):
-                    raise Exception(
+                    raise ValueError(
                             'media URI must start with %s or %s' % (surl, murl)
                     )
             return path
+    except ValueError as err:
+        return err
 def get_pdf(template_src, context_dict={}):
     template = get_template(template_src)
     html  = template.render(context_dict)

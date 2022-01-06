@@ -280,9 +280,7 @@ class convention_details_pdf:
                                 style="font-family: Nunito, sans-serif;font-size: 15px;padding: 5px;font-weight:600;border-bottom: 1px solid #eaedf1;border: 1px solid #ddd !important;">
                                 $"""+str(data["amount"])+"""</td>
                         </tr>"""
-            if data["updated_grand_amount"] is None or data["updated_grand_amount"]=='':
-                pass
-            else:
+            if data["updated_grand_amount"] is not None and data["updated_grand_amount"]!='':
                 table+="""<tr style="border: 0.5px #ddd;">
                             <td style='font-family: Nunito, sans-serif;font-size: 15px;padding: 5px; border: 1px solid #ddd !important;'
                                 colspan="3">
@@ -295,22 +293,24 @@ class convention_details_pdf:
                                 $"""+str(data["updated_grand_amount"])+"""</td>
                         </tr>"""
                 balance = data['amount'] - data['updated_grand_amount']
+                tit=''
+                bal=''
                 if balance > 0:
-                    m="UDA to pay"
-                    a=balance
+                    tit="UDA to pay"
+                    bal=balance
                 else:
-                    m="User to pay"
-                    a=balance*-1
+                    tit="User to pay"
+                    bal=balance*-1
                     table+="""<tr style="border: 0.5px #ddd;">
                             <td style='font-family: Nunito, sans-serif;font-size: 15px;padding: 5px; border: 1px solid #ddd !important;'
                                 colspan="3">
                             </td>
                             <td
                                 style="font-family: Nunito, sans-serif;font-size: 15px;padding: 5px;font-weight:600;border-bottom: 1px solid #eaedf1;border: 1px solid #ddd !important;">
-                                """+m+"""</td>
+                                """+tit+"""</td>
                             <td
                                 style="font-family: Nunito, sans-serif;font-size: 15px;padding: 5px;font-weight:600;border-bottom: 1px solid #eaedf1;border: 1px solid #ddd !important;">
-                                $"""+str(a)+"""</td>
+                                $"""+str(bal)+"""</td>
                         </tr>"""
             table+='</tbody></table></td></tr>'
         return {"table":table}
@@ -426,9 +426,8 @@ class convention_details_pdf:
             table+='</tbody></table></td></tr>'
         return {"table":table}
     
-        
     def pdf_transaction_details(self,hand_id):
-        input={}
+        input_data={}
         table=''
         err=1
         msg=''
@@ -439,12 +438,12 @@ class convention_details_pdf:
         if check_data:
             err=0
             data=list(Handon_form.objects.filter(form=1,id=tid).exclude(status=2).values())[0]
-            input['form_status']=data['form_status']
+            input_data['form_status']=data['form_status']
             hidden_hand_id = data["id"]
             
             # set condition for differentiate fall or spring or convention price
             prices_res=self.get_prices(data['form_status'],data["amount"],data["updated_grand_amount"])
-            input['grand_price']=prices_res['grand_price']
+            input_data['grand_price']=prices_res['grand_price']
             msg=prices_res['msg']
             arr_price=prices_res['arr_price']
 
@@ -455,18 +454,18 @@ class convention_details_pdf:
                 add+=", "+data['city']
             if data['state'] is not None:
                 add+=", "+data['state']+"."
-            input['full_address']=add
+            input_data['full_address']=add
 
             #Transactions Info
             transactions_info=self.transaction_detail(data)
-            input['transaction_on']=transactions_info['transaction_on']
-            input['transaction_id']=transactions_info['transaction_id']
-            input['transaction_date']=transactions_info['transaction_date']
-            input['transaction_ref']=transactions_info["transaction_ref"]
-            input['transaction_status']=transactions_info["transaction_status"]
-            input['off_transaction_payment_mode']=transactions_info["off_transaction_payment_mode"]
-            input['off_transaction_memo']=transactions_info["off_transaction_memo"]
-            input['off_transaction_payment_details']=transactions_info["off_transaction_payment_details"]
+            input_data['transaction_on']=transactions_info['transaction_on']
+            input_data['transaction_id']=transactions_info['transaction_id']
+            input_data['transaction_date']=transactions_info['transaction_date']
+            input_data['transaction_ref']=transactions_info["transaction_ref"]
+            input_data['transaction_status']=transactions_info["transaction_status"]
+            input_data['off_transaction_payment_mode']=transactions_info["off_transaction_payment_mode"]
+            input_data['off_transaction_memo']=transactions_info["off_transaction_memo"]
+            input_data['off_transaction_payment_details']=transactions_info["off_transaction_payment_details"]
 
             # convention list
             get_conven_table=self.get_conventions(hidden_hand_id,data,arr_price)
@@ -474,4 +473,4 @@ class convention_details_pdf:
             # Workshop list
             get_work_table=self.get_workshops(hidden_hand_id)
             table+=get_work_table["table"]
-        return {"input":input,"con_datas":table,"err":err,"msg":msg,"all_data":data}
+        return {"input":input_data,"con_datas":table,"err":err,"msg":msg,"all_data":data}
