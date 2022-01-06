@@ -352,9 +352,7 @@ class convention_details():
                         <td style="font-size: 15px;font-weight:600;border-bottom: 1px solid #eaedf1;border-color: #ddd !important;">$"""+str(data["amount"])+"""
                         </td>  
                     </tr>"""
-            if data["updated_grand_amount"] is None or data["updated_grand_amount"]=='':
-                pass
-            else:
+            if data["updated_grand_amount"] is not None and data["updated_grand_amount"]!='':
                 reg_type_val_tr+="""<tr style='border: 0;'>
                                         <td colspan='"""+colspan+"""' style='border: 0'></td>
                                         <td style="font-weight:600;border-bottom: 1px solid #eaedf1;">GRAND TOTAL

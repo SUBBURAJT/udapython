@@ -280,9 +280,7 @@ class convention_details_pdf:
                                 style="font-family: Nunito, sans-serif;font-size: 15px;padding: 5px;font-weight:600;border-bottom: 1px solid #eaedf1;border: 1px solid #ddd !important;">
                                 $"""+str(data["amount"])+"""</td>
                         </tr>"""
-            if data["updated_grand_amount"] is None or data["updated_grand_amount"]=='':
-                pass
-            else:
+            if data["updated_grand_amount"] is not None and data["updated_grand_amount"]!='':
                 table+="""<tr style="border: 0.5px #ddd;">
                             <td style='font-family: Nunito, sans-serif;font-size: 15px;padding: 5px; border: 1px solid #ddd !important;'
                                 colspan="3">
