@@ -1,5 +1,4 @@
 import json
-#from typing import ParamSpec
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from admin_uda.setting.membership_upload import membership
@@ -13,7 +12,7 @@ from django.conf import settings
 from django.core import serializers
 
 from uda.settings import DEFAULT_FROM_EMAIL
-from .models import Send_Sms,Send_Mail,Users,default_functions
+from .models import *
 from django.contrib import messages
 import datetime
 import csv
@@ -37,9 +36,9 @@ from django.utils.html import strip_tags
 from django.contrib.staticfiles import finders
 
 succ_message = "Registered Successfully"
-default_obj = default_functions()
 
 def link_callback(uri, rel):
+    try:
             """
             Convert HTML URIs to absolute system paths so xhtml2pdf can access those
             resources
@@ -51,24 +50,26 @@ def link_callback(uri, rel):
                     result = list(os.path.realpath(path) for path in result)
                     path=result[0]
             else:
-                    sUrl = settings.STATIC_URL        # Typically /static/
-                    sRoot = settings.STATIC_ROOT      # Typically /home/userX/project_static/
-                    mUrl = settings.MEDIA_URL         # Typically /media/
-                    mRoot = settings.MEDIA_ROOT       # Typically /home/userX/project_static/media/
+                    surl = settings.STATIC_URL        # Typically /static/
+                    sroot = settings.STATIC_ROOT      # Typically /home/userX/project_static/
+                    murl = settings.MEDIA_URL         # Typically /media/
+                    mroot = settings.MEDIA_ROOT       # Typically /home/userX/project_static/media/
 
-                    if uri.startswith(mUrl):
-                            path = os.path.join(mRoot, uri.replace(mUrl, ""))
-                    elif uri.startswith(sUrl):
-                            path = os.path.join(sRoot, uri.replace(sUrl, ""))
+                    if uri.startswith(murl):
+                            path = os.path.join(mroot, uri.replace(murl, ""))
+                    elif uri.startswith(surl):
+                            path = os.path.join(sroot, uri.replace(surl, ""))
                     else:
                             return uri
 
             # make sure that file exists
             if not os.path.isfile(path):
-                    raise Exception(
-                            'media URI must start with %s or %s' % (sUrl, mUrl)
+                    raise ValueError(
+                            'media URI must start with %s or %s' % (surl, murl)
                     )
             return path
+    except ValueError as err:
+        return err
 def render_to_pdf(template_src, context_dict={}):
     template = get_template(template_src)
     html  = template.render(context_dict)
@@ -143,12 +144,13 @@ def membership_upload(request):
         error=''
         if mem['err']:
             error=mem['err']
+        if mem['invalid_ada']:
+            error=' , '.join(mem['invalid_ada']) + ' Invalid ID'
         if mem['Added_id']:
             t_r=str(mem['Added_id'])
             msg+='Total New records : '+ t_r + ' added successfully'+'<br>'
-        if mem['exists_id']:
-            if(len(mem['exists_id'])>0):
-                msg+='Already exists values are updated'+'<br>'
+        if mem['exists_id'] and len(mem['exists_id'])>0:
+            msg+='Already exists values are updated'+'<br>'
         if mem['Added_id']==0 and len(mem['exists_id'])==0 and mem['err']=='':
             error='Please Upload a Correct row and columns'
         return JsonResponse({"valid":True,"err":error,"msg":msg,"al":mem['exists_id']}, status = 200)
@@ -168,17 +170,15 @@ def hygienist_upload(request):
         error=''
         if mem['err']:
             error=mem['err']
-
         if mem['invalid_ada']:
             error=' , '.join(mem['invalid_ada']) + ' Invalid ID'
-
         if mem['Added_id']:
             t_r=str(mem['Added_id'])
             msg+='Total New records : '+ t_r + ' added successfully'+'<br>'
-
-        if mem['exists_id']:
-            if(len(mem['exists_id'])>0):
-                msg+='Already exists values are updated'+'<br>'
+        if mem['exists_id'] and len(mem['exists_id'])>0:
+            msg+='Already exists values are updated'+'<br>'
+        if mem['Added_id']==0 and len(mem['exists_id'])==0 and mem['err']=='':
+            error='Please Upload a Correct row and columns'
 
         return JsonResponse({"valid":True,"err":error,"msg":msg}, status = 200)
     
@@ -231,30 +231,29 @@ def convention_workshop_form(request):
 def message_center_operations(request):
     obmessage=message_centers()
     module=request.POST.get('module')
-    if module=='list':
+    if module and module=='list':
         result=obmessage.list_message_center(request)
         return JsonResponse(result, status = 200)
-    elif module=='typeofmem':
+    if module and module=='typeofmem':
         result=obmessage.type_of_members(request)
         return JsonResponse({"option":result}, status = 200)
-    elif module=='memnames':
+    if module and module=='memnames':
         result=obmessage.member_names(request)
         return JsonResponse({"option":result}, status = 200)
-    elif module=='add_message':
+    if module and module=='add_message':
         err=''
         msg=''
         result=obmessage.add_messages(request)
-        err = default_obj.check_key_val('error',result)
-        msg = default_obj.check_key_val('msg',result)
+        if result['error']:
+            err=result['error']
+        if result['msg']:
+            msg=result['msg']
         return JsonResponse({"valid":True,"err":err,"msg":msg}, status = 200)
-    elif module=='delete':
+    elif module and module=='delete':
         result=obmessage.delete_message(request)
         return JsonResponse(result, status = 200)
-    elif module=='view_msg':
+    if module and module=='view_msg':
         result=obmessage.view_msgs(request)
-        return JsonResponse(result, status = 200)
-    else:
-        result=[]
         return JsonResponse(result, status = 200)
 
     
@@ -422,20 +421,20 @@ def delete_user_management(request,id):
 
 def get_users(request):
     if request.is_ajax and request.method=='GET':
-        id= request.GET.get('id')
-        users = Users.objects.filter(id=id)
+        uid= request.GET.get('id')
+        users = Users.objects.filter(id=uid)
         user = serializers.serialize("json", users)        
         return JsonResponse({"valid":True,"data":user}, status = 200)
 
 @login_required()
 def delete_profile_img(request):
-    id=request.session['user_id']
-    Users.objects.filter(id=id).update(profile_img=None)
+    uid=request.session['user_id']
+    Users.objects.filter(id=uid).update(profile_img=None)
     return JsonResponse({"valid":True,"msg":"Profile Image deleted."}, status = 200)
 
 @login_required()
 def edit_profile(request):
-    id=request.session['user_id']
+    uid=request.session['user_id']
     greeting = {}
     greeting['pageview'] = "Dashboard"
     greeting['title'] = 'Edit Profile'
@@ -443,50 +442,56 @@ def edit_profile(request):
     # print(data.auth_user_id)
 
     if(request.method == "POST"):
-        objuser=user_managements()
         c = False
         file_action = False
-        err_msg = ''
-        succ_msg = ''
         name = request.POST.get('name')
         email = request.POST.get('email')
-        oldPassword = request.POST.get('old_pass')
-        newPassword = request.POST.get('new_pass')
+        old_password = request.POST.get('old_pass')
+        new_password = request.POST.get('new_pass')
 
-        data     = Users.objects.values().get(id=id)
-        password_check = check_password(oldPassword,data['password'])
-        image = data['profile_img']
-
+        data     = Users.objects.values().get(id=uid)
+        password_check = check_password(old_password,data['password'])
+        
         if len(request.FILES) != 0:
             image = request.FILES['changepro']
             file_action = True
+        else:
+           image = data['profile_img']
 
         if(email!=""):
-            params={
-                'email' : email,
-                'oldPassword' : oldPassword,
-                'newPassword' : newPassword,
-                'name' : name,
-                'image' : image,
-                'file_action' : file_action,
-                'password_check' : password_check
-            }
-            validation_res = objuser.edit_pro_validation(params)
-            err_msg = default_obj.check_key_val('errmsg',validation_res)
-            succ_msg = default_obj.check_key_val('succmsg',validation_res)
-            messages.error(request, err_msg)
-            messages.success(request, succ_msg)
-            c = validation_res['c']
+            if Users.objects.filter(~Q(id=uid),email=email).exists():
+                messages.error(request, 'Email already exist')
+            elif(old_password=='' and new_password != ""):
+                messages.error(request, 'Old password required to update your new password')
+            elif(old_password!="" and new_password==''):
+                messages.error(request, 'New password required to update')
+            elif(old_password != "" and new_password != "" ):
+                if(password_check==True):
+                    c = True 
+                else:
+                    messages.error(request, "Invalid Old password ") 
+            else:
+                Users.objects.filter(id=uid).update(
+                    name=name,
+                    email=email,
+                    profile_img = image,
+                  
+                )
+                if(file_action):
+                    messages.success(request, "File & General details updated successfully")
+                else:
+                    messages.success(request, "General details updated successfully")
+
 
         if(c):
-            Users.objects.filter(id=id).update(
+            Users.objects.filter(id=uid).update(
                 name=name,
                 email=email,
                 profile_img = image,
                 password =make_password(newPassword),
                 reset_pass =make_password(newPassword) ,
             )
-            data     = Users.objects.get(id=id)
+            data     = Users.objects.get(id=uid)
             auth_user = User.objects.get(id=data.auth_user_id)
             # print(auth_user)
             auth_user.password   = make_password(newPassword)
@@ -496,7 +501,7 @@ def edit_profile(request):
             else:
                 messages.success(request, "Your details updated successfully")
 
-    datas = Users.objects.get(id=id)
+    datas = Users.objects.get(id=uid)
     greeting['datas'] = datas
     
     return render(request,'edit_profile.html',greeting)
