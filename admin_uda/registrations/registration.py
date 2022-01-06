@@ -235,6 +235,76 @@ class Registration():
         result['transaction_section'] = transaction_section
         result['tbl_head'] = tbl_head
         return result
+    def mail_dy_gnd_cal(self,subrows,in_grand):
+        none_to_str=lambda a:str(a) if str(a) != 'None' else ''
+        for row in subrows:
+            if none_to_str(row['updated_price']) == 'NULL' or none_to_str(row['updated_price']) == '':
+                in_grand += float(row['price']) if none_to_str(row['price']) else 0 
+            else:
+                in_grand += float(row['updated_price']) if none_to_str(row['updated_price']) else 0 
+        return in_grand
+    def dy_sub_cal(self,subrows,sub_total):
+        result = {}
+        none_to_str=lambda a:str(a) if str(a) != 'None' else ''
+        table = ''
+        for row in subrows:
+            if none_to_str(row['updated_price']) == 'NULL' or none_to_str(row['updated_price']) == '':
+                p = float(row['price']) if none_to_str(row['price']) else 0 
+            else:
+                p = float(row['updated_price']) if none_to_str(row['updated_price']) else 0 
+            sub_total += p
+            table += '''<tr>
+                        <td style="border-bottom: 1px dashed #e3e5e8;    padding-left: 6px;">'''+ none_to_str(row['name'])+' '+none_to_str(row['email'])+'<br> '+none_to_str(row['ada'])+'''</td>
+                        <td style="border-bottom: 1px dashed #e3e5e8;"></td>
+                        <td style="border-bottom: 1px dashed #e3e5e8;">$'''+ str(p) +'''</td>
+                    </tr>'''
+
+        result['sub_total'] = sub_total
+        result['table'] = table
+        return result
+
+
+    def dy_sub_cal2(self,cv_id,subrows,sub_total):
+        result = {}
+        none_to_str=lambda a:str(a) if str(a) != 'None' else ''
+        table = ''
+        display=''
+        if cv_id == 9 :
+            display=' style="display:none;" '
+        for row in subrows:
+            if none_to_str(row['updated_price']) == 'NULL' or none_to_str(row['updated_price']) == '':
+                p = float(row['price'])
+            else:
+                p = float(row['updated_price'])
+            sub_total += p
+            table += '''<tr '''+ display +'''>
+                        <td colspan="2" style="border-bottom: 1px dashed #e3e5e8;padding:6px 0px;padding-left: 6px;">'''+ none_to_str(row['name']) +' '+none_to_str(row['email'])+'''</td><td style="border-bottom: 1px dashed #e3e5e8;">$'''+ str(p) +'''</td> 
+                    </tr>'''
+        result['sub_total'] = sub_total
+        result['table'] = table
+        return result
+
+    def dy_sub_cal3(self,subrows):
+        result = {}
+        none_to_str=lambda a:str(a) if str(a) != 'None' else ''
+        table = ''
+        sub_total = 0
+        for row in subrows:
+            if none_to_str(row['updated_price']) == 'NULL' or none_to_str(row['updated_price']) == '':
+                p = float(row['price'])
+            else:
+                p = float(row['updated_price'])
+            sub_total += p
+
+            table += '''<tr>
+                        <td style="border-bottom: 1px dashed #e3e5e8;padding-left: 6px;">'''+row['name']+''' ( '''+row['ada']+''' )</td>
+                        <td style="border-bottom: 1px dashed #e3e5e8;"></td>
+                        <td style="border-bottom: 1px dashed #e3e5e8;">$'''+ str(p) +'''</td>  
+                    </tr>'''
+        result['sub_total'] = sub_total
+        result['table'] = table
+        return result
+
 
     def get_dynamic_content_action(self,tbl_head,convention_lists,con_list,hand_id,prices_list):
         result = {}
@@ -261,28 +331,17 @@ class Registration():
                     if len(subrows)>0:
                         in_status = 1
                         in_qty = len(subrows)
-                        for row in subrows:
-                            if none_to_str(row['updated_price']) == 'NULL' or none_to_str(row['updated_price']) == '':
-                                in_grand += float(row['price']) if none_to_str(row['price']) else 0 
-                            else:
-                                in_grand += float(row['updated_price']) if none_to_str(row['updated_price']) else 0 
+                        in_grand = self.mail_dy_gnd_cal(subrows,in_grand)
                         total_grand_val += in_grand
                         table += '''<tr>
                                     <td colspan="3" style="border-bottom: 1px dashed #e3e5e8;padding-left: 6px;">'''+ cv.name +''' ($'''+ str(prices_list[str(cv.id)]) +''')</td>
                                 </tr>'''
                     if cv.id in [1,2,5,15,18,19,20,22,23,24] and in_status:
                         sub_total = 0
-                        for row in subrows:
-                            if none_to_str(row['updated_price']) == 'NULL' or none_to_str(row['updated_price']) == '':
-                                p = float(row['price']) if none_to_str(row['price']) else 0 
-                            else:
-                                p = float(row['updated_price']) if none_to_str(row['updated_price']) else 0 
-                            sub_total += p
-                            table += '''<tr>
-                                        <td style="border-bottom: 1px dashed #e3e5e8;    padding-left: 6px;">'''+ none_to_str(row['name'])+' '+none_to_str(row['email'])+'<br> '+none_to_str(row['ada'])+'''</td>
-                                        <td style="border-bottom: 1px dashed #e3e5e8;"></td>
-                                        <td style="border-bottom: 1px dashed #e3e5e8;">$'''+ str(p) +'''</td>
-                                    </tr>'''
+                        
+                        dy_sub_res = self.dy_sub_cal(subrows,sub_total)
+                        sub_total = dy_sub_res['sub_total']
+                        table += dy_sub_res['table']
                         table += '''<tr>
                                     <td style="border-bottom: 1px dashed #e3e5e8;padding:6px 0px;"></td>
                                     <td style="border-bottom: 1px dashed #e3e5e8;">Total</td>
@@ -290,18 +349,10 @@ class Registration():
                                 </tr>'''
                     elif cv.id in [3, 4, 6, 7, 9, 11, 12, 13, 14, 16, 17,21,25,26] and in_status:
                         sub_total = 0
-                        display=''
-                        if cv.id == 9 :
-                            display=' style="display:none;" '
-                        for row in subrows:
-                            if none_to_str(row['updated_price']) == 'NULL' or none_to_str(row['updated_price']) == '':
-                                p = float(row['price'])
-                            else:
-                                p = float(row['updated_price'])
-                            sub_total += p
-                            table += '''<tr '''+ display +'''>
-                                        <td colspan="2" style="border-bottom: 1px dashed #e3e5e8;padding:6px 0px;padding-left: 6px;">'''+ none_to_str(row['name']) +' '+none_to_str(row['email'])+'''</td><td style="border-bottom: 1px dashed #e3e5e8;">$'''+ str(p) +'''</td> 
-                                    </tr>'''
+                        cv_id2 = cv.id
+                        dy_sub_res2 = self.dy_sub_cal2(cv_id2,subrows,sub_total)
+                        sub_total = dy_sub_res2['sub_total']
+                        table += dy_sub_res2['table']
                         table += '''<tr>
                             <td style="border-bottom: 1px dashed #e3e5e8;padding:6px 0px;"></td>
                             <td style="border-bottom: 1px dashed #e3e5e8;padding:6px 0px;">Total</td>
@@ -309,20 +360,11 @@ class Registration():
                         </tr>'''
 
                     elif cv.id in [8] and in_status:
-                        sub_total = 0;
-                        for row in subrows:
-                            if none_to_str(row['updated_price']) == 'NULL' or none_to_str(row['updated_price']) == '':
-                                p = float(row['price'])
-                            else:
-                                p = float(row['updated_price'])
-                            sub_total += p
+                        
+                        dy_sub_res3 = self.dy_sub_cal3(subrows)
+                        sub_total = dy_sub_res3['sub_total']
+                        table += dy_sub_res3['table']
 
-                            table += '''<tr>
-                                        <td style="border-bottom: 1px dashed #e3e5e8;padding-left: 6px;">'''+row['name']+''' ( '''+row['ada']+''' )</td>
-                                        <td style="border-bottom: 1px dashed #e3e5e8;"></td>
-                                        <td style="border-bottom: 1px dashed #e3e5e8;">$'''+ str(p) +'''</td>  
-                                    </tr>'''
-                            
                         table += '''<tr>
                                         <td  style="border-bottom: 1px dashed #e3e5e8;padding:6px 0px;"></td>
                                         <td style="border-bottom: 1px dashed #e3e5e8;padding:6px 0px;">Total</td>
@@ -360,7 +402,24 @@ class Registration():
         result['updated_grand_amount_sec'] = updated_grand_amount_sec
         return result
 
+    def mail_workshop_gnd_cal(self,row,in_grand):
+        none_to_str=lambda a:str(a) if str(a) != 'None' else ''
+        if none_to_str(row['updated_price']) == 'NULL' or none_to_str(row['updated_price']) == '':
+            in_grand += float(row['amount']) if none_to_str(row['amount']) else 0 
+        else:
+            in_grand += float(row['updated_price']) if none_to_str(row['updated_price']) else 0
 
+        return in_grand
+
+    def mail_workshop_subtot_cal(self,row):
+        none_to_str=lambda a:str(a) if str(a) != 'None' else ''
+        if none_to_str(row['updated_price']) == 'NULL' or none_to_str(row['updated_price']) == '':
+            p = float(row['amount']) if none_to_str(row['amount']) else 0 
+        else:
+            p = float(row['updated_price']) if none_to_str(row['updated_price']) else 0 
+
+        return p
+    
 
     def mail_workshop_list(self,workshop_lists,hand_id,total_grand_val):
         result = {}
@@ -375,10 +434,8 @@ class Registration():
                 in_status = 1
                 in_qty = len(subrows)
                 for row in subrows:
-                    if none_to_str(row['updated_price']) == 'NULL' or none_to_str(row['updated_price']) == '':
-                        in_grand += float(row['amount']) if none_to_str(row['amount']) else 0 
-                    else:
-                        in_grand += float(row['updated_price']) if none_to_str(row['updated_price']) else 0 
+                    gnd_cal_res = self.mail_workshop_gnd_cal(row,in_grand)
+                    in_grand += gnd_cal_res
                 total_grand_val += in_grand
                 table += '''<tr>
                         <td colspan="4" style="border-bottom: 1px dashed #e3e5e8;padding-left: 6px;">'''+ wh.name +''' ($'''+ str(wh.amount) +''')</td>
@@ -386,10 +443,8 @@ class Registration():
                 x = 1
                 sub_total = 0
                 for row in subrows:
-                    if none_to_str(row['updated_price']) == 'NULL' or none_to_str(row['updated_price']) == '':
-                        p = float(row['amount']) if none_to_str(row['amount']) else 0 
-                    else:
-                        p = float(row['updated_price']) if none_to_str(row['updated_price']) else 0 
+                    sub_cal_res = self.mail_workshop_subtot_cal(row)
+                    p = sub_cal_res
                     sub_total += p
                     table += '''<tr>
                                     <td style="border-bottom: 1px dashed #e3e5e8;padding-left:10px;">'''+ str(x) +'''</td>
