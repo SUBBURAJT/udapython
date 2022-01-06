@@ -287,31 +287,29 @@ class convention_details_pdf:
                             </td>
                             <td
                                 style="font-family: Nunito, sans-serif;font-size: 15px;padding: 5px;font-weight:600;border-bottom: 1px solid #eaedf1;border: 1px solid #ddd !important;">
-                                TOTAL</td>
+                                GRAND TOTAL</td>
                             <td
                                 style="font-family: Nunito, sans-serif;font-size: 15px;padding: 5px;font-weight:600;border-bottom: 1px solid #eaedf1;border: 1px solid #ddd !important;">
                                 $"""+str(data["updated_grand_amount"])+"""</td>
                         </tr>"""
                 balance = data['amount'] - data['updated_grand_amount']
-                tit=''
-                bal=''
                 if balance > 0:
-                    tit="UDA to pay"
-                    bal=balance
+                    m="UDA to pay"
+                    a=balance
                 else:
-                    tit="User to pay"
-                    bal=balance*-1
-                    table+="""<tr style="border: 0.5px #ddd;">
-                            <td style='font-family: Nunito, sans-serif;font-size: 15px;padding: 5px; border: 1px solid #ddd !important;'
-                                colspan="3">
-                            </td>
-                            <td
-                                style="font-family: Nunito, sans-serif;font-size: 15px;padding: 5px;font-weight:600;border-bottom: 1px solid #eaedf1;border: 1px solid #ddd !important;">
-                                """+tit+"""</td>
-                            <td
-                                style="font-family: Nunito, sans-serif;font-size: 15px;padding: 5px;font-weight:600;border-bottom: 1px solid #eaedf1;border: 1px solid #ddd !important;">
-                                $"""+str(bal)+"""</td>
-                        </tr>"""
+                    m="User to pay"
+                    a=balance*-1
+                table+="""<tr style="border: 0.5px #ddd;">
+                        <td style='font-family: Nunito, sans-serif;font-size: 15px;padding: 5px; border: 1px solid #ddd !important;'
+                            colspan="3">
+                        </td>
+                        <td
+                            style="font-family: Nunito, sans-serif;font-size: 15px;padding: 5px;font-weight:600;border-bottom: 1px solid #eaedf1;border: 1px solid #ddd !important;">
+                            """+m+"""</td>
+                        <td
+                            style="font-family: Nunito, sans-serif;font-size: 15px;padding: 5px;font-weight:600;border-bottom: 1px solid #eaedf1;border: 1px solid #ddd !important;">
+                            $"""+str(a)+"""</td>
+                    </tr>"""
             table+='</tbody></table></td></tr>'
         return {"table":table}
     
@@ -426,6 +424,7 @@ class convention_details_pdf:
             table+='</tbody></table></td></tr>'
         return {"table":table}
     
+        
     def pdf_transaction_details(self,hand_id):
         input_data={}
         table=''
