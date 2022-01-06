@@ -293,6 +293,8 @@ class convention_details_pdf:
                                 $"""+str(data["updated_grand_amount"])+"""</td>
                         </tr>"""
                 balance = data['amount'] - data['updated_grand_amount']
+                tit=''
+                bal=''
                 if balance > 0:
                     tit="UDA to pay"
                     bal=balance
@@ -424,7 +426,6 @@ class convention_details_pdf:
             table+='</tbody></table></td></tr>'
         return {"table":table}
     
-        
     def pdf_transaction_details(self,hand_id):
         input_data={}
         table=''

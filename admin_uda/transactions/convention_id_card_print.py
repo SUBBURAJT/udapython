@@ -87,20 +87,23 @@ class convention_id_card_details():
         it=[]
         if len(data)==1:
             lastel=data
+            section=1
             cnt=1
             sin=0
         elif len(data)%2==0:
             lastel=''
+            section=2
             cnt=2
             it = iter(data)
             sin=''
         else:
             cnt=3
+            section=3
             sin=len(data)-1
             lastel=data[list(data)[-1]]
             data.pop(list(data)[-1])      
             it = iter(data)
-        return {"it":it,"cnt":cnt,"sin":sin,"lastel":lastel,"data":data}
+        return {"it":it,"cnt":cnt,"sin":sin,"lastel":lastel,"data":data,"section":section}
 
 
     def get_all_datas(self,data,formstatus):
@@ -108,11 +111,13 @@ class convention_id_card_details():
         result_print=''
         if data:
             fordata=self.data_formats(data)
-            lastel=fordata['data']
             cnt=fordata['cnt']
             sin=fordata['sin']
             it=fordata['it']
+            section=fordata['section']
             lastel=fordata['lastel']
+            if section==2:
+                lastel=''
             data=fordata['data']
             
             res_de=self.get_defaultvalues_formstatus(formstatus)
