@@ -114,7 +114,8 @@ class Registration():
         context_dict = {}
         file_name = ''
         rt = os.path.join(settings.BASE_DIR).replace("\\","/")
-        dat=convention_details_pdf.pdf_transaction_details(hand_id)
+        obj_pdf_con=convention_details_pdf()
+        dat=obj_pdf_con.pdf_transaction_details(hand_id)
 
         if dat['input']['form_status'] and dat['input']['form_status']==1:
             context_dict['title'] = 'Convention Transaction Details'
@@ -512,14 +513,14 @@ class Registration():
 
         action = 1
 
-        get_dynamic_thead_res = self.get_dynamic_thead(self,form,handon_res,grand_price)
+        get_dynamic_thead_res = self.get_dynamic_thead(form,handon_res,grand_price)
         thank_mess = get_dynamic_thead_res['thank_mess']
         transaction_section = get_dynamic_thead_res['transaction_section']
         tbl_head = get_dynamic_thead_res['tbl_head']   
 
         table = ""
         if action == 1:
-            get_dy_con_act_res = self.get_dynamic_content_action(action,tbl_head,convention_lists,con_list,hand_id,prices_list)
+            get_dy_con_act_res = self.get_dynamic_content_action(tbl_head,convention_lists,con_list,hand_id,prices_list)
         table += get_dy_con_act_res['table']
         total_grand_val = get_dy_con_act_res['total_grand_val']
         count_workshop = len(workshop_lists)

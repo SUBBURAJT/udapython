@@ -7,6 +7,8 @@ from django.conf import settings
 import os
 
 class FallRegistration():
+    rt_mailpdf = "/uploads/mail_pdf/"
+    rt_qrcode = "/uploads/mail_qrcode/"
     def get_ip(self,request):
         x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
         if x_forwarded_for:

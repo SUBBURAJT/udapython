@@ -7,6 +7,8 @@ from django.conf import settings
 import os 
 
 class SpringRegistration():
+    rt_mailpdf = "/uploads/mail_pdf/"
+    rt_qrcode = "/uploads/mail_qrcode/"
     def get_convention_type(self):
         conventionList= Convention_types.objects.filter(status=1, from_status=2)
         return conventionList
