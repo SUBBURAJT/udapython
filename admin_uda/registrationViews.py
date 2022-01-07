@@ -1,3 +1,4 @@
+import os
 from django.shortcuts import render,redirect
 from admin_uda.models import Handon_form,Ada_membership
 from admin_uda.registrations.fallRegistration import FallRegistration
@@ -251,6 +252,7 @@ def vendor_detail_print(request):
     return render(request,'vendor_detail_print.html',greeting)
 
 def link_callback(uri, rel):
+    try:
             """
             Convert HTML URIs to absolute system paths so xhtml2pdf can access those
             resources
@@ -276,10 +278,12 @@ def link_callback(uri, rel):
 
             # make sure that file exists
             if not os.path.isfile(path):
-                    raise Exception(
+                    raise FileNotFoundError(
                             'media URI must start with %s or %s' % (sUrl, mUrl)
                     )
             return path
+    except Exception as e:
+        'media URI must start with %s or %s' % (sUrl, mUrl)
 
 def render_to_pdf(template_src, context_dict={}):
     template = get_template(template_src)

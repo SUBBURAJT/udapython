@@ -28,6 +28,8 @@ conobj=convention_transactions()
 spobj=spring_transactions()
 fallobj=fall_transactions()
 con_trans_redirect = '/convention_transaction'
+sp_obj = spring_transactions()
+
 
 @register.filter
 def get_range(value):
@@ -186,12 +188,12 @@ def link_callback(uri, rel):
 
             # make sure that file exists
             if not os.path.isfile(path):
-                    raise ValueError(
+                    raise FileNotFoundError(
                             'media URI must start with %s or %s' % (surl, murl)
                     )
             return path
-    except ValueError as err:
-        return err
+    except Exception as e:
+        return e
 def get_pdf(template_src, context_dict={}):
     template = get_template(template_src)
     html  = template.render(context_dict)

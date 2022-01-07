@@ -65,12 +65,12 @@ def link_callback(uri, rel):
 
             # make sure that file exists
             if not os.path.isfile(path):
-                    raise ValueError(
+                    raise FileNotFoundError(
                             'media URI must start with %s or %s' % (surl, murl)
                     )
             return path
-    except ValueError as err:
-        return err
+    except Exception as e:
+        return e
 def render_to_pdf(template_src, context_dict={}):
     template = get_template(template_src)
     html  = template.render(context_dict)
@@ -460,6 +460,7 @@ def edit_profile(request):
 
         if(email!=""):
             params={
+                'uid':uid,
                 'email' : email,
                 'oldPassword' : old_password,
                 'newPassword' : new_password,
@@ -473,7 +474,7 @@ def edit_profile(request):
             succ_msg = default_obj.check_key_val('succmsg',validation_res)
             messages.error(request, err_msg)
             messages.success(request, succ_msg)
-            c = validation_res['c']
+            c = default_obj.check_key_val('c',validation_res)
 
         if(c):
             Users.objects.filter(id=uid).update(
