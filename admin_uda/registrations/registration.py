@@ -195,7 +195,6 @@ class Registration():
         elif form == 2:
             thank_mess = 'Thank You ! - Spring Convention Registration <p style=" font-size: 14px; margin: 0; ">For  Registering. Please Find Your Registered Spring...</p>'
             if none_to_str(handon_res['created_on']) != '':
-                #    trans_date = dt.datetime.strptime(none_to_str(handon_res['created_on']),'%Y-%m-%d %H:%M:%S.%f%z').strftime('%m/%d/%Y %I:%M:%S %p')
                 trans_date = dt.datetime.strptime(none_to_str(handon_res['created_on'])[:19],self.datetime_format).strftime(self.datetime_format_time)
 
             if none_to_str(handon_res["off_transaction_payment_mode"]):
@@ -499,12 +498,12 @@ class Registration():
         if handon_res['created_on']:
             today_dt = handon_res['created_on'].date()
 
-        getPrice = Convention_types_prices.objects.values().filter(form_status=form,start_date__lte=today_dt,end_date__gte=today_dt).order_by('id')[:1]
+        get_price = Convention_types_prices.objects.values().filter(form_status=form,start_date__lte=today_dt,end_date__gte=today_dt).order_by('id')[:1]
 
-        if getPrice== '':
+        if get_price== '':
             return 'The deadline for all pre-registration is Expired'
 
-        prices_list = json.loads(getPrice[0]['bulk_price'])
+        prices_list = json.loads(get_price[0]['bulk_price'])
 
         grand_price = none_to_str(handon_res['amount'])
         if handon_res['updated_grand_amount']:
@@ -538,7 +537,6 @@ class Registration():
 
             mail_workshop_res = self.mail_workshop_list(workshop_lists,hand_id,total_grand_val)
             table += mail_workshop_res['table']
-            total_grand_val = mail_workshop_res['total_grand_val']
 
 
         amount_res = self.amount_calculation_fn(handon_res)
