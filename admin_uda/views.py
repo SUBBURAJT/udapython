@@ -12,7 +12,7 @@ from django.conf import settings
 from django.core import serializers
 
 from uda.settings import DEFAULT_FROM_EMAIL
-from .models import *
+from .models import Send_Sms,Send_Mail,Users,default_functions
 from django.contrib import messages
 import datetime
 import csv
@@ -36,6 +36,7 @@ from django.utils.html import strip_tags
 from django.contrib.staticfiles import finders
 
 succ_message = "Registered Successfully"
+default_obj = default_functions()
 
 def link_callback(uri, rel):
     try:
@@ -231,29 +232,30 @@ def convention_workshop_form(request):
 def message_center_operations(request):
     obmessage=message_centers()
     module=request.POST.get('module')
-    if module and module=='list':
+    if module=='list':
         result=obmessage.list_message_center(request)
         return JsonResponse(result, status = 200)
-    if module and module=='typeofmem':
+    elif module=='typeofmem':
         result=obmessage.type_of_members(request)
         return JsonResponse({"option":result}, status = 200)
-    if module and module=='memnames':
+    elif module=='memnames':
         result=obmessage.member_names(request)
         return JsonResponse({"option":result}, status = 200)
-    if module and module=='add_message':
+    elif module=='add_message':
         err=''
         msg=''
         result=obmessage.add_messages(request)
-        if result['error']:
-            err=result['error']
-        if result['msg']:
-            msg=result['msg']
+        err = default_obj.check_key_val('error',result)
+        msg = default_obj.check_key_val('msg',result)
         return JsonResponse({"valid":True,"err":err,"msg":msg}, status = 200)
-    elif module and module=='delete':
+    elif module=='delete':
         result=obmessage.delete_message(request)
         return JsonResponse(result, status = 200)
-    if module and module=='view_msg':
+    elif module=='view_msg':
         result=obmessage.view_msgs(request)
+        return JsonResponse(result, status = 200)
+    else:
+        result=[]
         return JsonResponse(result, status = 200)
 
     
@@ -442,46 +444,39 @@ def edit_profile(request):
     # print(data.auth_user_id)
 
     if(request.method == "POST"):
+        objuser=user_managements()
         c = False
         file_action = False
+        err_msg = ''
+        succ_msg = ''
         name = request.POST.get('name')
         email = request.POST.get('email')
-        old_password = request.POST.get('old_pass')
-        new_password = request.POST.get('new_pass')
+        oldPassword = request.POST.get('old_pass')
+        newPassword = request.POST.get('new_pass')
 
         data     = Users.objects.values().get(id=uid)
-        password_check = check_password(old_password,data['password'])
-        
+        password_check = check_password(oldPassword,data['password'])
+        image = data['profile_img']        
         if len(request.FILES) != 0:
             image = request.FILES['changepro']
             file_action = True
-        else:
-           image = data['profile_img']
 
         if(email!=""):
-            if Users.objects.filter(~Q(id=uid),email=email).exists():
-                messages.error(request, 'Email already exist')
-            elif(old_password=='' and new_password != ""):
-                messages.error(request, 'Old password required to update your new password')
-            elif(old_password!="" and new_password==''):
-                messages.error(request, 'New password required to update')
-            elif(old_password != "" and new_password != "" ):
-                if(password_check==True):
-                    c = True 
-                else:
-                    messages.error(request, "Invalid Old password ") 
-            else:
-                Users.objects.filter(id=uid).update(
-                    name=name,
-                    email=email,
-                    profile_img = image,
-                  
-                )
-                if(file_action):
-                    messages.success(request, "File & General details updated successfully")
-                else:
-                    messages.success(request, "General details updated successfully")
-
+            params={
+                'email' : email,
+                'oldPassword' : oldPassword,
+                'newPassword' : newPassword,
+                'name' : name,
+                'image' : image,
+                'file_action' : file_action,
+                'password_check' : password_check
+            }
+            validation_res = objuser.edit_pro_validation(params)
+            err_msg = default_obj.check_key_val('errmsg',validation_res)
+            succ_msg = default_obj.check_key_val('succmsg',validation_res)
+            messages.error(request, err_msg)
+            messages.success(request, succ_msg)
+            c = validation_res['c']
 
         if(c):
             Users.objects.filter(id=uid).update(
