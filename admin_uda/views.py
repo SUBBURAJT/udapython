@@ -65,12 +65,12 @@ def link_callback(uri, rel):
 
             # make sure that file exists
             if not os.path.isfile(path):
-                    raise ValueError(
+                    raise FileNotFoundError(
                             'media URI must start with %s or %s' % (surl, murl)
                     )
             return path
-    except ValueError as err:
-        return err
+    except Exception as e:
+        return e
 def render_to_pdf(template_src, context_dict={}):
     template = get_template(template_src)
     html  = template.render(context_dict)
@@ -199,21 +199,23 @@ def convention_workshop(request):
     greeting['title'] = 'Convention Workshop'    
     return render(request,'convention_workshop.html',greeting)
 
+def ger_err_msg(result):
+    err=''
+    msg=''
+    if result['error']:
+        err=result['error']
+    if result['msg']:
+        msg=result['msg']
+    return {"msg":msg,"err":err}
+
 @login_required()
 def convention_workshop_form(request):
     con_obj = convention_workshops()
     module=request.POST.get('module')
     if module and module=='form_submit':
-        err=''
-        msg=''
         res=con_obj.save_convention_workshop(request)
-        if res['error']:
-            err=res['error']
-
-        if res['msg']:
-            msg=res['msg']
-
-        return JsonResponse({"valid":True,"err":err,"msg":msg}, status = 200)
+        err_msg=ger_err_msg(res)
+        return JsonResponse({"valid":True,"err":err_msg['err'],"msg":err_msg['msg']}, status = 200)
     elif module and module=='list':
         result=con_obj.list_convention_workshop(request)
         return JsonResponse(result, status = 200)
@@ -241,14 +243,11 @@ def message_center_operations(request):
     elif module=='memnames':
         result=obmessage.member_names(request)
         return JsonResponse({"option":result}, status = 200)
-    elif module=='add_message':
-        err=''
-        msg=''
+    if module and module=='add_message':
         result=obmessage.add_messages(request)
-        err = default_obj.check_key_val('error',result)
-        msg = default_obj.check_key_val('msg',result)
-        return JsonResponse({"valid":True,"err":err,"msg":msg}, status = 200)
-    elif module=='delete':
+        err_msg=ger_err_msg(result)
+        return JsonResponse({"valid":True,"err":err_msg['err'],"msg":err_msg['msg']}, status = 200)
+    elif module and module=='delete':
         result=obmessage.delete_message(request)
         return JsonResponse(result, status = 200)
     elif module=='view_msg':
@@ -441,8 +440,6 @@ def edit_profile(request):
     greeting['pageview'] = "Dashboard"
     greeting['title'] = 'Edit Profile'
    
-    # print(data.auth_user_id)
-
     if(request.method == "POST"):
         objuser=user_managements()
         c = False
@@ -451,21 +448,22 @@ def edit_profile(request):
         succ_msg = ''
         name = request.POST.get('name')
         email = request.POST.get('email')
-        oldPassword = request.POST.get('old_pass')
-        newPassword = request.POST.get('new_pass')
+        old_password = request.POST.get('old_pass')
+        new_password = request.POST.get('new_pass')
 
         data     = Users.objects.values().get(id=uid)
-        password_check = check_password(oldPassword,data['password'])
-        image = data['profile_img']        
+        password_check = check_password(old_password,data['password'])
+        image = data['profile_img']
         if len(request.FILES) != 0:
             image = request.FILES['changepro']
             file_action = True
 
         if(email!=""):
             params={
+                'uid':uid,
                 'email' : email,
-                'oldPassword' : oldPassword,
-                'newPassword' : newPassword,
+                'oldPassword' : old_password,
+                'newPassword' : new_password,
                 'name' : name,
                 'image' : image,
                 'file_action' : file_action,
@@ -476,20 +474,19 @@ def edit_profile(request):
             succ_msg = default_obj.check_key_val('succmsg',validation_res)
             messages.error(request, err_msg)
             messages.success(request, succ_msg)
-            c = validation_res['c']
+            c = default_obj.check_key_val('c',validation_res)
 
         if(c):
             Users.objects.filter(id=uid).update(
                 name=name,
                 email=email,
                 profile_img = image,
-                password =make_password(newPassword),
-                reset_pass =make_password(newPassword) ,
+                password =make_password(new_password),
+                reset_pass =make_password(new_password) ,
             )
             data     = Users.objects.get(id=uid)
             auth_user = User.objects.get(id=data.auth_user_id)
-            # print(auth_user)
-            auth_user.password   = make_password(newPassword)
+            auth_user.password   = make_password(new_password)
             auth_user.save()  
             if(file_action):
                 messages.success(request, "File uploaded. And, details updated successfully")

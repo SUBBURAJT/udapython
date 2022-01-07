@@ -1,3 +1,4 @@
+import os
 from django.shortcuts import render,redirect
 from admin_uda.models import Handon_form,Ada_membership
 from admin_uda.registrations.fallRegistration import FallRegistration
@@ -100,7 +101,7 @@ def spring_registration(request):
     today=dt.date.today()
     greeting['convention'] = sp_obj.get_convention(today)
     if request.is_ajax and request.method=='POST':
-        spr_form=sp_obj.saveRegistration(request)
+        spr_form=sp_obj.save_registration(request)
         if spr_form == 1:
             error = 0
             msg=reg_succ_msg
@@ -251,6 +252,7 @@ def vendor_detail_print(request):
     return render(request,'vendor_detail_print.html',greeting)
 
 def link_callback(uri, rel):
+    try:
             """
             Convert HTML URIs to absolute system paths so xhtml2pdf can access those
             resources
@@ -262,24 +264,26 @@ def link_callback(uri, rel):
                     result = list(os.path.realpath(path) for path in result)
                     path=result[0]
             else:
-                    sUrl = settings.STATIC_URL        # Typically /static/
-                    sRoot = settings.STATIC_ROOT      # Typically /home/userX/project_static/
-                    mUrl = settings.MEDIA_URL         # Typically /media/
-                    mRoot = settings.MEDIA_ROOT       # Typically /home/userX/project_static/media/
+                    surl = settings.STATIC_URL        # Typically /static/
+                    sroot = settings.STATIC_ROOT      # Typically /home/userX/project_static/
+                    murl = settings.MEDIA_URL         # Typically /media/
+                    mroot = settings.MEDIA_ROOT       # Typically /home/userX/project_static/media/
 
-                    if uri.startswith(mUrl):
-                            path = os.path.join(mRoot, uri.replace(mUrl, ""))
-                    elif uri.startswith(sUrl):
-                            path = os.path.join(sRoot, uri.replace(sUrl, ""))
+                    if uri.startswith(murl):
+                            path = os.path.join(mroot, uri.replace(murl, ""))
+                    elif uri.startswith(surl):
+                            path = os.path.join(sroot, uri.replace(surl, ""))
                     else:
                             return uri
 
             # make sure that file exists
             if not os.path.isfile(path):
-                    raise Exception(
-                            'media URI must start with %s or %s' % (sUrl, mUrl)
+                    raise FileNotFoundError(
+                            'media URI must start with %s or %s' % (surl, murl)
                     )
             return path
+    except Exception as e:
+        return e
 
 def render_to_pdf(template_src, context_dict={}):
     template = get_template(template_src)

@@ -78,10 +78,8 @@ class spring_transactions():
                 select_hw+=",(SELECT COUNT(work_id_id) FROM admin_uda_handon_form_workshop WHERE hand_id_id=A.id "+group_where_hw_q+") AS ct_ids"
         
         flt_status=request.POST.get('flt_status')
-        if flt_status == "1":
+        if flt_status == "1" or flt_status == "2":
             condt+=" AND ( A.off_transaction_status = '"+flt_status+"' )"
-        elif flt_status == "2":
-           condt+=" AND ( A.off_transaction_status = '"+flt_status+"' )"
 
         result['select_ct'] = select_ct
         result['select_hw'] = select_hw
@@ -227,12 +225,7 @@ class spring_transactions():
             tran_os=datas.os
             tran_browser=datas.browser
             t_date_f = "<span class="+clname+">"+dt.datetime.strptime(str(sp_date),self.date_format_db).strftime(self.date_format)+"</span>"
-            ct_names=''
-            hw_names=''
-            if select_ct1!='':
-                ct_names="<span style='color:yellow'>"+datas.ct_names+"</span>"
-            if select_hw1!='':
-                hw_names="<span style='color:yellow'>"+datas.hw_names+"</span>"
+            
             
             
             name_data="""<div class="d-flex align-items-center">

@@ -12,7 +12,7 @@ import random
 class user_managements():
     def edit_pro_validation(self,params):
         result={}
-        if Users.objects.filter(~Q(id=id),email=params['email']).exists():
+        if Users.objects.filter(~Q(id=params['uid']),email=params['email']).exists():
             result['errmsg'] = 'Email already exist'
         elif(params['oldPassword']=='' and params['newPassword'] != ""):
             result['errmsg'] = 'Old password required to update your new password'
@@ -24,11 +24,10 @@ class user_managements():
             else:
                 result['errmsg'] = "Invalid Old password "
         else:
-            Users.objects.filter(id=id).update(
+            Users.objects.filter(id=params['uid']).update(
                 name=params['name'],
                 email=params['email'],
                 profile_img = params['image'],
-                
             )
             if(params['file_action']):
                 result['succmsg'] = "File & General details updated successfully"
