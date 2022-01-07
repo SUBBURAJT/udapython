@@ -452,7 +452,7 @@ def edit_profile(request):
         new_password = request.POST.get('new_pass')
 
         data     = Users.objects.values().get(id=uid)
-        password_check = check_password(oldPassword,data['password'])
+        password_check = check_password(old_password,data['password'])
         image = data['profile_img']
         if len(request.FILES) != 0:
             image = request.FILES['changepro']
@@ -461,8 +461,8 @@ def edit_profile(request):
         if(email!=""):
             params={
                 'email' : email,
-                'oldPassword' : oldPassword,
-                'newPassword' : newPassword,
+                'oldPassword' : old_password,
+                'newPassword' : new_password,
                 'name' : name,
                 'image' : image,
                 'file_action' : file_action,
