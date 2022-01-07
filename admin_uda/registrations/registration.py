@@ -22,35 +22,38 @@ class Registration():
     datetime_format = "%Y-%m-%d %H:%M:%S"
     datetime_format_time = "%m/%d/%Y %I:%M:%S %p"
     def link_callback(self,uri, rel):
-        """
-        Convert HTML URIs to absolute system paths so xhtml2pdf can access those
-        resources
-        """
-        result = finders.find(uri)
-        if result:
-                if not isinstance(result, (list, tuple)):
-                        result = [result]
-                result = list(os.path.realpath(path) for path in result)
-                path=result[0]
-        else:
-                surl = settings.STATIC_URL        # Typically /static/
-                sroot = settings.STATIC_ROOT      # Typically /home/userX/project_static/
-                murl = settings.MEDIA_URL         # Typically /media/
-                mroot = settings.MEDIA_ROOT       # Typically /home/userX/project_static/media/
+        try:
+            """
+            Convert HTML URIs to absolute system paths so xhtml2pdf can access those
+            resources
+            """
+            result = finders.find(uri)
+            if result:
+                    if not isinstance(result, (list, tuple)):
+                            result = [result]
+                    result = list(os.path.realpath(path) for path in result)
+                    path=result[0]
+            else:
+                    surl = settings.STATIC_URL        # Typically /static/
+                    sroot = settings.STATIC_ROOT      # Typically /home/userX/project_static/
+                    murl = settings.MEDIA_URL         # Typically /media/
+                    mroot = settings.MEDIA_ROOT       # Typically /home/userX/project_static/media/
 
-                if uri.startswith(murl):
-                        path = os.path.join(mroot, uri.replace(murl, ""))
-                elif uri.startswith(surl):
-                        path = os.path.join(sroot, uri.replace(surl, ""))
-                else:
-                        return uri
+                    if uri.startswith(murl):
+                            path = os.path.join(mroot, uri.replace(murl, ""))
+                    elif uri.startswith(surl):
+                            path = os.path.join(sroot, uri.replace(surl, ""))
+                    else:
+                            return uri
 
-        # make sure that file exists
-        if not os.path.isfile(path):
-                raise Exception(
-                        'media URI must start with %s or %s' % (surl, murl)
-                )
-        return path
+            # make sure that file exists
+            if not os.path.isfile(path):
+                    raise FileNotFoundError(
+                            'media URI must start with %s or %s' % (surl, murl)
+                    )
+            return path
+        except Exception as e:
+            return e
     
     def mail_qr_convention(self,rt,hashid,convention_ws):
         con_list = []
@@ -58,7 +61,7 @@ class Registration():
             hashids_cvid = Hashids(salt='UDAHEALTHDENTALSALT',min_length=10)
             hashid_cvid = hashids_cvid.encode(cv.id)
             if cv.id != 9:                        
-                url = 'admin/convention-id-card-print-ind.php?q={hashid}&cfw={hashid_cvid}'
+                url = 'admin/convention-id-card-print-ind.php?q={hashid}&cfw='+hashid_cvid
                 filename = cv.name.replace(' ','') + '_cfw' + str(cv.id)
                 #qrcode image
                 img=qrcode.make(url)
@@ -76,8 +79,6 @@ class Registration():
         if hand_id>0:
             hashids = Hashids(salt='UDAHEALTHDENTALSALT',min_length=10)
             hashid = hashids.encode(hand_id)
-            none_to_str=lambda a:str(a) if str(a) != 'None' else ''
-            handon_res = (Handon_form.objects.values().filter(id=hand_id,status=1)[:1])[0]
             convention_ws = Convention_form_workshop.objects.filter(is_deleted=1,hand_id=hand_id)
             # .aggregate(con_ws_ids = GroupConcat('work_id'))
             handon_ws = Handon_form_workshop.objects.filter(is_deleted=1,hand_id=hand_id)
@@ -85,18 +86,14 @@ class Registration():
             if not os.path.exists(rt+f'/uploads/mail_qrcode/'):
                 os.makedirs(rt+f'/uploads/mail_qrcode/')
             if convention_ws:
-                # convention_lists = Convention_types.objects.filter(status=1,id__in= (none_to_str(convention_ws['con_ws_ids']).split(","))).order_by('id')
-                
                 result['convention'] = self.mail_qr_convention(rt,hashid,convention_ws)
             if handon_ws:
                 workshop_lists = []
-                # workshop_lists = Handon_workshop.objects.filter(status=1,id__in= (none_to_str(handon_ws['hands_ws_ids']).split(","))).order_by('id')
-
                 for ws in handon_ws:
                     hashids_wsid = Hashids(salt='UDAHEALTHDENTALSALT',min_length=10)
                     hashid_wsid = hashids_wsid.encode(ws.id)
 
-                    url = 'admin/convention-id-card-print-ind.php?q={hashid}&hfw={hashid_wsid}'
+                    url = 'admin/convention-id-card-print-ind.php?q={hashid}&hfw='+hashid_wsid
                     filename = ws.name.replace(' ','') + '_hfw' + str(ws.id)
                     #qrcode image
                     img=qrcode.make(url)
@@ -114,7 +111,8 @@ class Registration():
         context_dict = {}
         file_name = ''
         rt = os.path.join(settings.BASE_DIR).replace("\\","/")
-        dat=convention_details_pdf.pdf_transaction_details(hand_id)
+        obj_pdf_con=convention_details_pdf()
+        dat=obj_pdf_con.pdf_transaction_details(hand_id)
 
         if dat['input']['form_status'] and dat['input']['form_status']==1:
             context_dict['title'] = 'Convention Transaction Details'
@@ -183,7 +181,6 @@ class Registration():
         if form == 1:
             thank_mess = 'Thank You ! <p style=" font-size: 14px; margin: 0; ">For  Registering. Please Find Your Registered Conventions...</p>'
             if none_to_str(handon_res['transaction_on']) != '':
-                # trans_date = dt.datetime.strptime(none_to_str(handon_res['transaction_on']),'%Y-%m-%d %H:%M:%S.%f%z').strftime('%m/%d/%Y %I:%M:%S %p')
                 trans_date = dt.datetime.strptime(none_to_str(handon_res['transaction_on'])[:19],self.datetime_format).strftime(self.datetime_format_time)
 
             transaction_section = '''<h4 style="padding-left: 20px; font-size: 20px;margin-bottom: 0;  margin-top: 0"><strong>Transaction Details</strong></h4>
@@ -268,16 +265,16 @@ class Registration():
         result = {}
         none_to_str=lambda a:str(a) if str(a) != 'None' else ''
         table = ''
-        display=''
+        display_style=''
         if cv_id == 9 :
-            display=' style="display:none;" '
+            display_style=' style="display:none;" '
         for row in subrows:
             if none_to_str(row['updated_price']) == 'NULL' or none_to_str(row['updated_price']) == '':
                 p = float(row['price'])
             else:
                 p = float(row['updated_price'])
             sub_total += p
-            table += '''<tr '''+ display +'''>
+            table += '''<tr '''+ display_style +'''>
                         <td colspan="2" style="border-bottom: 1px dashed #e3e5e8;padding:6px 0px;padding-left: 6px;">'''+ none_to_str(row['name']) +' '+none_to_str(row['email'])+'''</td><td style="border-bottom: 1px dashed #e3e5e8;">$'''+ str(p) +'''</td> 
                     </tr>'''
         result['sub_total'] = sub_total
@@ -311,13 +308,11 @@ class Registration():
            
         for cv in convention_lists:
             in_status = 0
-            in_qty = 0
             in_grand = 0
             if len(con_list) and cv.id in con_list:                            
                 subrows = Convention_form_workshop.objects.values().filter(is_deleted=1,hand_id=hand_id,work_id=cv.id)
                 if len(subrows)>0:
                     in_status = 1
-                    in_qty = len(subrows)
                     in_grand = self.mail_dy_gnd_cal(subrows,in_grand)
                     total_grand_val += in_grand
                     table += '''<tr>
@@ -366,7 +361,6 @@ class Registration():
     def get_dynamic_content_action(self,tbl_head,convention_lists,con_list,hand_id,prices_list):
         result = {}
         table = ''
-        none_to_str=lambda a:str(a) if str(a) != 'None' else ''
         total_grand_val = 0
         count_convention = len(convention_lists)
         if count_convention>0:
@@ -406,9 +400,15 @@ class Registration():
                 <tr>
                     <td style="padding:10px 0px;"></td>'''
             balance = handon_res['amount'] - (handon_res['updated_grand_amount'] if none_to_str(handon_res['updated_grand_amount']) else 0)
+            if balance > 0:
+                m="UDA to pay"
+                a=balance
+            else:
+                m="User to pay"
+                a=balance*-1
             updated_grand_amount_sec += '''
-                <td style="font-weight:600;padding:10px 0px;">'''+ 'UDA to pay' if balance>0 else 'User to pay' +'''</td>
-                <td style="font-weight:600;padding:10px 0px;">$'''+ str(balance) if balance>0 else str(balance-1) +'''</td>
+                <td style="font-weight:600;padding:10px 0px;">'''+ m +'''</td>
+                <td style="font-weight:600;padding:10px 0px;">$'''+ str(a) +'''</td>
             </tr>'''
         
         result['updated_grand_amount_sec'] = updated_grand_amount_sec
@@ -512,14 +512,14 @@ class Registration():
 
         action = 1
 
-        get_dynamic_thead_res = self.get_dynamic_thead(self,form,handon_res,grand_price)
+        get_dynamic_thead_res = self.get_dynamic_thead(form,handon_res,grand_price)
         thank_mess = get_dynamic_thead_res['thank_mess']
         transaction_section = get_dynamic_thead_res['transaction_section']
         tbl_head = get_dynamic_thead_res['tbl_head']   
 
         table = ""
         if action == 1:
-            get_dy_con_act_res = self.get_dynamic_content_action(action,tbl_head,convention_lists,con_list,hand_id,prices_list)
+            get_dy_con_act_res = self.get_dynamic_content_action(tbl_head,convention_lists,con_list,hand_id,prices_list)
         table += get_dy_con_act_res['table']
         total_grand_val = get_dy_con_act_res['total_grand_val']
         count_workshop = len(workshop_lists)
