@@ -16,11 +16,11 @@ class FallRegistration():
         return ip
 
     def get_convention(self,today):
-        conventionList = Convention_types.objects.filter(status=1,form_status=3)
+        convention_list = Convention_types.objects.filter(status=1,form_status=3)
         convention_prices = Convention_types_prices.objects.values().filter(form_status='3',start_date__lte=today,end_date__gte=today).order_by('id')[:1]
         prices_list = json.loads(convention_prices[0]['bulk_price'])
         cv_res = []
-        for con in list(conventionList):
+        for con in list(convention_list):
             cv = {}
             cv['id'] = con.id
             cv['name'] = con.name
@@ -62,9 +62,9 @@ class FallRegistration():
         form_data.save()
         last_insert_id = form_data.id
         if last_insert_id:
-            conventionType = request.POST.get('conventionType')
-            # if conventionType != '':
-            convention_list = json.loads(conventionType)
+            convention_type = request.POST.get('conventionType')
+            # if convention_type != '':
+            convention_list = json.loads(convention_type)
             if len(convention_list)>0:
                 no_wrkshop = 0
                 res = self.save_convention(last_insert_id,convention_list)
@@ -129,8 +129,8 @@ class FallRegistration():
         return result
 
     def get_convention_type(self):
-        conventionList = Convention_types.objects.filter(status=1,form_status=3)
-        return conventionList
+        convention_list = Convention_types.objects.filter(status=1,form_status=3)
+        return convention_list
     def get_convention_prices(self,today):
         convention_prices = Convention_types_prices.objects.values().filter(form_status='3',start_date__lte=today,end_date__gte=today).order_by('id')[:1]
         return convention_prices

@@ -8,16 +8,17 @@ import os
 
 class SpringRegistration():
     def get_convention_type(self):
-        conventionList= Convention_types.objects.filter(status=1, from_status=2)
-        return conventionList
+        convention_list= Convention_types.objects.filter(status=1, from_status=2)
+        return convention_list
     def get_convention_price(self,today):
         con_pric=Convention_types_prices.objects.values().filter(form_status=2,start_date__lte=today,end_date__gte=today).order_by('id')[:1]
+        return con_pric
     def get_convention(self,today):
-        conventionList=Convention_types.objects.filter(status=1,form_status=2)
+        convention_list=Convention_types.objects.filter(status=1,form_status=2)
         con_pric=Convention_types_prices.objects.values().filter(form_status=2,start_date__lte=today,end_date__gte=today).order_by('id')[:1]
         price_list=json.loads(con_pric[0]['bulk_price'])
         con_list=[]
-        for con in list(conventionList):
+        for con in list(convention_list):
             con_dis={}
             con_dis['id']=con.id
             con_dis['name']=con.name
@@ -32,8 +33,7 @@ class SpringRegistration():
         else:
             ip = request.META.get('REMOTE_ADDR')
         return ip
-    def saveRegistration(self,request):
-        error=''
+    def save_registration(self,request):
         form=Handon_form()
         form.practice_name=request.POST.get('practice_name')
         form.name=request.POST.get('name')
@@ -67,8 +67,8 @@ class SpringRegistration():
         form.save()
         last_insert_id=form.id 
         if last_insert_id:
-            conventionType = request.POST.get('conventionType')
-            convention_list = json.loads(conventionType)
+            convention_type = request.POST.get('conventionType')
+            convention_list = json.loads(convention_type)
             if convention_list != [] and len(convention_list)>0:
                 no_wrkshop = 0
                 res = self.save_convention(last_insert_id,convention_list)
